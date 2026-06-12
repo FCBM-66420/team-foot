@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="theme-color" content="#1a73e8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Team-Foot">
+    <title>Team-Foot - Votre équipe de foot</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Écran de chargement -->
+        <div id="splashScreen" class="splash-screen">
+            <div class="splash-content">
+                <div class="splash-icon">⚽</div>
+                <h1>Team-Foot</h1>
+                <p>Votre équipe en poche</p>
+                <div class="loader"></div>
+            </div>
+        </div>
+
+        <!-- Écran de connexion -->
+        <div id="loginScreen" class="screen hidden">
+            <div class="login-header">
+                <div class="login-icon">⚽</div>
+                <h2>Team-Foot</h2>
+                <p class="login-subtitle">Connectez-vous à votre équipe</p>
+            </div>
+
+            <div class="login-methods">
+                <button class="login-method-btn" onclick="showJoinTeam()">
+                    <span class="method-icon">🎮</span>
+                    <div class="method-text">
+                        <strong>Je suis joueur</strong>
+                        <small>Rejoindre une équipe</small>
+                    </div>
+                    <span class="chevron">›</span>
+                </button>
+
+                <button class="login-method-btn" onclick="showCoachLogin()">
+                    <span class="method-icon">👥</span>
+                    <div class="method-text">
+                        <strong>Je suis coach</strong>
+                        <small>Gérer mon équipe</small>
+                    </div>
+                    <span class="chevron">›</span>
+                </button>
+
+                <button class="login-method-btn" onclick="showAdminLogin()">
+                    <span class="method-icon">👑</span>
+                    <div class="method-text">
+                        <strong>Administrateur</strong>
+                        <small>Accès super admin</small>
+                    </div>
+                    <span class="chevron">›</span>
+                </button>
+            </div>
+
+            <!-- Formulaire joueur -->
+            <div id="playerJoinForm" class="login-form hidden">
+                <div class="form-card">
+                    <div class="form-header">
+                        <button class="back-btn" onclick="hideAllForms()">←</button>
+                        <h3>Rejoindre une équipe</h3>
+                    </div>
+                    <input type="text" id="playerTeamCode" placeholder="Code de l'équipe" class="mobile-input">
+                    <input type="text" id="playerName" placeholder="Votre nom et prénom" class="mobile-input">
+                    <button class="btn-primary btn-block" onclick="requestToJoin()">Envoyer ma demande</button>
+                </div>
+            </div>
+
+            <!-- Formulaire coach -->
+            <div id="coachLoginForm" class="login-form hidden">
+                <div class="form-card">
+                    <div class="form-header">
+                        <button class="back-btn" onclick="hideAllForms()">←</button>
+                        <h3>Connexion coach</h3>
+                    </div>
+                    <input type="text" id="coachTeamCode" placeholder="Code équipe" class="mobile-input">
+                    <input type="password" id="coachPassword" placeholder="Mot de passe" class="mobile-input">
+                    <button class="btn-primary btn-block" onclick="loginAsCoach()">Se connecter</button>
+                    <button class="btn-secondary btn-block" onclick="showCreateTeam()">➕ Créer une équipe</button>
+                </div>
+            </div>
+
+            <!-- Création équipe -->
+            <div id="createTeamForm" class="login-form hidden">
+                <div class="form-card">
+                    <div class="form-header">
+                        <button class="back-btn" onclick="showCoachLogin()">←</button>
+                        <h3>Nouvelle équipe</h3>
+                    </div>
+                    <input type="text" id="newTeamName" placeholder="Nom de l'équipe" class="mobile-input">
+                    <input type="text" id="newTeamCode" placeholder="Code unique (ex: TIGERS24)" class="mobile-input">
+                    <input type="password" id="newCoachPassword" placeholder="Mot de passe coach" class="mobile-input">
+                    <button class="btn-primary btn-block" onclick="createTeam()">Créer l'équipe</button>
+                </div>
+            </div>
+
+            <!-- Admin login -->
+            <div id="adminLoginForm" class="login-form hidden">
+                <div class="form-card">
+                    <div class="form-header">
+                        <button class="back-btn" onclick="hideAllForms()">←</button>
+                        <h3>Accès administrateur</h3>
+                    </div>
+                    <input type="password" id="adminCode" placeholder="Code admin" class="mobile-input">
+                    <button class="btn-primary btn-block" onclick="loginAsAdmin()">Se connecter</button>
+                    <p class="admin-hint">Code par défaut : <strong>admin123</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interface principale -->
+        <div id="mainApp" class="screen hidden">
+            <!-- Header -->
+            <div class="app-header">
+                <div class="header-top">
+                    <div class="team-info">
+                        <div class="team-avatar" id="teamAvatar">⚽</div>
+                        <div>
+                            <h3 id="teamName">Team-Foot</h3>
+                            <span class="user-role" id="userRoleLabel">Joueur</span>
+                        </div>
+                    </div>
+                    <button class="icon-btn" id="logoutBtnMain">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="welcome-message" id="welcomeMessage">Bonjour 👋</div>
+            </div>
+
+            <!-- Contenu principal -->
+            <div class="main-content" id="mainContent">
+                <!-- Vue Événements -->
+                <div id="eventsView" class="view active">
+                    <div id="fabButton" style="display: none;">
+                        <button class="fab" onclick="showCreateEventModal()">
+                            <span class="fab-icon">+</span>
+                        </button>
+                    </div>
+                    <div id="eventsList" class="events-container">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <p>Chargement...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vue Vestiaire (Messages) -->
+                <div id="messagesView" class="view hidden">
+                    <div class="messages-container-mobile">
+                        <div id="messagesList" class="messages-list-mobile">
+                            <div class="loading-spinner">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                        <div class="message-input-container">
+                            <textarea id="messageInput" placeholder="Message..." rows="1"></textarea>
+                            <button id="sendMessageBtn" class="send-btn">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vue Équipe -->
+                <div id="teamView" class="view hidden">
+                    <div class="team-stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="playerCount">0</div>
+                            <div class="stat-label">Joueurs</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="eventCount">0</div>
+                            <div class="stat-label">Événements</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="responseRate">0%</div>
+                            <div class="stat-label">Taux de réponse</div>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <h4>👥 Joueurs</h4>
+                        <span class="badge" id="playersBadge"></span>
+                    </div>
+                    <div id="playersList" class="players-grid"></div>
+
+                    <div id="pendingRequestsCard" class="pending-card hidden">
+                        <div class="section-header">
+                            <h4>⏳ Demandes en attente</h4>
+                        </div>
+                        <div id="requestsList"></div>
+                    </div>
+
+                    <div id="coachActionsCard" class="coach-actions-card hidden">
+                        <h4>📢 Actions coach</h4>
+                        <select id="eventSelector" class="mobile-select">
+                            <option value="">Choisir un événement</option>
+                        </select>
+                        <button class="btn-warning btn-block" onclick="notifyNonResponders()">
+                            ⏰ Relancer les non-répondants
+                        </button>
+                        <button class="btn-primary btn-block" onclick="showCreateEventModal()" style="margin-top: 12px;">
+                            ➕ Créer un événement
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Vue Admin -->
+                <div id="adminView" class="view hidden">
+                    <div class="section-header">
+                        <h4>🌍 Toutes les équipes</h4>
+                    </div>
+                    <div id="allTeamsList" class="teams-list-mobile"></div>
+                    
+                    <div class="admin-actions">
+                        <button class="btn-primary btn-block" onclick="showCreateTeamModal()">
+                            ➕ Créer une nouvelle équipe
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+                <button class="nav-item active" data-view="events">
+                    <span class="nav-icon">🏆</span>
+                    <span class="nav-label">Matchs</span>
+                </button>
+                <button class="nav-item" data-view="messages">
+                    <span class="nav-icon">💬</span>
+                    <span class="nav-label">Vestiaire</span>
+                    <span id="messageBadge" class="nav-badge hidden">0</span>
+                </button>
+                <button class="nav-item" data-view="team">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-label">Équipe</span>
+                </button>
+                <button class="nav-item" data-view="admin" id="adminNavBtn" style="display: none;">
+                    <span class="nav-icon">👑</span>
+                    <span class="nav-label">Admin</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal création événement -->
+    <div id="eventModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📅 Nouvel événement</h3>
+                <button class="close-modal" onclick="closeEventModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <select id="modalEventType" class="mobile-input">
+                    <option value="match_amical">⚽ Match amical</option>
+                    <option value="coupe">🏆 Coupe</option>
+                    <option value="tournoi">🎯 Tournoi</option>
+                    <option value="match_officiel">📋 Match officiel</option>
+                    <option value="entrainement">🏋️ Entraînement</option>
+                </select>
+                <input type="text" id="modalEventTitle" placeholder="Adversaire / Titre" class="mobile-input">
+                <input type="datetime-local" id="modalMatchDateTime" class="mobile-input">
+                <input type="datetime-local" id="modalCallTime" class="mobile-input">
+                <input type="text" id="modalLocation" placeholder="Lieu" class="mobile-input">
+                <textarea id="modalNotes" placeholder="Notes (tenue, matériel...)" rows="2" class="mobile-input"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeEventModal()">Annuler</button>
+                <button class="btn-primary" onclick="createEventFromModal()">Créer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
