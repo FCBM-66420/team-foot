@@ -3,25 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <meta name="theme-color" content="#667eea">
-    <title>Team-Foot | Gestion d'équipe</title>
+    <meta name="theme-color" content="#0055a4">
+    <title>FC Barcarès Méditerranée | Gestion d'équipe</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f4f8; }
+        
+        /* Couleurs du club : Bleu mer (#0055a4) et Jaune sable (#FFD700) */
+        :root {
+            --bleu-mer: #0055a4;
+            --bleu-mer-clair: #0066c4;
+            --bleu-mer-fonce: #003d7a;
+            --jaune-sable: #FFD700;
+            --jaune-sable-dore: #e6b800;
+            --sable-clair: #FFF8E7;
+        }
         
         /* Écran de connexion */
         .screen { min-height: 100vh; }
         .screen.hidden { display: none; }
         
         .login-hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--bleu-mer) 0%, var(--bleu-mer-clair) 50%, var(--jaune-sable) 100%);
             padding: 60px 24px 80px;
             text-align: center;
             color: white;
+            position: relative;
+            overflow: hidden;
         }
-        .hero-icon { font-size: 80px; margin-bottom: 16px; }
-        .login-hero h1 { font-size: 36px; }
-        .login-hero p { opacity: 0.9; margin-top: 8px; }
+        .login-hero::before {
+            content: "🌊";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            font-size: 60px;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+        .hero-icon { font-size: 80px; margin-bottom: 16px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .login-hero h1 { font-size: 32px; letter-spacing: 1px; }
+        .login-hero p { opacity: 0.95; margin-top: 8px; font-size: 14px; }
         
         .login-options { padding: 24px; display: flex; flex-direction: column; gap: 12px; margin-top: -40px; }
         .login-card {
@@ -33,13 +55,15 @@
             align-items: center;
             gap: 16px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,85,164,0.15);
             width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
+        .login-card:active { transform: scale(0.98); }
         .card-icon { font-size: 36px; }
-        .login-card h3 { font-size: 16px; color: #1f2937; }
+        .login-card h3 { font-size: 16px; color: var(--bleu-mer); }
         .login-card small { font-size: 12px; color: #6b7280; }
-        .arrow { margin-left: auto; font-size: 24px; color: #9ca3af; }
+        .arrow { margin-left: auto; font-size: 24px; color: var(--jaune-sable); }
         
         .login-form-panel {
             position: fixed;
@@ -54,21 +78,23 @@
         }
         .login-form-panel.hidden { display: none; }
         .form-header { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; }
-        .back-icon { background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; }
-        .team-input { width: 100%; padding: 14px 16px; border: 1px solid #e5e7eb; border-radius: 14px; font-size: 16px; margin-bottom: 16px; }
-        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 14px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; }
-        .btn-secondary { background: #f3f4f6; color: #1f2937; border: none; padding: 14px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 12px; }
-        .btn-danger { background: #ef4444; color: white; border: none; padding: 12px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 12px; }
+        .back-icon { background: var(--sable-clair); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; color: var(--bleu-mer); }
+        .team-input { width: 100%; padding: 14px 16px; border: 1px solid #e5e7eb; border-radius: 14px; font-size: 16px; margin-bottom: 16px; transition: 0.2s; }
+        .team-input:focus { outline: none; border-color: var(--bleu-mer); box-shadow: 0 0 0 3px rgba(0,85,164,0.1); }
+        .btn-primary { background: linear-gradient(135deg, var(--bleu-mer), var(--bleu-mer-clair)); color: white; border: none; padding: 14px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; transition: 0.2s; }
+        .btn-primary:active { transform: scale(0.98); background: var(--bleu-mer-fonce); }
+        .btn-secondary { background: linear-gradient(135deg, var(--jaune-sable), var(--jaune-sable-dore)); color: var(--bleu-mer); border: none; padding: 14px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 12px; }
         .form-hint { font-size: 12px; color: #9ca3af; text-align: center; margin-top: 16px; }
         
         /* Interface principale */
-        .app-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; color: white; }
-        .header-content { display: flex; justify-content: space-between; align-items: center; }
+        .app-header { background: linear-gradient(135deg, var(--bleu-mer) 0%, var(--bleu-mer-clair) 70%, var(--jaune-sable) 100%); padding: 20px; color: white; position: relative; overflow: hidden; }
+        .app-header::after { content: "⚓"; position: absolute; bottom: 5px; right: 15px; font-size: 40px; opacity: 0.1; pointer-events: none; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
         .team-badge { display: flex; align-items: center; gap: 12px; }
         .badge-icon { width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
         .logout-icon { background: rgba(255,255,255,0.2); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; color: white; }
         .switch-account-btn { background: rgba(255,255,255,0.15); border: none; padding: 8px 16px; border-radius: 40px; color: white; font-size: 12px; cursor: pointer; margin-left: 12px; }
-        .welcome-banner { padding: 8px 20px 20px; font-size: 24px; font-weight: 600; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .welcome-banner { padding: 8px 20px 20px; font-size: 24px; font-weight: 600; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; position: relative; z-index: 1; }
         
         .bottom-nav {
             display: flex;
@@ -79,7 +105,7 @@
             left: 0;
             right: 0;
             gap: 4px;
-            border-top: 1px solid #e5e7eb;
+            border-top: 2px solid var(--jaune-sable);
             z-index: 100;
             overflow-x: auto;
         }
@@ -94,38 +120,48 @@
             padding: 8px;
             cursor: pointer;
             min-width: 60px;
+            border-radius: 12px;
+            transition: 0.2s;
         }
-        .nav-icon { font-size: 22px; color: #9ca3af; }
+        .nav-icon { font-size: 22px; color: #9ca3af; transition: 0.2s; }
         .nav-btn span:not(.nav-icon) { font-size: 11px; color: #9ca3af; }
-        .nav-btn.active .nav-icon { color: #667eea; }
-        .nav-btn.active span:not(.nav-icon) { color: #667eea; }
+        .nav-btn.active { background: var(--sable-clair); }
+        .nav-btn.active .nav-icon { color: var(--bleu-mer); }
+        .nav-btn.active span:not(.nav-icon) { color: var(--bleu-mer); font-weight: 500; }
         
         .main-content { padding: 20px 16px 80px; }
-        .tab-pane { display: none; }
+        .tab-pane { display: none; animation: fadeIn 0.3s ease; }
         .tab-pane.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .stats-grid { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-        .stat-card { flex: 1; background: white; padding: 16px; border-radius: 20px; text-align: center; min-width: 100px; }
-        .stat-value { font-size: 28px; font-weight: 700; color: #667eea; }
+        .stat-card { flex: 1; background: white; padding: 16px; border-radius: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-bottom: 3px solid var(--jaune-sable); }
+        .stat-value { font-size: 28px; font-weight: 700; color: var(--bleu-mer); }
         .stat-label { font-size: 11px; color: #6b7280; margin-top: 4px; }
         
-        .dashboard-card { background: white; border-radius: 20px; padding: 16px; margin-bottom: 16px; }
-        .dashboard-card h3 { font-size: 16px; margin-bottom: 12px; }
+        .dashboard-card { background: white; border-radius: 20px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .dashboard-card h3 { font-size: 16px; margin-bottom: 12px; color: var(--bleu-mer); border-left: 4px solid var(--jaune-sable); padding-left: 10px; }
         
         .empty-state { text-align: center; padding: 40px; color: #9ca3af; }
         .empty-icon { font-size: 48px; margin-bottom: 12px; }
         
-        .toast { position: fixed; bottom: 80px; left: 20px; right: 20px; background: #1f2937; color: white; padding: 12px; border-radius: 60px; text-align: center; z-index: 400; }
+        .toast { position: fixed; bottom: 80px; left: 20px; right: 20px; background: var(--bleu-mer); color: white; padding: 12px; border-radius: 60px; text-align: center; z-index: 400; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .toast.hidden { display: none; }
         
-        .child-selector { background: white; border-radius: 16px; padding: 12px; margin-bottom: 16px; display: flex; gap: 10px; overflow-x: auto; }
-        .child-btn { background: #f3f4f6; border: none; padding: 8px 16px; border-radius: 40px; cursor: pointer; }
-        .child-btn.active { background: #667eea; color: white; }
+        .event-card { background: white; border-radius: 20px; padding: 16px; margin-bottom: 12px; border-left: 4px solid var(--jaune-sable); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .event-header { display: flex; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+        .event-title { font-weight: 700; color: var(--bleu-mer); }
+        .event-badge { font-size: 11px; padding: 4px 8px; background: var(--sable-clair); border-radius: 20px; color: var(--bleu-mer); }
         
-        .event-card { background: white; border-radius: 20px; padding: 16px; margin-bottom: 12px; }
-        .event-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
-        .event-title { font-weight: 700; }
-        .event-badge { font-size: 11px; padding: 4px 8px; background: #f3f4f6; border-radius: 20px; }
+        .member-card { background: white; border-radius: 16px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--jaune-sable); }
+        
+        .btn-add { background: linear-gradient(135deg, var(--bleu-mer), var(--bleu-mer-clair)); border: none; width: 44px; height: 44px; border-radius: 50%; font-size: 24px; color: white; cursor: pointer; box-shadow: 0 4px 12px rgba(0,85,164,0.3); }
+        
+        .reminder-btn { background: var(--sable-clair); border: none; padding: 8px 12px; border-radius: 30px; font-size: 11px; cursor: pointer; color: var(--bleu-mer); margin: 4px; }
+        .reminder-btn:active { background: var(--jaune-sable); }
+        
+        footer { text-align: center; padding: 12px; font-size: 10px; color: #9ca3af; background: white; margin-top: 20px; border-radius: 16px; }
+        .club-name { color: var(--bleu-mer); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -133,9 +169,9 @@
     <!-- Écran de connexion -->
     <div id="loginScreen" class="screen">
         <div class="login-hero">
-            <div class="hero-icon">⚽</div>
-            <h1>Team-Foot</h1>
-            <p>La gestion d'équipe simple et efficace</p>
+            <div class="hero-icon">⚽🌊</div>
+            <h1>FC Barcarès<br>Méditerranée</h1>
+            <p>Bleu mer • Jaune sable</p>
         </div>
         <div class="login-options">
             <button class="login-card" onclick="showPlayerLogin()">
@@ -154,11 +190,11 @@
 
         <div id="playerLoginForm" class="login-form-panel hidden">
             <div class="form-header"><button class="back-icon" onclick="hideAllForms()">←</button><h3>Accès joueur/parent</h3></div>
-            <input type="text" id="playerTeamCode" placeholder="Code équipe (ex: TIGERS24)" class="team-input">
+            <input type="text" id="playerTeamCode" placeholder="Code équipe (ex: FCBM24)" class="team-input">
             <input type="text" id="playerName" placeholder="Votre nom (parent)" class="team-input">
             <input type="text" id="childName" placeholder="Nom du joueur (enfant)" class="team-input">
             <button class="btn-primary" onclick="loginAsPlayer()">Se connecter / Demander</button>
-            <p class="form-hint">Si votre enfant joue dans plusieurs équipes, connectez-vous séparément pour chaque équipe</p>
+            <p class="form-hint">🌊 FC Barcarès Méditerranée - Famille, Mer, Passion</p>
         </div>
 
         <div id="coachLoginForm" class="login-form-panel hidden">
@@ -179,7 +215,7 @@
         <div id="createTeamForm" class="login-form-panel hidden">
             <div class="form-header"><button class="back-icon" onclick="showCoachLogin()">←</button><h3>Nouvelle équipe</h3></div>
             <input type="text" id="newTeamName" placeholder="Nom de l'équipe" class="team-input">
-            <input type="text" id="newTeamCode" placeholder="Code unique (ex: TIGERS24)" class="team-input">
+            <input type="text" id="newTeamCode" placeholder="Code unique (ex: FCBM24)" class="team-input">
             <input type="password" id="newCoachPassword" placeholder="Mot de passe coach" class="team-input">
             <button class="btn-primary" onclick="createTeam()">Créer l'équipe</button>
         </div>
@@ -192,16 +228,16 @@
                 <div class="team-badge">
                     <div class="badge-icon" id="headerIcon">⚽</div>
                     <div>
-                        <h2 id="headerTeamName">Team-Foot</h2>
+                        <h2 id="headerTeamName">FC Barcarès Méditerranée</h2>
                         <span id="headerRole" style="font-size:12px">Joueur</span>
                     </div>
                 </div>
                 <div>
-                    <button class="switch-account-btn" onclick="switchAccount()">🔄 Changer de compte</button>
+                    <button class="switch-account-btn" onclick="switchAccount()">🔄 Changer</button>
                     <button class="logout-icon" onclick="logout()">↗</button>
                 </div>
             </div>
-            <div class="welcome-banner"><span>👋</span><span id="welcomeText">Bonjour</span></div>
+            <div class="welcome-banner"><span>🌊</span><span id="welcomeText">Bonjour</span><span>🏖️</span></div>
         </div>
 
         <div class="bottom-nav">
@@ -222,45 +258,50 @@
                 </div>
                 <div class="dashboard-card"><h3>📅 Prochains matchs</h3><div id="upcomingMatches"></div></div>
                 <div class="dashboard-card"><h3>🎉 Prochains événements</h3><div id="upcomingEvents"></div></div>
+                <footer>⚽ FC Barcarès Méditerranée - Bleu mer, Jaune sable 🌊🏖️</footer>
             </div>
 
             <!-- Matchs -->
             <div id="matchesTab" class="tab-pane hidden">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
-                    <h3>🏆 Matchs</h3>
-                    <button id="addMatchBtn" style="background:#667eea; border:none; width:44px; height:44px; border-radius:50%; font-size:24px; color:white; display:none" onclick="showMatchModal()">+</button>
+                    <h3 style="color:var(--bleu-mer)">🏆 Matchs</h3>
+                    <button id="addMatchBtn" class="btn-add" style="display:none" onclick="showMatchModal()">+</button>
                 </div>
                 <div id="matchesList"></div>
             </div>
 
-            <!-- Événements (hors matchs) -->
+            <!-- Événements -->
             <div id="eventsTab" class="tab-pane hidden">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
-                    <h3>📅 Événements</h3>
-                    <button id="addEventBtn" style="background:#667eea; border:none; width:44px; height:44px; border-radius:50%; font-size:24px; color:white; display:none" onclick="showOtherEventModal()">+</button>
+                    <h3 style="color:var(--bleu-mer)">📅 Événements</h3>
+                    <button id="addEventBtn" class="btn-add" style="display:none" onclick="showOtherEventModal()">+</button>
                 </div>
                 <div id="otherEventsList"></div>
             </div>
 
             <!-- Équipe -->
             <div id="teamTab" class="tab-pane hidden">
-                <h3>👥 Membres</h3>
+                <h3 style="color:var(--bleu-mer)">👥 Membres</h3>
                 <div id="teamMembersList"></div>
                 <div id="pendingRequestsCard" style="margin-top:20px; background:white; border-radius:20px; padding:16px; display:none">
-                    <h3>⏳ Demandes en attente</h3>
+                    <h3 style="color:var(--bleu-mer)">⏳ Demandes en attente</h3>
                     <div id="pendingRequestsList"></div>
+                </div>
+                <div id="remindersCard" style="margin-top:20px; background:white; border-radius:20px; padding:16px">
+                    <h3 style="color:var(--bleu-mer)">⏰ Rappels programmés</h3>
+                    <div id="activeReminders"></div>
                 </div>
             </div>
 
             <!-- Admin -->
             <div id="adminTab" class="tab-pane hidden">
-                <h3>🌍 Administration</h3>
+                <h3 style="color:var(--bleu-mer)">🌍 Administration FC Barcarès</h3>
                 <div style="margin-bottom:20px">
-                    <button class="btn-primary" onclick="showMatchModal()" style="margin-bottom:10px">➕ Ajouter un match (toutes équipes)</button>
-                    <button class="btn-primary" onclick="showOtherEventModal()" style="margin-bottom:10px">📅 Ajouter un événement (toutes équipes)</button>
+                    <button class="btn-primary" onclick="showMatchModal()" style="margin-bottom:10px">➕ Ajouter un match</button>
+                    <button class="btn-primary" onclick="showOtherEventModal()" style="margin-bottom:10px">📅 Ajouter un événement</button>
                     <button class="btn-secondary" onclick="showGlobalMessage()">📢 Message à TOUTES les équipes</button>
                 </div>
-                <h4 style="margin:20px 0 10px">Liste des équipes</h4>
+                <h4 style="margin:20px 0 10px; color:var(--bleu-mer)">Liste des équipes</h4>
                 <div id="allTeamsList"></div>
             </div>
         </div>
@@ -270,31 +311,31 @@
 <!-- Modal Match -->
 <div id="matchModal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:flex-end; z-index:300; display:none">
     <div style="background:white; border-radius:28px 28px 0 0; width:100%; max-height:85vh; overflow-y:auto">
-        <div style="display:flex; justify-content:space-between; padding:20px; border-bottom:1px solid #e5e7eb"><h3>➕ Nouveau match</h3><button onclick="closeMatchModal()" style="background:none; border:none; font-size:24px">✕</button></div>
+        <div style="display:flex; justify-content:space-between; padding:20px; border-bottom:1px solid #e5e7eb"><h3 style="color:var(--bleu-mer)">⚽ Nouveau match</h3><button onclick="closeMatchModal()" style="background:none; border:none; font-size:24px">✕</button></div>
         <div style="padding:20px">
             <select id="matchType" style="width:100%; padding:12px; margin-bottom:12px; border-radius:14px; border:1px solid #e5e7eb">
-                <option value="match_amical">⚽ Match amical</option><option value="coupe">🏆 Coupe</option><option value="match_officiel">📋 Match officiel</option>
+                <option value="match_amical">⚽ Match amical</option><option value="coupe">🏆 Coupe</option><option value="match_officiel">📋 Championnat</option>
             </select>
             <input type="text" id="matchTitle" placeholder="Adversaire" style="width:100%; padding:12px; margin-bottom:12px; border-radius:14px; border:1px solid #e5e7eb">
             <input type="datetime-local" id="matchDate" style="width:100%; padding:12px; margin-bottom:12px; border-radius:14px; border:1px solid #e5e7eb">
             <input type="datetime-local" id="matchCallTime" style="width:100%; padding:12px; margin-bottom:12px; border-radius:14px; border:1px solid #e5e7eb">
-            <input type="text" id="matchLocation" placeholder="Lieu" style="width:100%; padding:12px; margin-bottom:12px; border-radius:14px; border:1px solid #e5e7eb">
-            <textarea id="matchNotes" placeholder="Notes" rows="2" style="width:100%; padding:12px; border-radius:14px; border:1px solid #e5e7eb"></textarea>
+            <input type="text" id="matchLocation" placeholder="Lieu (stade, terrain)" style="width:100%; padding:12px; margin-bottom:12px; border-radius:14px; border:1px solid #e5e7eb">
+            <textarea id="matchNotes" placeholder="Notes (tenue, horaires...)" rows="2" style="width:100%; padding:12px; border-radius:14px; border:1px solid #e5e7eb"></textarea>
         </div>
         <div style="padding:20px; display:flex; gap:12px; border-top:1px solid #e5e7eb">
             <button onclick="closeMatchModal()" style="flex:1; padding:14px; background:#f3f4f6; border:none; border-radius:40px">Annuler</button>
-            <button onclick="createMatch()" style="flex:1; padding:14px; background:#667eea; color:white; border:none; border-radius:40px">Créer</button>
+            <button onclick="createMatch()" style="flex:1; padding:14px; background:linear-gradient(135deg, #0055a4, #0066c4); color:white; border:none; border-radius:40px">Créer</button>
         </div>
     </div>
 </div>
 
-<!-- Modal Événement (hors match) -->
+<!-- Modal Événement -->
 <div id="otherEventModal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:flex-end; z-index:300; display:none">
     <div style="background:white; border-radius:28px 28px 0 0; width:100%; max-height:85vh; overflow-y:auto">
-        <div style="display:flex; justify-content:space-between; padding:20px; border-bottom:1px solid #e5e7eb"><h3>📅 Nouvel événement</h3><button onclick="closeOtherEventModal()" style="background:none; border:none; font-size:24px">✕</button></div>
+        <div style="display:flex; justify-content:space-between; padding:20px; border-bottom:1px solid #e5e7eb"><h3 style="color:var(--bleu-mer)">📅 Événement</h3><button onclick="closeOtherEventModal()" style="background:none; border:none; font-size:24px">✕</button></div>
         <div style="padding:20px">
             <select id="otherEventType" style="width:100%; padding:12px; margin-bottom:12px; border-radius:14px; border:1px solid #e5e7eb">
-                <option value="entrainement">🏋️ Entraînement</option><option value="soiree">🎉 Soirée d'équipe</option><option value="reunion">📋 Réunion</option><option value="autre">📌 Autre</option>
+                <option value="entrainement">🏋️ Entraînement</option><option value="soiree">🎉 Soirée d'équipe</option><option value="reunion">📋 Réunion parents</option><option value="tournoi">🏆 Tournoi</option>
             </select>
             <input type="text" id="otherEventTitle" placeholder="Titre" style="width:100%; padding:12px; margin-bottom:12px; border-radius:14px; border:1px solid #e5e7eb">
             <input type="datetime-local" id="otherEventDate" style="width:100%; padding:12px; margin-bottom:12px; border-radius:14px; border:1px solid #e5e7eb">
@@ -303,7 +344,7 @@
         </div>
         <div style="padding:20px; display:flex; gap:12px; border-top:1px solid #e5e7eb">
             <button onclick="closeOtherEventModal()" style="flex:1; padding:14px; background:#f3f4f6; border:none; border-radius:40px">Annuler</button>
-            <button onclick="createOtherEvent()" style="flex:1; padding:14px; background:#667eea; color:white; border:none; border-radius:40px">Créer</button>
+            <button onclick="createOtherEvent()" style="flex:1; padding:14px; background:linear-gradient(135deg, #0055a4, #0066c4); color:white; border:none; border-radius:40px">Créer</button>
         </div>
     </div>
 </div>
@@ -311,9 +352,9 @@
 <!-- Modal message global -->
 <div id="globalMsgModal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:flex-end; z-index:300; display:none">
     <div style="background:white; border-radius:28px 28px 0 0; width:100%">
-        <div style="padding:20px; border-bottom:1px solid #e5e7eb"><h3>📢 Message à toutes les équipes</h3></div>
+        <div style="padding:20px; border-bottom:1px solid #e5e7eb"><h3 style="color:var(--bleu-mer)">📢 Message à toutes les équipes</h3></div>
         <div style="padding:20px"><textarea id="globalMsgText" rows="4" style="width:100%; padding:12px; border-radius:14px; border:1px solid #e5e7eb" placeholder="Votre message..."></textarea></div>
-        <div style="padding:20px; display:flex; gap:12px"><button onclick="closeGlobalMsg()" style="flex:1; padding:14px; background:#f3f4f6; border:none; border-radius:40px">Annuler</button><button onclick="sendGlobalMessage()" style="flex:1; padding:14px; background:#667eea; color:white; border:none; border-radius:40px">Envoyer</button></div>
+        <div style="padding:20px; display:flex; gap:12px"><button onclick="closeGlobalMsg()" style="flex:1; padding:14px; background:#f3f4f6; border:none; border-radius:40px">Annuler</button><button onclick="sendGlobalMessage()" style="flex:1; padding:14px; background:linear-gradient(135deg, #0055a4, #0066c4); color:white; border:none; border-radius:40px">Envoyer</button></div>
     </div>
 </div>
 
@@ -328,13 +369,14 @@ function loadData() {
     if (saved) { appData = JSON.parse(saved); }
     else {
         appData.teams = { 
-            "TIGERS24": { 
-                name: "Tigres FC", 
-                coachPassword: "coach123", 
+            "FCBM24": { 
+                name: "FC Barcarès Méditerranée", 
+                coachPassword: "fcbm2024", 
                 players: {}, 
                 matches: [], 
                 otherEvents: [],
-                messages: [] 
+                messages: [],
+                reminders: []
             } 
         };
         saveData();
@@ -346,9 +388,9 @@ function saveData() { localStorage.setItem('teamfoot_data', JSON.stringify(appDa
 function saveSession() { localStorage.setItem('teamfoot_session', JSON.stringify(appData.currentUser)); }
 function showToast(msg) { let t = document.getElementById('toast'); t.textContent = msg; t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 2500); }
 
-// ============ CHANGER DE COMPTE ==========
+// ============ DÉCONNEXION (CORRIGÉE) ==========
 function switchAccount() {
-    if (confirm("Changer de compte ? Vous serez déconnecté.")) {
+    if (confirm("🔄 Changer de compte ? Vous serez déconnecté.")) {
         logout();
     }
 }
@@ -356,15 +398,34 @@ function switchAccount() {
 function logout() {
     appData.currentUser = null;
     localStorage.removeItem('teamfoot_session');
-    location.reload();
+    
+    // Cacher l'interface principale
+    document.getElementById('mainApp').classList.add('hidden');
+    
+    // Réinitialiser tous les formulaires
+    const inputs = ['playerTeamCode', 'playerName', 'childName', 'coachTeamCode', 'coachPassword', 'adminCode', 'newTeamName', 'newTeamCode', 'newCoachPassword'];
+    inputs.forEach(id => { let el = document.getElementById(id); if(el) el.value = ''; });
+    
+    // Cacher tous les sous-formulaires
+    hideAllForms();
+    
+    // Afficher l'écran de connexion
+    document.getElementById('loginScreen').classList.remove('hidden');
+    
+    // Réinitialiser la navigation
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    const firstNav = document.querySelector('.nav-btn[data-tab="dashboard"]');
+    if(firstNav) firstNav.classList.add('active');
+    document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+    const dashboardPane = document.getElementById('dashboardTab');
+    if(dashboardPane) dashboardPane.classList.add('active');
+    
+    showToast('🌊 Déconnecté. Allez FC Barcarès !');
 }
 
-// ============ CONNEXION ==========
 function hideAllForms() {
-    document.getElementById('playerLoginForm').classList.add('hidden');
-    document.getElementById('coachLoginForm').classList.add('hidden');
-    document.getElementById('adminLoginForm').classList.add('hidden');
-    document.getElementById('createTeamForm').classList.add('hidden');
+    const forms = ['playerLoginForm', 'coachLoginForm', 'adminLoginForm', 'createTeamForm'];
+    forms.forEach(id => { let el = document.getElementById(id); if(el) el.classList.add('hidden'); });
 }
 function showPlayerLogin() { hideAllForms(); document.getElementById('playerLoginForm').classList.remove('hidden'); }
 function showCoachLogin() { hideAllForms(); document.getElementById('coachLoginForm').classList.remove('hidden'); }
@@ -376,7 +437,7 @@ function loginAsAdmin() {
         appData.currentUser = { role: 'admin' };
         saveData(); saveSession();
         showMainApp();
-        showToast('Bienvenue Administrateur');
+        showToast('👑 Bienvenue Administrateur FC Barcarès');
     } else showToast('Code incorrect');
 }
 
@@ -387,7 +448,7 @@ function loginAsCoach() {
         appData.currentUser = { role: 'coach', teamCode: code };
         saveData(); saveSession();
         showMainApp();
-        showToast(`Bienvenue coach de ${appData.teams[code].name}`);
+        showToast(`👥 Bienvenue coach de ${appData.teams[code].name}`);
     } else showToast('Code ou mot de passe incorrect');
 }
 
@@ -410,7 +471,7 @@ function loginAsPlayer() {
     appData.currentUser = { role: 'player', teamCode: code, playerId: player.id, parentName: parentName, childName: childName, pendingApproval: player.pendingApproval };
     saveSession();
     showMainApp();
-    showToast(player.pendingApproval ? 'Demande envoyée, en attente validation coach' : `Bienvenue ${parentName} (${childName})`);
+    showToast(player.pendingApproval ? '✅ Demande envoyée, en attente validation coach' : `🌊 Bienvenue ${parentName} (${childName})`);
 }
 
 function createTeam() {
@@ -419,9 +480,9 @@ function createTeam() {
     const pwd = document.getElementById('newCoachPassword').value;
     if (!name || !code || !pwd) { showToast('Remplissez tous les champs'); return; }
     if (appData.teams[code]) { showToast('Code déjà utilisé'); return; }
-    appData.teams[code] = { name: name, coachPassword: pwd, players: {}, matches: [], otherEvents: [], messages: [] };
+    appData.teams[code] = { name: name, coachPassword: pwd, players: {}, matches: [], otherEvents: [], messages: [], reminders: [] };
     saveData();
-    showToast(`Équipe ${name} créée !`);
+    showToast(`✅ Équipe ${name} créée !`);
     showCoachLogin();
 }
 
@@ -434,33 +495,35 @@ function showMainApp() {
     const isCoach = user.role === 'coach';
     
     document.getElementById('adminTabBtn').style.display = isAdmin ? 'flex' : 'none';
-    document.getElementById('addMatchBtn').style.display = (isAdmin || isCoach) ? 'block' : 'none';
-    document.getElementById('addEventBtn').style.display = (isAdmin || isCoach) ? 'block' : 'none';
-    document.getElementById('eventsTabBtn').style.display = 'flex';
+    const addMatchBtn = document.getElementById('addMatchBtn');
+    const addEventBtn = document.getElementById('addEventBtn');
+    if(addMatchBtn) addMatchBtn.style.display = (isAdmin || isCoach) ? 'block' : 'none';
+    if(addEventBtn) addEventBtn.style.display = (isAdmin || isCoach) ? 'block' : 'none';
     
     if (isAdmin) {
-        document.getElementById('headerTeamName').innerText = 'Team-Foot';
+        document.getElementById('headerTeamName').innerText = 'FC Barcarès Méditerranée';
         document.getElementById('headerRole').innerText = 'Super Admin';
         document.getElementById('headerIcon').innerHTML = '👑';
-        document.getElementById('welcomeText').innerHTML = 'Bonjour Administrateur 👋';
+        document.getElementById('welcomeText').innerHTML = 'Bonjour Administrateur 🌊';
     } else if (isCoach) {
         const team = appData.teams[user.teamCode];
         document.getElementById('headerTeamName').innerText = team.name;
         document.getElementById('headerRole').innerText = 'Coach';
         document.getElementById('headerIcon').innerHTML = '👥';
-        document.getElementById('welcomeText').innerHTML = `Bonjour Coach ${team.name} 👋`;
+        document.getElementById('welcomeText').innerHTML = `Bonjour Coach ${team.name} 🏖️`;
     } else {
         const team = appData.teams[user.teamCode];
         document.getElementById('headerTeamName').innerText = team.name;
         document.getElementById('headerRole').innerText = user.pendingApproval ? 'En attente' : 'Parent';
-        document.getElementById('headerIcon').innerHTML = '🎮';
-        document.getElementById('welcomeText').innerHTML = `Bonjour ${user.parentName} (${user.childName}) 👋`;
+        document.getElementById('headerIcon').innerHTML = '⚽';
+        document.getElementById('welcomeText').innerHTML = `Bonjour ${user.parentName} (${user.childName}) ⚽`;
     }
     
     loadDashboard();
     loadMatches();
     loadOtherEvents();
     loadTeamMembers();
+    loadReminders();
     if (isAdmin) loadAllTeams();
     
     // Navigation
@@ -474,6 +537,7 @@ function showMainApp() {
             if (tab === 'admin' && isAdmin) loadAllTeams();
             if (tab === 'matches') loadMatches();
             if (tab === 'events') loadOtherEvents();
+            if (tab === 'team') { loadTeamMembers(); loadReminders(); }
         };
     });
 }
@@ -483,13 +547,13 @@ function loadDashboard() {
     let players = 0, matches = 0, events = 0;
     if (user.role === 'admin') {
         for (let code in appData.teams) {
-            players += Object.keys(appData.teams[code].players).length;
+            players += Object.keys(appData.teams[code].players || {}).length;
             matches += (appData.teams[code].matches || []).length;
             events += (appData.teams[code].otherEvents || []).length;
         }
     } else {
         const team = appData.teams[user.teamCode];
-        players = Object.keys(team.players).length;
+        players = Object.keys(team.players || {}).length;
         matches = (team.matches || []).length;
         events = (team.otherEvents || []).length;
     }
@@ -497,7 +561,6 @@ function loadDashboard() {
     document.getElementById('statMatches').innerText = matches;
     document.getElementById('statEvents').innerText = events;
     
-    // Prochains matchs
     let upcomingMatches = [];
     if (user.role === 'admin') {
         for (let code in appData.teams) {
@@ -507,9 +570,8 @@ function loadDashboard() {
         upcomingMatches = appData.teams[user.teamCode].matches || [];
     }
     upcomingMatches = upcomingMatches.filter(m => new Date(m.matchDateTime) > new Date()).slice(0, 3);
-    document.getElementById('upcomingMatches').innerHTML = upcomingMatches.length ? upcomingMatches.map(m => `<div style="padding:8px 0; border-bottom:1px solid #f3f4f6">🏆 ${m.title} - ${new Date(m.matchDateTime).toLocaleDateString()}</div>`).join('') : '<div class="empty-state">Aucun match</div>';
+    document.getElementById('upcomingMatches').innerHTML = upcomingMatches.length ? upcomingMatches.map(m => `<div style="padding:8px 0; border-bottom:1px solid #f3f4f6">🏆 ${m.title} - ${new Date(m.matchDateTime).toLocaleDateString()}</div>`).join('') : '<div class="empty-state">Aucun match à venir</div>';
     
-    // Prochains événements
     let upcomingEvents = [];
     if (user.role === 'admin') {
         for (let code in appData.teams) {
@@ -519,7 +581,7 @@ function loadDashboard() {
         upcomingEvents = appData.teams[user.teamCode].otherEvents || [];
     }
     upcomingEvents = upcomingEvents.filter(e => new Date(e.dateTime) > new Date()).slice(0, 3);
-    document.getElementById('upcomingEvents').innerHTML = upcomingEvents.length ? upcomingEvents.map(e => `<div style="padding:8px 0; border-bottom:1px solid #f3f4f6">📅 ${e.title} - ${new Date(e.dateTime).toLocaleDateString()}</div>`).join('') : '<div class="empty-state">Aucun événement</div>';
+    document.getElementById('upcomingEvents').innerHTML = upcomingEvents.length ? upcomingEvents.map(e => `<div style="padding:8px 0; border-bottom:1px solid #f3f4f6">📅 ${e.title} - ${new Date(e.dateTime).toLocaleDateString()}</div>`).join('') : '<div class="empty-state">Aucun événement à venir</div>';
 }
 
 function loadMatches() {
@@ -533,12 +595,12 @@ function loadMatches() {
         matches = appData.teams[user.teamCode].matches || [];
     }
     matches.sort((a,b) => new Date(a.matchDateTime) - new Date(b.matchDateTime));
-    if (!matches.length) { document.getElementById('matchesList').innerHTML = '<div class="empty-state">Aucun match</div>'; return; }
+    if (!matches.length) { document.getElementById('matchesList').innerHTML = '<div class="empty-state"><div class="empty-icon">🏆</div><p>Aucun match programmé</p></div>'; return; }
     document.getElementById('matchesList').innerHTML = matches.map(m => `
         <div class="event-card">
-            <div class="event-header"><strong>${m.title}</strong><span class="event-badge">${m.type === 'match_amical' ? 'Amical' : m.type === 'coupe' ? 'Coupe' : 'Officiel'}</span></div>
-            <div style="margin-top:8px; font-size:13px">📅 ${new Date(m.matchDateTime).toLocaleString()}<br>📍 ${m.location}</div>
-            ${m.notes ? `<div style="margin-top:8px; font-size:12px; color:#667eea">📌 ${m.notes}</div>` : ''}
+            <div class="event-header"><strong>${m.title}</strong><span class="event-badge">${m.type === 'match_amical' ? 'Amical' : m.type === 'coupe' ? 'Coupe' : 'Championnat'}</span></div>
+            <div style="margin-top:8px; font-size:13px">📅 ${new Date(m.matchDateTime).toLocaleString()}<br>📍 ${m.location}<br>⏰ Convocation: ${new Date(m.callTime).toLocaleString()}</div>
+            ${m.notes ? `<div style="margin-top:8px; font-size:12px; color:#0055a4">📌 ${m.notes}</div>` : ''}
         </div>
     `).join('');
 }
@@ -554,12 +616,12 @@ function loadOtherEvents() {
         events = appData.teams[user.teamCode].otherEvents || [];
     }
     events.sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime));
-    if (!events.length) { document.getElementById('otherEventsList').innerHTML = '<div class="empty-state">Aucun événement</div>'; return; }
+    if (!events.length) { document.getElementById('otherEventsList').innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><p>Aucun événement programmé</p></div>'; return; }
     document.getElementById('otherEventsList').innerHTML = events.map(e => `
         <div class="event-card">
-            <div class="event-header"><strong>${e.title}</strong><span class="event-badge">${e.type === 'entrainement' ? '🏋️ Entraînement' : e.type === 'soiree' ? '🎉 Soirée' : '📌 Événement'}</span></div>
+            <div class="event-header"><strong>${e.title}</strong><span class="event-badge">${e.type === 'entrainement' ? '🏋️ Entraînement' : e.type === 'soiree' ? '🎉 Soirée' : e.type === 'reunion' ? '📋 Réunion' : '🏆 Tournoi'}</span></div>
             <div style="margin-top:8px; font-size:13px">📅 ${new Date(e.dateTime).toLocaleString()}<br>📍 ${e.location}</div>
-            ${e.notes ? `<div style="margin-top:8px; font-size:12px; color:#667eea">📌 ${e.notes}</div>` : ''}
+            ${e.notes ? `<div style="margin-top:8px; font-size:12px; color:#0055a4">📌 ${e.notes}</div>` : ''}
         </div>
     `).join('');
 }
@@ -568,15 +630,15 @@ function loadTeamMembers() {
     const user = appData.currentUser;
     if (user.role === 'admin') return;
     const team = appData.teams[user.teamCode];
-    const players = Object.values(team.players);
-    document.getElementById('teamMembersList').innerHTML = players.length ? players.map(p => `<div style="background:white; border-radius:16px; padding:12px; margin-bottom:8px; display:flex; justify-content:space-between"><div>⚽ ${p.childName}<br><small>${p.parents.length} parent(s)</small></div>${user.role === 'coach' && p.pendingApproval ? `<button onclick="approvePlayer('${p.id}')" style="background:#10b981; border:none; padding:8px 16px; border-radius:20px; color:white">Approuver</button>` : ''}</div>`).join('') : '<div class="empty-state">Aucun joueur</div>';
+    const players = Object.values(team.players || {});
+    document.getElementById('teamMembersList').innerHTML = players.length ? players.map(p => `<div class="member-card"><div>⚽ ${p.childName}<br><small>👨‍👩‍👧 ${p.parents.length} parent(s)</small></div>${user.role === 'coach' && p.pendingApproval ? `<button onclick="approvePlayer('${p.id}')" style="background:#10b981; border:none; padding:8px 16px; border-radius:20px; color:white">✅ Approuver</button>` : ''}</div>`).join('') : '<div class="empty-state"><div class="empty-icon">👥</div><p>Aucun joueur inscrit</p></div>';
     
     const pending = players.filter(p => p.pendingApproval);
     const card = document.getElementById('pendingRequestsCard');
     const list = document.getElementById('pendingRequestsList');
     if (user.role === 'coach' && pending.length) {
         card.style.display = 'block';
-        list.innerHTML = pending.map(p => `<div style="background:#f3f4f6; border-radius:16px; padding:12px; margin-bottom:8px">⏳ ${p.childName} - Parent: ${p.parents[0]?.name}<button onclick="approvePlayer('${p.id}')" style="margin-left:12px; background:#10b981; border:none; padding:6px 12px; border-radius:20px; color:white">✅</button></div>`).join('');
+        list.innerHTML = pending.map(p => `<div class="member-card"><div>⏳ ${p.childName}<br><small>Parent: ${p.parents[0]?.name}</small></div><button onclick="approvePlayer('${p.id}')" style="background:#10b981; border:none; padding:6px 12px; border-radius:20px; color:white">✅ Approuver</button></div>`).join('');
     } else card.style.display = 'none';
 }
 
@@ -587,17 +649,27 @@ function approvePlayer(playerId) {
         if (appData.currentUser.playerId === playerId) appData.currentUser.pendingApproval = false;
         saveData(); saveSession();
         loadTeamMembers();
-        showToast('Joueur approuvé');
+        showToast('✅ Joueur approuvé !');
     }
+}
+
+function loadReminders() {
+    const user = appData.currentUser;
+    if (user.role !== 'coach') return;
+    const container = document.getElementById('activeReminders');
+    const team = appData.teams[user.teamCode];
+    const reminders = team.reminders || [];
+    if (!reminders.length) { container.innerHTML = '<div class="empty-state">Aucun rappel programmé</div>'; return; }
+    container.innerHTML = reminders.map(r => `<div style="padding:6px 0; border-bottom:1px solid #f3f4f6">📅 ${r.daysBefore} jours avant ${r.eventTitle} - ${r.sent ? '✅ Envoyé' : '⏳ En attente'}</div>`).join('');
 }
 
 function loadAllTeams() {
     const container = document.getElementById('allTeamsList');
     container.innerHTML = Object.entries(appData.teams).map(([code, team]) => `
-        <div style="background:white; border-radius:16px; padding:16px; margin-bottom:12px">
-            <div><strong>${team.name}</strong> <span style="color:#667eea">(${code})</span></div>
-            <div style="margin-top:8px; font-size:13px">👥 ${Object.keys(team.players).length} joueurs | 🏆 ${(team.matches || []).length} matchs | 📅 ${(team.otherEvents || []).length} événements</div>
-            <button onclick="deleteTeamAdmin('${code}')" style="margin-top:12px; background:#ef4444; border:none; padding:8px 16px; border-radius:20px; color:white">Supprimer</button>
+        <div style="background:white; border-radius:16px; padding:16px; margin-bottom:12px; border-left:4px solid #FFD700">
+            <div><strong>${team.name}</strong> <span style="color:#0055a4">(${code})</span></div>
+            <div style="margin-top:8px; font-size:13px">👥 ${Object.keys(team.players || {}).length} joueurs | 🏆 ${(team.matches || []).length} matchs | 📅 ${(team.otherEvents || []).length} événements</div>
+            <button onclick="deleteTeamAdmin('${code}')" style="margin-top:12px; background:#ef4444; border:none; padding:8px 16px; border-radius:20px; color:white">🗑️ Supprimer</button>
         </div>
     `).join('');
 }
@@ -627,7 +699,7 @@ function createMatch() {
     loadDashboard();
     document.getElementById('matchTitle').value = '';
     document.getElementById('matchNotes').value = '';
-    showToast('Match créé');
+    showToast('⚽ Match créé !');
 }
 
 function showOtherEventModal() { document.getElementById('otherEventModal').style.display = 'flex'; }
@@ -651,7 +723,7 @@ function createOtherEvent() {
     loadDashboard();
     document.getElementById('otherEventTitle').value = '';
     document.getElementById('otherEventNotes').value = '';
-    showToast('Événement créé');
+    showToast('📅 Événement créé !');
 }
 
 function showGlobalMessage() { document.getElementById('globalMsgModal').style.display = 'flex'; }
@@ -661,12 +733,12 @@ function sendGlobalMessage() {
     if (!text) return;
     for (let code in appData.teams) {
         if (!appData.teams[code].messages) appData.teams[code].messages = [];
-        appData.teams[code].messages.push({ author: '👑 ADMIN', text: `🌍 ${text}`, timestamp: new Date().toISOString() });
+        appData.teams[code].messages.push({ author: '👑 ADMIN FCBM', text: `🌊 ${text}`, timestamp: new Date().toISOString() });
     }
     saveData();
     closeGlobalMsg();
     document.getElementById('globalMsgText').value = '';
-    showToast('Message envoyé à tous');
+    showToast('📢 Message envoyé à toutes les équipes !');
 }
 
 loadData();
