@@ -4,24 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <meta name="theme-color" content="#1a73e8">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Team-Foot">
     <title>Team-Foot - Votre équipe de foot</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="app">
-        <!-- Écran de chargement -->
-        <div id="splashScreen" class="splash-screen">
-            <div class="splash-content">
-                <div class="splash-icon">⚽</div>
-                <h1>Team-Foot</h1>
-                <p>Votre équipe en poche</p>
-                <div class="loader"></div>
-            </div>
-        </div>
-
         <!-- Écran de connexion -->
         <div id="loginScreen" class="screen">
             <div class="login-header">
@@ -116,7 +103,6 @@
 
         <!-- Interface principale -->
         <div id="mainApp" class="screen hidden">
-            <!-- Header -->
             <div class="app-header">
                 <div class="header-top">
                     <div class="team-info">
@@ -137,9 +123,7 @@
                 <div class="welcome-message" id="welcomeMessage">Bonjour 👋</div>
             </div>
 
-            <!-- Contenu principal -->
-            <div class="main-content" id="mainContent">
-                <!-- Vue Événements -->
+            <div class="main-content">
                 <div id="eventsView" class="view active">
                     <div id="fabButton" style="display: none;">
                         <button class="fab" onclick="window.showCreateEventModal()">
@@ -147,19 +131,19 @@
                         </button>
                     </div>
                     <div id="eventsList" class="events-container">
-                        <div class="loading-spinner">
-                            <div class="spinner"></div>
-                            <p>Chargement...</p>
+                        <div class="empty-state">
+                            <div class="empty-icon">📅</div>
+                            <p>Connectez-vous pour voir vos événements</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Vue Vestiaire -->
                 <div id="messagesView" class="view hidden">
                     <div class="messages-container-mobile">
                         <div id="messagesList" class="messages-list-mobile">
-                            <div class="loading-spinner">
-                                <div class="spinner"></div>
+                            <div class="empty-state">
+                                <div class="empty-icon">💬</div>
+                                <p>Connectez-vous pour voir les messages</p>
                             </div>
                         </div>
                         <div class="message-input-container">
@@ -174,66 +158,21 @@
                     </div>
                 </div>
 
-                <!-- Vue Équipe -->
                 <div id="teamView" class="view hidden">
-                    <div class="team-stats">
-                        <div class="stat-card">
-                            <div class="stat-value" id="playerCount">0</div>
-                            <div class="stat-label">Joueurs</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="eventCount">0</div>
-                            <div class="stat-label">Événements</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="responseRate">0%</div>
-                            <div class="stat-label">Taux de réponse</div>
-                        </div>
-                    </div>
-
-                    <div class="section-header">
-                        <h4>👥 Joueurs</h4>
-                        <span class="badge" id="playersBadge"></span>
-                    </div>
-                    <div id="playersList" class="players-grid"></div>
-
-                    <div id="pendingRequestsCard" class="pending-card hidden">
-                        <div class="section-header">
-                            <h4>⏳ Demandes en attente</h4>
-                        </div>
-                        <div id="requestsList"></div>
-                    </div>
-
-                    <div id="coachActionsCard" class="coach-actions-card hidden">
-                        <h4>📢 Actions coach</h4>
-                        <select id="eventSelector" class="mobile-select">
-                            <option value="">Choisir un événement</option>
-                        </select>
-                        <button class="btn-warning btn-block" onclick="window.notifyNonResponders()">
-                            ⏰ Relancer les non-répondants
-                        </button>
-                        <button class="btn-primary btn-block" onclick="window.showCreateEventModal()" style="margin-top: 12px;">
-                            ➕ Créer un événement
-                        </button>
+                    <div class="empty-state">
+                        <div class="empty-icon">👥</div>
+                        <p>Connectez-vous pour voir votre équipe</p>
                     </div>
                 </div>
 
-                <!-- Vue Admin -->
                 <div id="adminView" class="view hidden">
-                    <div class="section-header">
-                        <h4>🌍 Toutes les équipes</h4>
-                    </div>
-                    <div id="allTeamsList" class="teams-list-mobile"></div>
-                    
-                    <div class="admin-actions">
-                        <button class="btn-primary btn-block" onclick="window.showCreateTeamModal()">
-                            ➕ Créer une nouvelle équipe
-                        </button>
+                    <div class="empty-state">
+                        <div class="empty-icon">👑</div>
+                        <p>Connectez-vous en tant qu'administrateur</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Bottom Navigation -->
             <div class="bottom-nav">
                 <button class="nav-item active" data-view="events">
                     <span class="nav-icon">🏆</span>
@@ -242,7 +181,6 @@
                 <button class="nav-item" data-view="messages">
                     <span class="nav-icon">💬</span>
                     <span class="nav-label">Vestiaire</span>
-                    <span id="messageBadge" class="nav-badge hidden">0</span>
                 </button>
                 <button class="nav-item" data-view="team">
                     <span class="nav-icon">👥</span>
@@ -256,7 +194,6 @@
         </div>
     </div>
 
-    <!-- Modal création événement -->
     <div id="eventModal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -275,7 +212,7 @@
                 <input type="datetime-local" id="modalMatchDateTime" class="mobile-input">
                 <input type="datetime-local" id="modalCallTime" class="mobile-input">
                 <input type="text" id="modalLocation" placeholder="Lieu" class="mobile-input">
-                <textarea id="modalNotes" placeholder="Notes (tenue, matériel...)" rows="2" class="mobile-input"></textarea>
+                <textarea id="modalNotes" placeholder="Notes" rows="2" class="mobile-input"></textarea>
             </div>
             <div class="modal-footer">
                 <button class="btn-secondary" onclick="window.closeEventModal()">Annuler</button>
@@ -284,7 +221,6 @@
         </div>
     </div>
 
-    <!-- Toast notification -->
     <div id="toast" class="toast hidden"></div>
 
     <script src="app.js"></script>
