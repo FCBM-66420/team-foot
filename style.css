@@ -7,186 +7,114 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background: #f5f7fb;
+    background: #f3f4f6;
     overflow-x: hidden;
-}
-
-/* ========== SPLASH SCREEN ========== */
-.splash-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.splash-content {
-    text-align: center;
-    color: white;
-}
-
-.splash-icon {
-    font-size: 80px;
-    animation: bounce 0.8s ease;
-}
-
-.splash-content h1 {
-    font-size: 36px;
-    margin-top: 16px;
-    letter-spacing: -0.5px;
-}
-
-.splash-content p {
-    opacity: 0.9;
-    margin-top: 8px;
-}
-
-.loader {
-    width: 40px;
-    height: 40px;
-    border: 3px solid rgba(255,255,255,0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    margin: 24px auto 0;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-@keyframes bounce {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
 }
 
 /* ========== ÉCRAN DE CONNEXION ========== */
 .screen {
     min-height: 100vh;
-    background: #f5f7fb;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .screen.hidden {
     display: none;
 }
 
-.login-header {
-    background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
-    padding: 48px 24px 64px;
+.login-hero {
     text-align: center;
+    padding: 60px 24px 40px;
     color: white;
-    border-radius: 0 0 32px 32px;
 }
 
-.login-icon {
-    font-size: 60px;
-    background: rgba(255,255,255,0.2);
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 16px;
+.hero-icon {
+    font-size: 80px;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
 }
 
-.login-header h2 {
-    font-size: 28px;
-    margin-bottom: 8px;
+.login-hero h1 {
+    font-size: 36px;
+    letter-spacing: -0.5px;
 }
 
-.login-subtitle {
+.login-hero p {
     opacity: 0.9;
+    margin-top: 8px;
     font-size: 14px;
 }
 
-.login-methods {
-    padding: 24px;
-    margin-top: -32px;
+.login-options {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-.login-method-btn {
-    background: white;
+.login-card {
+    background: rgba(255,255,255,0.95);
     border: none;
     border-radius: 20px;
-    padding: 16px;
-    margin-bottom: 12px;
-    width: 100%;
+    padding: 16px 20px;
     display: flex;
     align-items: center;
     gap: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-.login-method-btn:active {
+.login-card:active {
     transform: scale(0.98);
 }
 
-.method-icon {
-    font-size: 32px;
+.card-icon {
+    font-size: 36px;
 }
 
-.method-text {
-    flex: 1;
-    text-align: left;
-}
-
-.method-text strong {
-    display: block;
+.login-card h3 {
     font-size: 16px;
-    color: #1a293b;
+    color: #1f2937;
 }
 
-.method-text small {
+.login-card small {
     font-size: 12px;
-    color: #8e9aaf;
+    color: #6b7280;
 }
 
-.chevron {
+.arrow {
+    margin-left: auto;
     font-size: 24px;
-    color: #cbd5e1;
+    color: #9ca3af;
 }
 
-/* Formulaires */
-.login-form {
-    padding: 24px;
+/* Formulaires connexion */
+.login-form-panel {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: #f5f7fb;
-    z-index: 200;
-    overflow-y: auto;
-}
-
-.login-form.hidden {
-    display: none;
-}
-
-.form-card {
     background: white;
-    border-radius: 28px;
+    z-index: 200;
     padding: 24px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+}
+
+.login-form-panel.hidden {
+    display: none;
 }
 
 .form-header {
     display: flex;
     align-items: center;
     gap: 16px;
-    margin-bottom: 24px;
+    margin-bottom: 32px;
 }
 
-.back-btn {
-    background: #f1f5f9;
+.back-icon {
+    background: #f3f4f6;
     border: none;
     width: 40px;
     height: 40px;
@@ -195,101 +123,62 @@ body {
     cursor: pointer;
 }
 
-.form-header h3 {
-    font-size: 20px;
-    color: #1a293b;
-}
-
-.mobile-input {
+.team-input {
     width: 100%;
     padding: 14px 16px;
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
     font-size: 16px;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     transition: 0.2s;
-    background: white;
 }
 
-.mobile-input:focus {
+.team-input:focus {
     outline: none;
-    border-color: #1a73e8;
-    box-shadow: 0 0 0 3px rgba(26,115,232,0.1);
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
 }
 
-.btn-primary {
-    background: #1a73e8;
-    color: white;
-    border: none;
-    padding: 14px 20px;
-    border-radius: 40px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.btn-primary:active {
-    transform: scale(0.97);
-    background: #0d47a1;
-}
-
-.btn-secondary {
-    background: #f1f5f9;
-    color: #1a293b;
-    border: none;
-    padding: 14px 20px;
-    border-radius: 40px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    margin-top: 12px;
-}
-
-.btn-block {
-    width: 100%;
-}
-
-.btn-warning {
-    background: #f59e0b;
-    color: white;
-    border: none;
-    padding: 14px 20px;
-    border-radius: 40px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.admin-hint {
+.form-hint {
+    font-size: 12px;
+    color: #9ca3af;
     text-align: center;
     margin-top: 16px;
-    font-size: 12px;
-    color: #8e9aaf;
 }
 
 /* ========== INTERFACE PRINCIPALE ========== */
 .app-header {
-    background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
-    padding: 20px 20px 32px;
-    color: white;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 0 0 28px 28px;
+    position: relative;
+    overflow: hidden;
 }
 
-.header-top {
+.header-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+}
+
+.header-content {
+    padding: 20px 20px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
 }
 
-.team-info {
+.team-badge {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-.team-avatar {
+.badge-icon {
     width: 48px;
     height: 48px;
     background: rgba(255,255,255,0.2);
@@ -300,51 +189,55 @@ body {
     font-size: 24px;
 }
 
-.team-info h3 {
+.team-badge h2 {
     font-size: 18px;
+    color: white;
     margin-bottom: 2px;
 }
 
-.user-role {
+.header-role {
     font-size: 11px;
-    background: rgba(255,255,255,0.2);
-    padding: 2px 8px;
-    border-radius: 20px;
+    color: rgba(255,255,255,0.8);
 }
 
-.icon-btn {
-    background: rgba(255,255,255,0.15);
+.logout-icon {
+    background: rgba(255,255,255,0.2);
     border: none;
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 20px;
     cursor: pointer;
     color: white;
 }
 
-.welcome-message {
+.welcome-banner {
+    padding: 8px 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-size: 24px;
     font-weight: 600;
+    color: white;
+    position: relative;
+    z-index: 1;
 }
 
 /* Bottom Navigation */
 .bottom-nav {
+    display: flex;
+    background: white;
+    padding: 8px 16px 12px;
+    gap: 4px;
+    border-top: 1px solid #e5e7eb;
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    background: white;
-    display: flex;
-    padding: 10px 20px 20px;
-    box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
-    border-radius: 24px 24px 0 0;
     z-index: 100;
 }
 
-.nav-item {
+.nav-btn {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -352,35 +245,37 @@ body {
     gap: 4px;
     background: none;
     border: none;
-    cursor: pointer;
     padding: 8px;
     border-radius: 12px;
+    cursor: pointer;
     transition: 0.2s;
+    position: relative;
 }
 
 .nav-icon {
-    font-size: 24px;
-    opacity: 0.6;
+    font-size: 22px;
+    color: #9ca3af;
+    transition: 0.2s;
 }
 
-.nav-label {
+.nav-btn span:not(.nav-icon) {
     font-size: 11px;
-    color: #8e9aaf;
-    font-weight: 500;
+    color: #9ca3af;
 }
 
-.nav-item.active .nav-icon {
-    opacity: 1;
+.nav-btn.active .nav-icon {
+    color: #667eea;
     transform: scale(1.1);
 }
 
-.nav-item.active .nav-label {
-    color: #1a73e8;
+.nav-btn.active span:not(.nav-icon) {
+    color: #667eea;
+    font-weight: 500;
 }
 
-.nav-badge {
+.unread-badge {
     position: absolute;
-    top: 4px;
+    top: 0;
     right: 20%;
     background: #ef4444;
     color: white;
@@ -389,18 +284,22 @@ body {
     border-radius: 20px;
 }
 
+.unread-badge.hidden {
+    display: none;
+}
+
 /* Main Content */
 .main-content {
-    padding: 20px;
+    padding: 20px 16px;
     padding-bottom: 80px;
 }
 
-.view {
+.tab-pane {
     display: none;
     animation: fadeIn 0.3s ease;
 }
 
-.view.active {
+.tab-pane.active {
     display: block;
 }
 
@@ -409,211 +308,8 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* FAB Button */
-.fab {
-    position: fixed;
-    bottom: 85px;
-    right: 20px;
-    width: 56px;
-    height: 56px;
-    background: #1a73e8;
-    border: none;
-    border-radius: 50%;
-    box-shadow: 0 4px 12px rgba(26,115,232,0.4);
-    cursor: pointer;
-    z-index: 90;
-    transition: 0.2s;
-}
-
-.fab:active {
-    transform: scale(0.92);
-}
-
-.fab-icon {
-    font-size: 28px;
-    color: white;
-    font-weight: bold;
-}
-
-/* Event Cards */
-.events-container {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.event-card {
-    background: white;
-    border-radius: 24px;
-    padding: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    transition: 0.2s;
-}
-
-.event-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.event-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1a293b;
-}
-
-.event-badge {
-    font-size: 11px;
-    padding: 4px 10px;
-    background: #f1f5f9;
-    border-radius: 20px;
-    color: #1a73e8;
-}
-
-.event-details {
-    background: #f8fafc;
-    padding: 12px;
-    border-radius: 16px;
-    margin: 12px 0;
-    font-size: 13px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.notes {
-    background: #fef3c7;
-    padding: 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    color: #92400e;
-    margin: 8px 0;
-}
-
-.status-buttons {
-    display: flex;
-    gap: 12px;
-    margin-top: 12px;
-}
-
-.status-btn {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    border-radius: 40px;
-    font-weight: 600;
-    background: #f1f5f9;
-    cursor: pointer;
-    transition: 0.1s;
-}
-
-.status-btn.active {
-    background: #22c55e;
-    color: white;
-}
-
-.status-btn.absent.active {
-    background: #ef4444;
-}
-
-.status-btn.waiting.active {
-    background: #f59e0b;
-    color: white;
-}
-
-/* Empty state */
-.empty-state {
-    text-align: center;
-    padding: 40px;
-    color: #8e9aaf;
-}
-
-.empty-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-}
-
-/* Messages */
-.messages-container-mobile {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 200px);
-}
-
-.messages-list-mobile {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.message {
-    background: white;
-    padding: 12px;
-    border-radius: 20px;
-    max-width: 85%;
-    align-self: flex-start;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-
-.message.system {
-    align-self: center;
-    background: #f1f5f9;
-    font-size: 12px;
-    color: #64748b;
-    max-width: 90%;
-}
-
-.message-header {
-    font-size: 11px;
-    margin-bottom: 4px;
-    opacity: 0.7;
-}
-
-.message-text {
-    font-size: 14px;
-}
-
-.message-input-container {
-    display: flex;
-    gap: 12px;
-    padding: 12px;
-    background: white;
-    border-top: 1px solid #e2e8f0;
-    position: sticky;
-    bottom: 70px;
-}
-
-.message-input-container textarea {
-    flex: 1;
-    padding: 12px;
-    border: 1px solid #e2e8f0;
-    border-radius: 24px;
-    resize: none;
-    font-size: 15px;
-    font-family: inherit;
-}
-
-.send-btn {
-    background: #1a73e8;
-    border: none;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: white;
-}
-
-/* Team Stats */
-.team-stats {
+/* Dashboard */
+.stats-grid {
     display: flex;
     gap: 12px;
     margin-bottom: 24px;
@@ -631,59 +327,345 @@ body {
 .stat-value {
     font-size: 28px;
     font-weight: 700;
-    color: #1a73e8;
+    color: #667eea;
 }
 
 .stat-label {
     font-size: 11px;
-    color: #8e9aaf;
+    color: #6b7280;
     margin-top: 4px;
 }
 
+.dashboard-card {
+    background: white;
+    border-radius: 20px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.dashboard-card h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+    color: #1f2937;
+}
+
+.upcoming-list, .activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.upcoming-item, .activity-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+/* Events */
 .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 20px 0 12px;
+    margin-bottom: 16px;
 }
 
-.section-header h4 {
-    font-size: 16px;
-    color: #1a293b;
+.section-header h3 {
+    font-size: 18px;
+    color: #1f2937;
 }
 
-.badge {
-    background: #f1f5f9;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 12px;
+.btn-add {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 50%;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(102,126,234,0.4);
 }
 
-.players-grid {
+.events-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 16px;
 }
 
-.player-card {
+.event-card {
     background: white;
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.event-title {
+    font-weight: 700;
+    font-size: 16px;
+    color: #1f2937;
+}
+
+.event-badge {
+    font-size: 10px;
+    padding: 4px 10px;
+    background: #f3f4f6;
+    border-radius: 20px;
+    color: #667eea;
+}
+
+.event-details {
+    background: #f9fafb;
+    padding: 10px;
+    border-radius: 12px;
+    margin: 10px 0;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.status-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.status-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 40px;
+    font-weight: 600;
+    background: #f3f4f6;
+    cursor: pointer;
+    transition: 0.1s;
+}
+
+.status-btn.active {
+    background: #10b981;
+    color: white;
+}
+
+.status-btn.absent.active {
+    background: #ef4444;
+}
+
+.status-btn.waiting.active {
+    background: #f59e0b;
+    color: white;
+}
+
+/* Messages */
+.messages-layout {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 220px);
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.conversations-list {
+    border-bottom: 1px solid #e5e7eb;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.conversation-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     padding: 12px 16px;
+    cursor: pointer;
+    transition: 0.1s;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.conversation-item.active {
+    background: #f3f4f6;
+}
+
+.conversation-avatar {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+}
+
+.conversation-info {
+    flex: 1;
+}
+
+.conversation-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.conversation-last {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 2px;
+}
+
+.unread-indicator {
+    width: 10px;
+    height: 10px;
+    background: #ef4444;
+    border-radius: 50%;
+}
+
+.chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.chat-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 600;
+    font-size: 14px;
+    background: #f9fafb;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.chat-message {
+    max-width: 80%;
+    padding: 10px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+}
+
+.chat-message.sent {
+    align-self: flex-end;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.chat-message.received {
+    align-self: flex-start;
+    background: #f3f4f6;
+    color: #1f2937;
+    border-bottom-left-radius: 4px;
+}
+
+.message-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 4px;
+    font-size: 9px;
+    opacity: 0.7;
+}
+
+.seen-badge {
+    font-size: 10px;
+}
+
+.chat-input-area {
+    display: flex;
+    gap: 10px;
+    padding: 12px;
+    border-top: 1px solid #e5e7eb;
+    background: white;
+}
+
+.chat-input-area.hidden {
+    display: none;
+}
+
+.chat-input-area textarea {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 24px;
+    resize: none;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.send-msg-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+/* Team members */
+.team-members-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.member-card {
+    background: white;
     border-radius: 16px;
+    padding: 12px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.player-name {
-    font-weight: 500;
+.member-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-.player-status {
-    font-size: 12px;
-    padding: 4px 10px;
+.member-avatar {
+    width: 44px;
+    height: 44px;
+    background: #f3f4f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.member-name {
+    font-weight: 600;
+}
+
+.member-role {
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+.parents-badge {
+    font-size: 10px;
+    background: #f3f4f6;
+    padding: 2px 8px;
     border-radius: 20px;
-    background: #d1fae5;
-    color: #065f46;
 }
 
 .approve-btn {
@@ -696,95 +678,110 @@ body {
 }
 
 .remove-btn {
-    background: none;
+    background: #ef4444;
+    color: white;
     border: none;
-    font-size: 18px;
+    padding: 6px 16px;
+    border-radius: 20px;
     cursor: pointer;
     margin-left: 8px;
 }
 
-.pending-card, .coach-actions-card {
+/* Reminders */
+.reminders-card {
     background: white;
     border-radius: 20px;
     padding: 16px;
     margin-top: 20px;
 }
 
-.pending-card.hidden, .coach-actions-card.hidden {
-    display: none;
+.reminders-card h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
 }
 
-.mobile-select {
+.reminder-select {
     width: 100%;
     padding: 12px;
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    margin: 12px 0;
-    font-size: 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    margin-bottom: 16px;
 }
 
-/* Team cards admin */
-.teams-list-mobile {
+.reminder-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.reminder-btn {
+    flex: 1;
+    padding: 10px;
+    background: #f3f4f6;
+    border: none;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.1s;
+}
+
+.reminder-btn:active {
+    background: #667eea;
+    color: white;
+}
+
+.active-reminders {
+    margin-top: 12px;
+}
+
+.reminder-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 13px;
+}
+
+/* Admin */
+.admin-teams-list {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
 }
 
-.team-card-mobile {
+.admin-team-card {
     background: white;
-    border-radius: 20px;
+    border-radius: 16px;
     padding: 16px;
 }
 
-.team-card-header {
+.admin-team-header {
     display: flex;
     align-items: center;
     gap: 12px;
     margin-bottom: 12px;
 }
 
-.team-avatar-small {
-    width: 48px;
-    height: 48px;
-    background: #f1f5f9;
+.admin-team-icon {
+    width: 44px;
+    height: 44px;
+    background: #f3f4f6;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 20px;
 }
 
-.team-card-header h4 {
-    font-size: 16px;
-    margin-bottom: 4px;
-}
-
-.team-code {
-    font-size: 12px;
-    color: #1a73e8;
-    font-family: monospace;
-}
-
-.team-stats-mini {
+.admin-team-stats {
     display: flex;
     gap: 16px;
-    margin: 12px 0;
-    font-size: 13px;
-    color: #64748b;
-}
-
-.btn-danger-small {
-    background: #ef4444;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    cursor: pointer;
     font-size: 12px;
-}
-
-.admin-actions {
-    margin-top: 20px;
+    color: #6b7280;
+    margin: 12px 0;
 }
 
 /* Modal */
@@ -804,7 +801,7 @@ body {
     display: none;
 }
 
-.modal .modal-content {
+.modal-container {
     background: white;
     border-radius: 28px 28px 0 0;
     width: 100%;
@@ -817,41 +814,74 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-.close-modal {
+.modal-close {
     background: none;
     border: none;
     font-size: 24px;
     cursor: pointer;
-    color: #8e9aaf;
+    color: #9ca3af;
 }
 
 .modal-body {
     padding: 20px;
 }
 
+.modal-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    font-size: 15px;
+}
+
 .modal-footer {
     padding: 20px;
     display: flex;
     gap: 12px;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid #e5e7eb;
 }
 
 .modal-footer button {
     flex: 1;
 }
 
+.btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 40px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #1f2937;
+    border: none;
+    padding: 14px;
+    border-radius: 40px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-block {
+    width: 100%;
+}
+
 /* Toast */
 .toast {
     position: fixed;
-    bottom: 100px;
+    bottom: 80px;
     left: 20px;
     right: 20px;
-    background: #1e293b;
+    background: #1f2937;
     color: white;
-    padding: 14px;
+    padding: 12px 20px;
     border-radius: 60px;
     text-align: center;
     z-index: 400;
@@ -868,24 +898,20 @@ body {
     to { transform: translateY(0); opacity: 1; }
 }
 
-/* Loading */
-.loading-spinner {
+/* Empty states */
+.empty-state {
     text-align: center;
     padding: 40px;
+    color: #9ca3af;
 }
 
-.spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid #e2e8f0;
-    border-top-color: #1a73e8;
-    border-radius: 50%;
-    margin: 0 auto 12px;
-    animation: spin 0.8s linear infinite;
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
 }
 
 /* Responsive */
-@media (min-width: 600px) {
+@media (min-width: 768px) {
     .main-content {
         max-width: 500px;
         margin: 0 auto;
@@ -898,6 +924,11 @@ body {
     }
     
     .app-header {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    
+    .modal-container {
         max-width: 500px;
         margin: 0 auto;
     }
