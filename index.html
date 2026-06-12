@@ -9,40 +9,26 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f4f8; }
         
-        /* Couleurs du club : Bleu mer (#0055a4) et Jaune sable (#FFD700) */
         :root {
-            --bleu-mer: #0055a4;
-            --bleu-mer-clair: #0066c4;
-            --bleu-mer-fonce: #003d7a;
-            --jaune-sable: #FFD700;
-            --jaune-sable-dore: #e6b800;
-            --sable-clair: #FFF8E7;
+            --club-blue: #0055a4;
+            --club-blue-clair: #0066c4;
+            --club-blue-fonce: #003d7a;
+            --club-yellow: #FFD700;
+            --club-yellow-fonce: #e6b800;
+            --bg-light: #f5f7fc;
         }
         
-        /* Écran de connexion */
         .screen { min-height: 100vh; }
         .screen.hidden { display: none; }
         
         .login-hero {
-            background: linear-gradient(135deg, var(--bleu-mer) 0%, var(--bleu-mer-clair) 50%, var(--jaune-sable) 100%);
+            background: linear-gradient(135deg, var(--club-blue) 0%, var(--club-blue-clair) 100%);
             padding: 60px 24px 80px;
             text-align: center;
             color: white;
-            position: relative;
-            overflow: hidden;
         }
-        .login-hero::before {
-            content: "🌊";
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            font-size: 60px;
-            opacity: 0.15;
-            pointer-events: none;
-        }
-        .hero-icon { font-size: 80px; margin-bottom: 16px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
-        .login-hero h1 { font-size: 32px; letter-spacing: 1px; }
+        .hero-icon { font-size: 80px; margin-bottom: 16px; }
+        .login-hero h1 { font-size: 32px; }
         .login-hero p { opacity: 0.95; margin-top: 8px; font-size: 14px; }
         
         .login-options { padding: 24px; display: flex; flex-direction: column; gap: 12px; margin-top: -40px; }
@@ -57,13 +43,12 @@
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,85,164,0.15);
             width: 100%;
-            transition: transform 0.2s, box-shadow 0.2s;
         }
         .login-card:active { transform: scale(0.98); }
         .card-icon { font-size: 36px; }
-        .login-card h3 { font-size: 16px; color: var(--bleu-mer); }
+        .login-card h3 { font-size: 16px; color: var(--club-blue); }
         .login-card small { font-size: 12px; color: #6b7280; }
-        .arrow { margin-left: auto; font-size: 24px; color: var(--jaune-sable); }
+        .arrow { margin-left: auto; font-size: 24px; color: var(--club-yellow); }
         
         .login-form-panel {
             position: fixed;
@@ -78,23 +63,20 @@
         }
         .login-form-panel.hidden { display: none; }
         .form-header { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; }
-        .back-icon { background: var(--sable-clair); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; color: var(--bleu-mer); }
-        .team-input { width: 100%; padding: 14px 16px; border: 1px solid #e5e7eb; border-radius: 14px; font-size: 16px; margin-bottom: 16px; transition: 0.2s; }
-        .team-input:focus { outline: none; border-color: var(--bleu-mer); box-shadow: 0 0 0 3px rgba(0,85,164,0.1); }
-        .btn-primary { background: linear-gradient(135deg, var(--bleu-mer), var(--bleu-mer-clair)); color: white; border: none; padding: 14px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; transition: 0.2s; }
-        .btn-primary:active { transform: scale(0.98); background: var(--bleu-mer-fonce); }
-        .btn-secondary { background: linear-gradient(135deg, var(--jaune-sable), var(--jaune-sable-dore)); color: var(--bleu-mer); border: none; padding: 14px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 12px; }
+        .back-icon { background: var(--bg-light); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; color: var(--club-blue); }
+        .team-input { width: 100%; padding: 14px 16px; border: 1px solid #e5e7eb; border-radius: 14px; font-size: 16px; margin-bottom: 16px; }
+        .team-input:focus { outline: none; border-color: var(--club-blue); }
+        .btn-primary { background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); color: white; border: none; padding: 14px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; }
+        .btn-secondary { background: linear-gradient(135deg, var(--club-yellow), var(--club-yellow-fonce)); color: var(--club-blue); border: none; padding: 14px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 12px; }
         .form-hint { font-size: 12px; color: #9ca3af; text-align: center; margin-top: 16px; }
         
-        /* Interface principale */
-        .app-header { background: linear-gradient(135deg, var(--bleu-mer) 0%, var(--bleu-mer-clair) 70%, var(--jaune-sable) 100%); padding: 20px; color: white; position: relative; overflow: hidden; }
-        .app-header::after { content: "⚓"; position: absolute; bottom: 5px; right: 15px; font-size: 40px; opacity: 0.1; pointer-events: none; }
-        .header-content { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
+        .app-header { background: linear-gradient(135deg, var(--club-blue) 0%, var(--club-blue-clair) 100%); padding: 20px; color: white; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; }
         .team-badge { display: flex; align-items: center; gap: 12px; }
         .badge-icon { width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
         .logout-icon { background: rgba(255,255,255,0.2); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; color: white; }
         .switch-account-btn { background: rgba(255,255,255,0.15); border: none; padding: 8px 16px; border-radius: 40px; color: white; font-size: 12px; cursor: pointer; margin-left: 12px; }
-        .welcome-banner { padding: 8px 20px 20px; font-size: 24px; font-weight: 600; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; position: relative; z-index: 1; }
+        .welcome-banner { padding: 8px 20px 20px; font-size: 24px; font-weight: 600; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         
         .bottom-nav {
             display: flex;
@@ -105,7 +87,7 @@
             left: 0;
             right: 0;
             gap: 4px;
-            border-top: 2px solid var(--jaune-sable);
+            border-top: 2px solid var(--club-yellow);
             z-index: 100;
             overflow-x: auto;
         }
@@ -121,13 +103,12 @@
             cursor: pointer;
             min-width: 60px;
             border-radius: 12px;
-            transition: 0.2s;
         }
-        .nav-icon { font-size: 22px; color: #9ca3af; transition: 0.2s; }
+        .nav-icon { font-size: 22px; color: #9ca3af; }
         .nav-btn span:not(.nav-icon) { font-size: 11px; color: #9ca3af; }
-        .nav-btn.active { background: var(--sable-clair); }
-        .nav-btn.active .nav-icon { color: var(--bleu-mer); }
-        .nav-btn.active span:not(.nav-icon) { color: var(--bleu-mer); font-weight: 500; }
+        .nav-btn.active { background: var(--bg-light); }
+        .nav-btn.active .nav-icon { color: var(--club-blue); }
+        .nav-btn.active span:not(.nav-icon) { color: var(--club-blue); font-weight: 500; }
         
         .main-content { padding: 20px 16px 80px; }
         .tab-pane { display: none; animation: fadeIn 0.3s ease; }
@@ -135,33 +116,66 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .stats-grid { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-        .stat-card { flex: 1; background: white; padding: 16px; border-radius: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-bottom: 3px solid var(--jaune-sable); }
-        .stat-value { font-size: 28px; font-weight: 700; color: var(--bleu-mer); }
+        .stat-card { flex: 1; background: white; padding: 16px; border-radius: 20px; text-align: center; border-bottom: 3px solid var(--club-yellow); }
+        .stat-value { font-size: 28px; font-weight: 700; color: var(--club-blue); }
         .stat-label { font-size: 11px; color: #6b7280; margin-top: 4px; }
         
-        .dashboard-card { background: white; border-radius: 20px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .dashboard-card h3 { font-size: 16px; margin-bottom: 12px; color: var(--bleu-mer); border-left: 4px solid var(--jaune-sable); padding-left: 10px; }
+        .dashboard-card { background: white; border-radius: 20px; padding: 16px; margin-bottom: 16px; }
+        .dashboard-card h3 { font-size: 16px; margin-bottom: 12px; color: var(--club-blue); border-left: 4px solid var(--club-yellow); padding-left: 10px; }
         
         .empty-state { text-align: center; padding: 40px; color: #9ca3af; }
         .empty-icon { font-size: 48px; margin-bottom: 12px; }
         
-        .toast { position: fixed; bottom: 80px; left: 20px; right: 20px; background: var(--bleu-mer); color: white; padding: 12px; border-radius: 60px; text-align: center; z-index: 400; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .toast { position: fixed; bottom: 80px; left: 20px; right: 20px; background: var(--club-blue); color: white; padding: 12px; border-radius: 60px; text-align: center; z-index: 400; }
         .toast.hidden { display: none; }
         
-        .event-card { background: white; border-radius: 20px; padding: 16px; margin-bottom: 12px; border-left: 4px solid var(--jaune-sable); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .event-card { background: white; border-radius: 20px; padding: 16px; margin-bottom: 12px; border-left: 4px solid var(--club-yellow); }
         .event-header { display: flex; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
-        .event-title { font-weight: 700; color: var(--bleu-mer); }
-        .event-badge { font-size: 11px; padding: 4px 8px; background: var(--sable-clair); border-radius: 20px; color: var(--bleu-mer); }
+        .event-title { font-weight: 700; color: var(--club-blue); }
+        .event-badge { font-size: 11px; padding: 4px 8px; background: var(--bg-light); border-radius: 20px; color: var(--club-blue); }
         
-        .member-card { background: white; border-radius: 16px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--jaune-sable); }
+        .member-card { background: white; border-radius: 16px; padding: 12px; margin-bottom: 8px; border-left: 3px solid var(--club-yellow); }
+        .player-details { font-size: 12px; color: #6b7280; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e7eb; }
+        .parent-info { background: #f8fafc; border-radius: 12px; padding: 8px; margin-top: 6px; }
         
-        .btn-add { background: linear-gradient(135deg, var(--bleu-mer), var(--bleu-mer-clair)); border: none; width: 44px; height: 44px; border-radius: 50%; font-size: 24px; color: white; cursor: pointer; box-shadow: 0 4px 12px rgba(0,85,164,0.3); }
+        .btn-add { background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); border: none; width: 44px; height: 44px; border-radius: 50%; font-size: 24px; color: white; cursor: pointer; }
         
-        .reminder-btn { background: var(--sable-clair); border: none; padding: 8px 12px; border-radius: 30px; font-size: 11px; cursor: pointer; color: var(--bleu-mer); margin: 4px; }
-        .reminder-btn:active { background: var(--jaune-sable); }
+        .players-selection { background: white; border-radius: 20px; padding: 16px; margin-top: 16px; }
+        .player-select-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #e5e7eb; gap: 12px; }
+        .player-select-item input { width: 22px; height: 22px; cursor: pointer; accent-color: var(--club-blue); }
+        .player-name { flex: 1; font-weight: 500; }
+        .player-status { font-size: 12px; padding: 4px 10px; border-radius: 20px; }
+        .player-status.present { background: #d1fae5; color: #065f46; }
+        .player-status.absent { background: #fee2e2; color: #991b1b; }
+        .player-status.waiting { background: #fed7aa; color: #9a3412; }
+        
+        .btn-validate { background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); color: white; border: none; padding: 14px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 16px; }
+        
+        /* Chat styles */
+        .messages-layout { display: flex; flex-direction: column; height: calc(100vh - 250px); background: white; border-radius: 20px; overflow: hidden; }
+        .conversations-list { border-bottom: 1px solid #e5e7eb; max-height: 200px; overflow-y: auto; }
+        .conversation-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #f3f4f6; }
+        .conversation-item.active { background: #f3f4f6; }
+        .conversation-avatar { width: 44px; height: 44px; background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; }
+        .conversation-info { flex: 1; }
+        .conversation-name { font-weight: 600; font-size: 14px; }
+        .conversation-last { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+        .unread-indicator { width: 10px; height: 10px; background: #ef4444; border-radius: 50%; }
+        .chat-area { flex: 1; display: flex; flex-direction: column; height: 100%; }
+        .chat-header { padding: 12px 16px; border-bottom: 1px solid #e5e7eb; font-weight: 600; background: #f9fafb; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+        .chat-message { max-width: 80%; padding: 10px 14px; border-radius: 20px; font-size: 13px; }
+        .chat-message.sent { align-self: flex-end; background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); color: white; border-bottom-right-radius: 4px; }
+        .chat-message.received { align-self: flex-start; background: #f3f4f6; color: #1f2937; border-bottom-left-radius: 4px; }
+        .message-meta { display: flex; gap: 8px; align-items: center; margin-top: 4px; font-size: 9px; opacity: 0.7; }
+        .chat-input-area { display: flex; gap: 10px; padding: 12px; border-top: 1px solid #e5e7eb; background: white; }
+        .chat-input-area.hidden { display: none; }
+        .chat-input-area textarea { flex: 1; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 24px; resize: none; font-size: 14px; font-family: inherit; }
+        .send-msg-btn { background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 18px; color: white; }
+        .unread-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; font-size: 10px; padding: 2px 6px; border-radius: 20px; }
+        .notification-badge { background: #ef4444; color: white; font-size: 10px; padding: 2px 6px; border-radius: 20px; margin-left: 8px; }
         
         footer { text-align: center; padding: 12px; font-size: 10px; color: #9ca3af; background: white; margin-top: 20px; border-radius: 16px; }
-        .club-name { color: var(--bleu-mer); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -169,9 +183,9 @@
     <!-- Écran de connexion -->
     <div id="loginScreen" class="screen">
         <div class="login-hero">
-            <div class="hero-icon">⚽🌊</div>
+            <div class="hero-icon">⚽</div>
             <h1>FC Barcarès<br>Méditerranée</h1>
-            <p>Bleu mer • Jaune sable</p>
+            <p>Gestion d'équipe</p>
         </div>
         <div class="login-options">
             <button class="login-card" onclick="showPlayerLogin()">
@@ -192,9 +206,10 @@
             <div class="form-header"><button class="back-icon" onclick="hideAllForms()">←</button><h3>Accès joueur/parent</h3></div>
             <input type="text" id="playerTeamCode" placeholder="Code équipe (ex: FCBM24)" class="team-input">
             <input type="text" id="playerName" placeholder="Votre nom (parent)" class="team-input">
+            <input type="tel" id="playerPhone" placeholder="Téléphone" class="team-input">
+            <input type="email" id="playerEmail" placeholder="Email" class="team-input">
             <input type="text" id="childName" placeholder="Nom du joueur (enfant)" class="team-input">
             <button class="btn-primary" onclick="loginAsPlayer()">Se connecter / Demander</button>
-            <p class="form-hint">🌊 FC Barcarès Méditerranée - Famille, Mer, Passion</p>
         </div>
 
         <div id="coachLoginForm" class="login-form-panel hidden">
@@ -237,14 +252,15 @@
                     <button class="logout-icon" onclick="logout()">↗</button>
                 </div>
             </div>
-            <div class="welcome-banner"><span>🌊</span><span id="welcomeText">Bonjour</span><span>🏖️</span></div>
+            <div class="welcome-banner"><span>👋</span><span id="welcomeText">Bonjour</span></div>
         </div>
 
         <div class="bottom-nav">
             <button class="nav-btn active" data-tab="dashboard"><span class="nav-icon">📊</span><span>Accueil</span></button>
             <button class="nav-btn" data-tab="matches"><span class="nav-icon">🏆</span><span>Matchs</span></button>
-            <button class="nav-btn" data-tab="events" id="eventsTabBtn"><span class="nav-icon">📅</span><span>Événements</span></button>
+            <button class="nav-btn" data-tab="events"><span class="nav-icon">📅</span><span>Événements</span></button>
             <button class="nav-btn" data-tab="team"><span class="nav-icon">👥</span><span>Équipe</span></button>
+            <button class="nav-btn" data-tab="chat"><span class="nav-icon">💬</span><span>Chat</span><span id="chatUnreadBadge" class="hidden" style="background:#ef4444; color:white; font-size:10px; padding:2px 6px; border-radius:20px; margin-left:4px">0</span></button>
             <button class="nav-btn" id="adminTabBtn" data-tab="admin" style="display:none"><span class="nav-icon">👑</span><span>Admin</span></button>
         </div>
 
@@ -258,13 +274,13 @@
                 </div>
                 <div class="dashboard-card"><h3>📅 Prochains matchs</h3><div id="upcomingMatches"></div></div>
                 <div class="dashboard-card"><h3>🎉 Prochains événements</h3><div id="upcomingEvents"></div></div>
-                <footer>⚽ FC Barcarès Méditerranée - Bleu mer, Jaune sable 🌊🏖️</footer>
+                <footer>FC Barcarès Méditerranée ⚽</footer>
             </div>
 
             <!-- Matchs -->
             <div id="matchesTab" class="tab-pane hidden">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
-                    <h3 style="color:var(--bleu-mer)">🏆 Matchs</h3>
+                    <h3 style="color:var(--club-blue)">🏆 Matchs</h3>
                     <button id="addMatchBtn" class="btn-add" style="display:none" onclick="showMatchModal()">+</button>
                 </div>
                 <div id="matchesList"></div>
@@ -273,7 +289,7 @@
             <!-- Événements -->
             <div id="eventsTab" class="tab-pane hidden">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
-                    <h3 style="color:var(--bleu-mer)">📅 Événements</h3>
+                    <h3 style="color:var(--club-blue)">📅 Événements</h3>
                     <button id="addEventBtn" class="btn-add" style="display:none" onclick="showOtherEventModal()">+</button>
                 </div>
                 <div id="otherEventsList"></div>
@@ -281,27 +297,38 @@
 
             <!-- Équipe -->
             <div id="teamTab" class="tab-pane hidden">
-                <h3 style="color:var(--bleu-mer)">👥 Membres</h3>
+                <h3 style="color:var(--club-blue)">👥 Membres</h3>
                 <div id="teamMembersList"></div>
                 <div id="pendingRequestsCard" style="margin-top:20px; background:white; border-radius:20px; padding:16px; display:none">
-                    <h3 style="color:var(--bleu-mer)">⏳ Demandes en attente</h3>
+                    <h3 style="color:var(--club-blue)">⏳ Demandes en attente</h3>
                     <div id="pendingRequestsList"></div>
                 </div>
-                <div id="remindersCard" style="margin-top:20px; background:white; border-radius:20px; padding:16px">
-                    <h3 style="color:var(--bleu-mer)">⏰ Rappels programmés</h3>
-                    <div id="activeReminders"></div>
+            </div>
+
+            <!-- Chat -->
+            <div id="chatTab" class="tab-pane hidden">
+                <div class="messages-layout">
+                    <div class="conversations-list" id="conversationsList"></div>
+                    <div class="chat-area">
+                        <div class="chat-header" id="chatHeader"><span>Sélectionnez une conversation</span></div>
+                        <div class="chat-messages" id="chatMessages"></div>
+                        <div class="chat-input-area hidden" id="chatInputArea">
+                            <textarea id="messageInput" placeholder="Votre message..." rows="1"></textarea>
+                            <button id="sendMsgBtn" class="send-msg-btn">📤</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Admin -->
             <div id="adminTab" class="tab-pane hidden">
-                <h3 style="color:var(--bleu-mer)">🌍 Administration FC Barcarès</h3>
+                <h3 style="color:var(--club-blue)">🌍 Administration</h3>
                 <div style="margin-bottom:20px">
                     <button class="btn-primary" onclick="showMatchModal()" style="margin-bottom:10px">➕ Ajouter un match</button>
                     <button class="btn-primary" onclick="showOtherEventModal()" style="margin-bottom:10px">📅 Ajouter un événement</button>
                     <button class="btn-secondary" onclick="showGlobalMessage()">📢 Message à TOUTES les équipes</button>
                 </div>
-                <h4 style="margin:20px 0 10px; color:var(--bleu-mer)">Liste des équipes</h4>
+                <h4 style="margin:20px 0 10px; color:var(--club-blue)">Liste des équipes</h4>
                 <div id="allTeamsList"></div>
             </div>
         </div>
@@ -311,16 +338,18 @@
 <!-- Modal Match -->
 <div id="matchModal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:flex-end; z-index:300; display:none">
     <div style="background:white; border-radius:28px 28px 0 0; width:100%; max-height:85vh; overflow-y:auto">
-        <div style="display:flex; justify-content:space-between; padding:20px; border-bottom:1px solid #e5e7eb"><h3 style="color:var(--bleu-mer)">⚽ Nouveau match</h3><button onclick="closeMatchModal()" style="background:none; border:none; font-size:24px">✕</button></div>
+        <div style="display:flex; justify-content:space-between; padding:20px; border-bottom:1px solid #e5e7eb"><h3 style="color:var(--club-blue)">⚽ Nouveau match</h3><button onclick="closeMatchModal()" style="background:none; border:none; font-size:24px">✕</button></div>
         <div style="padding:20px">
             <select id="matchType" style="width:100%; padding:12px; margin-bottom:12px; border-radius:14px; border:1px solid #e5e7eb">
                 <option value="match_amical">⚽ Match amical</option><option value="coupe">🏆 Coupe</option><option value="match_officiel">📋 Championnat</option>
             </select>
             <input type="text" id="matchTitle" placeholder="Adversaire" style="width:100%; padding:12px; margin-bottom:12px; border-radius:14px; border:1px solid #e5e7eb">
+            <label style="font-weight:600; margin-bottom:4px; display:block; color:var(--club-blue)">📅 Date et heure du coup d'envoi</label>
             <input type="datetime-local" id="matchDate" style="width:100%; padding:12px; margin-bottom:12px; border-radius:14px; border:1px solid #e5e7eb">
+            <label style="font-weight:600; margin-bottom:4px; display:block; color:var(--club-blue)">⏰ Heure de convocation</label>
             <input type="datetime-local" id="matchCallTime" style="width:100%; padding:12px; margin-bottom:12px; border-radius:14px; border:1px solid #e5e7eb">
-            <input type="text" id="matchLocation" placeholder="Lieu (stade, terrain)" style="width:100%; padding:12px; margin-bottom:12px; border-radius:14px; border:1px solid #e5e7eb">
-            <textarea id="matchNotes" placeholder="Notes (tenue, horaires...)" rows="2" style="width:100%; padding:12px; border-radius:14px; border:1px solid #e5e7eb"></textarea>
+            <input type="text" id="matchLocation" placeholder="Lieu du match" style="width:100%; padding:12px; margin-bottom:12px; border-radius:14px; border:1px solid #e5e7eb">
+            <textarea id="matchNotes" placeholder="Notes (tenue, informations...)" rows="2" style="width:100%; padding:12px; border-radius:14px; border:1px solid #e5e7eb"></textarea>
         </div>
         <div style="padding:20px; display:flex; gap:12px; border-top:1px solid #e5e7eb">
             <button onclick="closeMatchModal()" style="flex:1; padding:14px; background:#f3f4f6; border:none; border-radius:40px">Annuler</button>
@@ -329,10 +358,26 @@
     </div>
 </div>
 
+<!-- Modal sélection des joueurs -->
+<div id="playerSelectionModal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:flex-end; z-index:301; display:none">
+    <div style="background:white; border-radius:28px 28px 0 0; width:100%; max-height:85vh; overflow-y:auto">
+        <div style="display:flex; justify-content:space-between; padding:20px; border-bottom:1px solid #e5e7eb">
+            <h3 style="color:var(--club-blue)">👥 Sélection des joueurs</h3>
+            <button onclick="closePlayerSelectionModal()" style="background:none; border:none; font-size:24px">✕</button>
+        </div>
+        <div style="padding:20px">
+            <p style="margin-bottom:16px"><strong id="selectionMatchTitle"></strong></p>
+            <p style="margin-bottom:16px; font-size:14px; color:#6b7280">✅ Sélectionnez les joueurs disponibles pour ce match</p>
+            <div id="playersSelectionList"></div>
+            <button class="btn-validate" onclick="validatePlayerSelection()">✅ Valider la sélection</button>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Événement -->
 <div id="otherEventModal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:flex-end; z-index:300; display:none">
     <div style="background:white; border-radius:28px 28px 0 0; width:100%; max-height:85vh; overflow-y:auto">
-        <div style="display:flex; justify-content:space-between; padding:20px; border-bottom:1px solid #e5e7eb"><h3 style="color:var(--bleu-mer)">📅 Événement</h3><button onclick="closeOtherEventModal()" style="background:none; border:none; font-size:24px">✕</button></div>
+        <div style="display:flex; justify-content:space-between; padding:20px; border-bottom:1px solid #e5e7eb"><h3 style="color:var(--club-blue)">📅 Événement</h3><button onclick="closeOtherEventModal()" style="background:none; border:none; font-size:24px">✕</button></div>
         <div style="padding:20px">
             <select id="otherEventType" style="width:100%; padding:12px; margin-bottom:12px; border-radius:14px; border:1px solid #e5e7eb">
                 <option value="entrainement">🏋️ Entraînement</option><option value="soiree">🎉 Soirée d'équipe</option><option value="reunion">📋 Réunion parents</option><option value="tournoi">🏆 Tournoi</option>
@@ -352,7 +397,7 @@
 <!-- Modal message global -->
 <div id="globalMsgModal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:flex-end; z-index:300; display:none">
     <div style="background:white; border-radius:28px 28px 0 0; width:100%">
-        <div style="padding:20px; border-bottom:1px solid #e5e7eb"><h3 style="color:var(--bleu-mer)">📢 Message à toutes les équipes</h3></div>
+        <div style="padding:20px; border-bottom:1px solid #e5e7eb"><h3 style="color:var(--club-blue)">📢 Message à toutes les équipes</h3></div>
         <div style="padding:20px"><textarea id="globalMsgText" rows="4" style="width:100%; padding:12px; border-radius:14px; border:1px solid #e5e7eb" placeholder="Votre message..."></textarea></div>
         <div style="padding:20px; display:flex; gap:12px"><button onclick="closeGlobalMsg()" style="flex:1; padding:14px; background:#f3f4f6; border:none; border-radius:40px">Annuler</button><button onclick="sendGlobalMessage()" style="flex:1; padding:14px; background:linear-gradient(135deg, #0055a4, #0066c4); color:white; border:none; border-radius:40px">Envoyer</button></div>
     </div>
@@ -363,6 +408,8 @@
 <script>
 // ============ DONNÉES ==========
 let appData = { admin: { password: "admin123" }, teams: {}, currentUser: null };
+let currentSelectionMatch = null;
+let currentConversation = null;
 
 function loadData() {
     const saved = localStorage.getItem('teamfoot_data');
@@ -376,7 +423,7 @@ function loadData() {
                 matches: [], 
                 otherEvents: [],
                 messages: [],
-                reminders: []
+                privateMessages: []
             } 
         };
         saveData();
@@ -388,44 +435,23 @@ function saveData() { localStorage.setItem('teamfoot_data', JSON.stringify(appDa
 function saveSession() { localStorage.setItem('teamfoot_session', JSON.stringify(appData.currentUser)); }
 function showToast(msg) { let t = document.getElementById('toast'); t.textContent = msg; t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 2500); }
 
-// ============ DÉCONNEXION (CORRIGÉE) ==========
+// ============ DÉCONNEXION ==========
 function switchAccount() {
-    if (confirm("🔄 Changer de compte ? Vous serez déconnecté.")) {
-        logout();
-    }
+    if (confirm("Changer de compte ? Vous serez déconnecté.")) { logout(); }
 }
-
 function logout() {
     appData.currentUser = null;
     localStorage.removeItem('teamfoot_session');
-    
-    // Cacher l'interface principale
     document.getElementById('mainApp').classList.add('hidden');
-    
-    // Réinitialiser tous les formulaires
-    const inputs = ['playerTeamCode', 'playerName', 'childName', 'coachTeamCode', 'coachPassword', 'adminCode', 'newTeamName', 'newTeamCode', 'newCoachPassword'];
-    inputs.forEach(id => { let el = document.getElementById(id); if(el) el.value = ''; });
-    
-    // Cacher tous les sous-formulaires
-    hideAllForms();
-    
-    // Afficher l'écran de connexion
     document.getElementById('loginScreen').classList.remove('hidden');
-    
-    // Réinitialiser la navigation
-    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    const firstNav = document.querySelector('.nav-btn[data-tab="dashboard"]');
-    if(firstNav) firstNav.classList.add('active');
-    document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
-    const dashboardPane = document.getElementById('dashboardTab');
-    if(dashboardPane) dashboardPane.classList.add('active');
-    
-    showToast('🌊 Déconnecté. Allez FC Barcarès !');
+    showToast('Déconnecté');
 }
 
 function hideAllForms() {
-    const forms = ['playerLoginForm', 'coachLoginForm', 'adminLoginForm', 'createTeamForm'];
-    forms.forEach(id => { let el = document.getElementById(id); if(el) el.classList.add('hidden'); });
+    document.getElementById('playerLoginForm')?.classList.add('hidden');
+    document.getElementById('coachLoginForm')?.classList.add('hidden');
+    document.getElementById('adminLoginForm')?.classList.add('hidden');
+    document.getElementById('createTeamForm')?.classList.add('hidden');
 }
 function showPlayerLogin() { hideAllForms(); document.getElementById('playerLoginForm').classList.remove('hidden'); }
 function showCoachLogin() { hideAllForms(); document.getElementById('coachLoginForm').classList.remove('hidden'); }
@@ -437,7 +463,7 @@ function loginAsAdmin() {
         appData.currentUser = { role: 'admin' };
         saveData(); saveSession();
         showMainApp();
-        showToast('👑 Bienvenue Administrateur FC Barcarès');
+        showToast('Bienvenue Administrateur');
     } else showToast('Code incorrect');
 }
 
@@ -448,30 +474,54 @@ function loginAsCoach() {
         appData.currentUser = { role: 'coach', teamCode: code };
         saveData(); saveSession();
         showMainApp();
-        showToast(`👥 Bienvenue coach de ${appData.teams[code].name}`);
+        showToast(`Bienvenue coach`);
     } else showToast('Code ou mot de passe incorrect');
 }
 
 function loginAsPlayer() {
     const code = document.getElementById('playerTeamCode').value.toUpperCase();
     const parentName = document.getElementById('playerName').value.trim();
+    const phone = document.getElementById('playerPhone').value.trim();
+    const email = document.getElementById('playerEmail').value.trim();
     const childName = document.getElementById('childName').value.trim();
+    
     if (!appData.teams[code]) { showToast('Code équipe invalide'); return; }
     if (!parentName || !childName) { showToast('Remplissez tous les champs'); return; }
     
     const team = appData.teams[code];
     let player = Object.values(team.players).find(p => p.childName === childName);
+    
     if (!player) {
-        player = { id: Date.now().toString(), childName: childName, parents: [{ id: Date.now().toString(), name: parentName }], pendingApproval: true };
+        player = { 
+            id: Date.now().toString(), 
+            childName: childName, 
+            childPhone: phone,
+            childEmail: email,
+            parents: [{ id: Date.now().toString(), name: parentName, phone: phone, email: email }], 
+            pendingApproval: true 
+        };
         team.players[player.id] = player;
-    } else if (!player.parents.find(p => p.name === parentName)) {
-        player.parents.push({ id: Date.now().toString(), name: parentName });
+    } else {
+        const existingParent = player.parents.find(p => p.name === parentName);
+        if (!existingParent) {
+            player.parents.push({ id: Date.now().toString(), name: parentName, phone: phone, email: email });
+        }
+        if (phone && !player.childPhone) player.childPhone = phone;
+        if (email && !player.childEmail) player.childEmail = email;
     }
     saveData();
-    appData.currentUser = { role: 'player', teamCode: code, playerId: player.id, parentName: parentName, childName: childName, pendingApproval: player.pendingApproval };
+    appData.currentUser = { 
+        role: 'player', 
+        teamCode: code, 
+        playerId: player.id, 
+        parentId: player.parents.find(p => p.name === parentName)?.id || player.parents[0].id,
+        parentName: parentName, 
+        childName: childName, 
+        pendingApproval: player.pendingApproval 
+    };
     saveSession();
     showMainApp();
-    showToast(player.pendingApproval ? '✅ Demande envoyée, en attente validation coach' : `🌊 Bienvenue ${parentName} (${childName})`);
+    showToast(player.pendingApproval ? 'Demande envoyée, en attente validation coach' : `Bienvenue ${parentName}`);
 }
 
 function createTeam() {
@@ -480,9 +530,9 @@ function createTeam() {
     const pwd = document.getElementById('newCoachPassword').value;
     if (!name || !code || !pwd) { showToast('Remplissez tous les champs'); return; }
     if (appData.teams[code]) { showToast('Code déjà utilisé'); return; }
-    appData.teams[code] = { name: name, coachPassword: pwd, players: {}, matches: [], otherEvents: [], messages: [], reminders: [] };
+    appData.teams[code] = { name: name, coachPassword: pwd, players: {}, matches: [], otherEvents: [], messages: [], privateMessages: [] };
     saveData();
-    showToast(`✅ Équipe ${name} créée !`);
+    showToast(`Équipe ${name} créée !`);
     showCoachLogin();
 }
 
@@ -504,29 +554,28 @@ function showMainApp() {
         document.getElementById('headerTeamName').innerText = 'FC Barcarès Méditerranée';
         document.getElementById('headerRole').innerText = 'Super Admin';
         document.getElementById('headerIcon').innerHTML = '👑';
-        document.getElementById('welcomeText').innerHTML = 'Bonjour Administrateur 🌊';
+        document.getElementById('welcomeText').innerHTML = 'Bonjour Administrateur';
     } else if (isCoach) {
         const team = appData.teams[user.teamCode];
         document.getElementById('headerTeamName').innerText = team.name;
         document.getElementById('headerRole').innerText = 'Coach';
         document.getElementById('headerIcon').innerHTML = '👥';
-        document.getElementById('welcomeText').innerHTML = `Bonjour Coach ${team.name} 🏖️`;
+        document.getElementById('welcomeText').innerHTML = `Bonjour Coach`;
     } else {
         const team = appData.teams[user.teamCode];
         document.getElementById('headerTeamName').innerText = team.name;
         document.getElementById('headerRole').innerText = user.pendingApproval ? 'En attente' : 'Parent';
         document.getElementById('headerIcon').innerHTML = '⚽';
-        document.getElementById('welcomeText').innerHTML = `Bonjour ${user.parentName} (${user.childName}) ⚽`;
+        document.getElementById('welcomeText').innerHTML = `Bonjour ${user.parentName} (${user.childName})`;
     }
     
     loadDashboard();
     loadMatches();
     loadOtherEvents();
     loadTeamMembers();
-    loadReminders();
+    loadConversations();
     if (isAdmin) loadAllTeams();
     
-    // Navigation
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.onclick = () => {
             const tab = btn.dataset.tab;
@@ -534,11 +583,16 @@ function showMainApp() {
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById(`${tab}Tab`).classList.add('active');
+            if (tab === 'chat') loadConversations();
             if (tab === 'admin' && isAdmin) loadAllTeams();
             if (tab === 'matches') loadMatches();
             if (tab === 'events') loadOtherEvents();
-            if (tab === 'team') { loadTeamMembers(); loadReminders(); }
         };
+    });
+    
+    document.getElementById('sendMsgBtn')?.addEventListener('click', sendPrivateMessage);
+    document.getElementById('messageInput')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendPrivateMessage(); }
     });
 }
 
@@ -584,25 +638,177 @@ function loadDashboard() {
     document.getElementById('upcomingEvents').innerHTML = upcomingEvents.length ? upcomingEvents.map(e => `<div style="padding:8px 0; border-bottom:1px solid #f3f4f6">📅 ${e.title} - ${new Date(e.dateTime).toLocaleDateString()}</div>`).join('') : '<div class="empty-state">Aucun événement à venir</div>';
 }
 
+// ============ MATCHES ==========
+function showMatchModal() { document.getElementById('matchModal').style.display = 'flex'; }
+function closeMatchModal() { document.getElementById('matchModal').style.display = 'none'; }
+
+function createMatch() {
+    const user = appData.currentUser;
+    const match = {
+        id: Date.now().toString(),
+        type: document.getElementById('matchType').value,
+        title: document.getElementById('matchTitle').value,
+        matchDateTime: document.getElementById('matchDate').value,
+        callTime: document.getElementById('matchCallTime').value,
+        location: document.getElementById('matchLocation').value,
+        notes: document.getElementById('matchNotes').value,
+        selectedPlayers: [],
+        attendances: {}
+    };
+    if (!match.title || !match.matchDateTime || !match.location) { showToast('Remplissez tous les champs'); return; }
+    if (user.role === 'admin') for (let code in appData.teams) appData.teams[code].matches.push({...match});
+    else appData.teams[user.teamCode].matches.push(match);
+    saveData();
+    closeMatchModal();
+    loadMatches();
+    loadDashboard();
+    showToast('Match créé !');
+}
+
 function loadMatches() {
     const user = appData.currentUser;
     let matches = [];
     if (user.role === 'admin') {
         for (let code in appData.teams) {
-            matches.push(...(appData.teams[code].matches || []).map(m => ({...m, teamName: appData.teams[code].name})));
+            matches.push(...(appData.teams[code].matches || []).map(m => ({...m, teamName: appData.teams[code].name, teamCode: code})));
         }
     } else {
         matches = appData.teams[user.teamCode].matches || [];
     }
     matches.sort((a,b) => new Date(a.matchDateTime) - new Date(b.matchDateTime));
-    if (!matches.length) { document.getElementById('matchesList').innerHTML = '<div class="empty-state"><div class="empty-icon">🏆</div><p>Aucun match programmé</p></div>'; return; }
+    if (!matches.length) { document.getElementById('matchesList').innerHTML = '<div class="empty-state">Aucun match programmé</div>'; return; }
+    
     document.getElementById('matchesList').innerHTML = matches.map(m => `
         <div class="event-card">
             <div class="event-header"><strong>${m.title}</strong><span class="event-badge">${m.type === 'match_amical' ? 'Amical' : m.type === 'coupe' ? 'Coupe' : 'Championnat'}</span></div>
-            <div style="margin-top:8px; font-size:13px">📅 ${new Date(m.matchDateTime).toLocaleString()}<br>📍 ${m.location}<br>⏰ Convocation: ${new Date(m.callTime).toLocaleString()}</div>
+            <div style="margin-top:8px; font-size:13px">📅 Coup d'envoi: ${new Date(m.matchDateTime).toLocaleString()}<br>📍 ${m.location}<br>⏰ Convocation: ${new Date(m.callTime).toLocaleString()}</div>
             ${m.notes ? `<div style="margin-top:8px; font-size:12px; color:#0055a4">📌 ${m.notes}</div>` : ''}
+            ${(user.role === 'coach' || user.role === 'admin') ? `<button onclick="openPlayerSelection('${m.id}')" style="margin-top:12px; background:linear-gradient(135deg,#0055a4,#0066c4); border:none; padding:10px 16px; border-radius:30px; color:white; cursor:pointer">👥 Sélectionner les joueurs disponibles</button>` : ''}
+            <div style="margin-top:12px; font-size:12px; background:#f0f4f8; padding:8px; border-radius:12px">
+                <strong>✅ Joueurs sélectionnés:</strong> ${m.selectedPlayers && m.selectedPlayers.length ? m.selectedPlayers.map(pid => getPlayerName(pid)).join(', ') : 'Aucun joueur sélectionné'}
+            </div>
+            ${user.role === 'player' ? renderAttendanceButtons(m.id, getAttendanceStatus(m.id)) : ''}
         </div>
     `).join('');
+}
+
+function renderAttendanceButtons(matchId, currentStatus) {
+    return `
+        <div style="display:flex; gap:10px; margin-top:12px">
+            <button onclick="setAttendance('${matchId}', 'present')" style="flex:1; padding:8px; border:none; border-radius:30px; background:${currentStatus === 'present' ? '#10b981' : '#f3f4f6'}; color:${currentStatus === 'present' ? 'white' : '#1f2937'}">✅ Présent</button>
+            <button onclick="setAttendance('${matchId}', 'absent')" style="flex:1; padding:8px; border:none; border-radius:30px; background:${currentStatus === 'absent' ? '#ef4444' : '#f3f4f6'}; color:${currentStatus === 'absent' ? 'white' : '#1f2937'}">❌ Absent</button>
+            <button onclick="setAttendance('${matchId}', 'waiting')" style="flex:1; padding:8px; border:none; border-radius:30px; background:${currentStatus === 'waiting' ? '#f59e0b' : '#f3f4f6'}; color:${currentStatus === 'waiting' ? 'white' : '#1f2937'}">⏳ En attente</button>
+        </div>
+    `;
+}
+
+function getAttendanceStatus(matchId) {
+    const user = appData.currentUser;
+    const team = appData.teams[user.teamCode];
+    const match = team.matches.find(m => m.id === matchId);
+    if (match && match.attendances && match.attendances[user.playerId]) {
+        return match.attendances[user.playerId];
+    }
+    return 'waiting';
+}
+
+function setAttendance(matchId, status) {
+    const user = appData.currentUser;
+    const team = appData.teams[user.teamCode];
+    const match = team.matches.find(m => m.id === matchId);
+    if (match) {
+        if (!match.attendances) match.attendances = {};
+        match.attendances[user.playerId] = status;
+        saveData();
+        loadMatches();
+        showToast(`Réponse enregistrée : ${status === 'present' ? 'Présent' : status === 'absent' ? 'Absent' : 'En attente'}`);
+        
+        // Notification au coach
+        const player = team.players[user.playerId];
+        const notification = {
+            id: Date.now().toString(),
+            from: 'system',
+            to: 'coach',
+            text: `${user.parentName} a répondu ${status === 'present' ? 'PRÉSENT' : status === 'absent' ? 'ABSENT' : 'EN ATTENTE'} pour ${match.title} (${player.childName})`,
+            timestamp: new Date().toISOString(),
+            seen: false
+        };
+        if (!team.privateMessages) team.privateMessages = [];
+        team.privateMessages.push(notification);
+        saveData();
+    }
+}
+
+function getPlayerName(playerId) {
+    const user = appData.currentUser;
+    let team;
+    if (user.role === 'admin') team = Object.values(appData.teams)[0];
+    else team = appData.teams[user.teamCode];
+    const player = team.players[playerId];
+    return player ? player.childName : 'Inconnu';
+}
+
+function openPlayerSelection(matchId) {
+    const user = appData.currentUser;
+    let team, match;
+    if (user.role === 'admin') {
+        for (let code in appData.teams) {
+            match = appData.teams[code].matches.find(m => m.id === matchId);
+            if (match) { team = appData.teams[code]; break; }
+        }
+    } else {
+        team = appData.teams[user.teamCode];
+        match = team.matches.find(m => m.id === matchId);
+    }
+    if (!match) return;
+    currentSelectionMatch = { matchId, teamCode: user.role === 'admin' ? Object.keys(appData.teams).find(code => appData.teams[code].matches.find(m => m.id === matchId)) : user.teamCode };
+    const players = Object.values(team.players || {}).filter(p => !p.pendingApproval);
+    document.getElementById('selectionMatchTitle').innerText = `${match.title} - ${new Date(match.matchDateTime).toLocaleDateString()}`;
+    document.getElementById('playersSelectionList').innerHTML = players.map(p => `
+        <div class="player-select-item">
+            <input type="checkbox" id="player_${p.id}" ${match.selectedPlayers && match.selectedPlayers.includes(p.id) ? 'checked' : ''}>
+            <label for="player_${p.id}" class="player-name">${p.childName}</label>
+        </div>
+    `).join('');
+    document.getElementById('playerSelectionModal').style.display = 'flex';
+}
+
+function validatePlayerSelection() {
+    const selected = [];
+    document.querySelectorAll('#playersSelectionList input:checked').forEach(cb => {
+        selected.push(cb.id.replace('player_', ''));
+    });
+    let team = appData.currentUser.role === 'admin' ? appData.teams[currentSelectionMatch.teamCode] : appData.teams[appData.currentUser.teamCode];
+    const match = team.matches.find(m => m.id === currentSelectionMatch.matchId);
+    if (match) { match.selectedPlayers = selected; saveData(); }
+    closePlayerSelectionModal();
+    loadMatches();
+    showToast(`${selected.length} joueur(s) sélectionné(s)`);
+}
+function closePlayerSelectionModal() { document.getElementById('playerSelectionModal').style.display = 'none'; }
+
+// ============ ÉVÉNEMENTS ==========
+function showOtherEventModal() { document.getElementById('otherEventModal').style.display = 'flex'; }
+function closeOtherEventModal() { document.getElementById('otherEventModal').style.display = 'none'; }
+function createOtherEvent() {
+    const user = appData.currentUser;
+    const event = {
+        id: Date.now().toString(),
+        type: document.getElementById('otherEventType').value,
+        title: document.getElementById('otherEventTitle').value,
+        dateTime: document.getElementById('otherEventDate').value,
+        location: document.getElementById('otherEventLocation').value,
+        notes: document.getElementById('otherEventNotes').value,
+        attendances: {}
+    };
+    if (!event.title || !event.dateTime || !event.location) { showToast('Remplissez tous les champs'); return; }
+    if (user.role === 'admin') for (let code in appData.teams) appData.teams[code].otherEvents.push({...event});
+    else appData.teams[user.teamCode].otherEvents.push(event);
+    saveData();
+    closeOtherEventModal();
+    loadOtherEvents();
+    loadDashboard();
+    showToast('Événement créé');
 }
 
 function loadOtherEvents() {
@@ -616,29 +822,71 @@ function loadOtherEvents() {
         events = appData.teams[user.teamCode].otherEvents || [];
     }
     events.sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime));
-    if (!events.length) { document.getElementById('otherEventsList').innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><p>Aucun événement programmé</p></div>'; return; }
+    if (!events.length) { document.getElementById('otherEventsList').innerHTML = '<div class="empty-state">Aucun événement</div>'; return; }
     document.getElementById('otherEventsList').innerHTML = events.map(e => `
         <div class="event-card">
-            <div class="event-header"><strong>${e.title}</strong><span class="event-badge">${e.type === 'entrainement' ? '🏋️ Entraînement' : e.type === 'soiree' ? '🎉 Soirée' : e.type === 'reunion' ? '📋 Réunion' : '🏆 Tournoi'}</span></div>
+            <div class="event-header"><strong>${e.title}</strong><span class="event-badge">${e.type === 'entrainement' ? '🏋️ Entraînement' : e.type === 'soiree' ? '🎉 Soirée' : '📋 Réunion'}</span></div>
             <div style="margin-top:8px; font-size:13px">📅 ${new Date(e.dateTime).toLocaleString()}<br>📍 ${e.location}</div>
-            ${e.notes ? `<div style="margin-top:8px; font-size:12px; color:#0055a4">📌 ${e.notes}</div>` : ''}
+            ${e.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${e.notes}</div>` : ''}
+            ${user.role === 'player' ? renderAttendanceButtonsEvent(e.id, getEventAttendanceStatus(e.id)) : ''}
         </div>
     `).join('');
 }
 
+function getEventAttendanceStatus(eventId) {
+    const user = appData.currentUser;
+    const team = appData.teams[user.teamCode];
+    const event = team.otherEvents.find(e => e.id === eventId);
+    if (event && event.attendances && event.attendances[user.playerId]) return event.attendances[user.playerId];
+    return 'waiting';
+}
+function renderAttendanceButtonsEvent(eventId, currentStatus) {
+    return `<div style="display:flex; gap:10px; margin-top:12px">
+        <button onclick="setEventAttendance('${eventId}', 'present')" style="flex:1; padding:8px; border:none; border-radius:30px; background:${currentStatus === 'present' ? '#10b981' : '#f3f4f6'}">✅ Présent</button>
+        <button onclick="setEventAttendance('${eventId}', 'absent')" style="flex:1; padding:8px; border:none; border-radius:30px; background:${currentStatus === 'absent' ? '#ef4444' : '#f3f4f6'}">❌ Absent</button>
+        <button onclick="setEventAttendance('${eventId}', 'waiting')" style="flex:1; padding:8px; border:none; border-radius:30px; background:${currentStatus === 'waiting' ? '#f59e0b' : '#f3f4f6'}">⏳ En attente</button>
+    </div>`;
+}
+function setEventAttendance(eventId, status) {
+    const user = appData.currentUser;
+    const team = appData.teams[user.teamCode];
+    const event = team.otherEvents.find(e => e.id === eventId);
+    if (event) {
+        if (!event.attendances) event.attendances = {};
+        event.attendances[user.playerId] = status;
+        saveData();
+        loadOtherEvents();
+        showToast(`Réponse enregistrée`);
+    }
+}
+
+// ============ MEMBRES ==========
 function loadTeamMembers() {
     const user = appData.currentUser;
     if (user.role === 'admin') return;
     const team = appData.teams[user.teamCode];
     const players = Object.values(team.players || {});
-    document.getElementById('teamMembersList').innerHTML = players.length ? players.map(p => `<div class="member-card"><div>⚽ ${p.childName}<br><small>👨‍👩‍👧 ${p.parents.length} parent(s)</small></div>${user.role === 'coach' && p.pendingApproval ? `<button onclick="approvePlayer('${p.id}')" style="background:#10b981; border:none; padding:8px 16px; border-radius:20px; color:white">✅ Approuver</button>` : ''}</div>`).join('') : '<div class="empty-state"><div class="empty-icon">👥</div><p>Aucun joueur inscrit</p></div>';
+    document.getElementById('teamMembersList').innerHTML = players.length ? players.map(p => `
+        <div class="member-card">
+            <div>
+                <strong>⚽ ${p.childName}</strong>
+                ${p.childPhone ? `<div style="font-size:11px; color:#6b7280">📞 ${p.childPhone}</div>` : ''}
+                ${p.childEmail ? `<div style="font-size:11px; color:#6b7280">✉️ ${p.childEmail}</div>` : ''}
+                <div class="player-details">
+                    <strong>Parents:</strong>
+                    ${p.parents.map(parent => `<div class="parent-info">👤 ${parent.name}<br>📞 ${parent.phone || 'Non renseigné'}<br>✉️ ${parent.email || 'Non renseigné'}</div>`).join('')}
+                </div>
+            </div>
+            ${user.role === 'coach' && p.pendingApproval ? `<button onclick="approvePlayer('${p.id}')" style="background:#10b981; border:none; padding:8px 16px; border-radius:20px; color:white">✅ Approuver</button>` : ''}
+        </div>
+    `).join('') : '<div class="empty-state">Aucun joueur</div>';
     
     const pending = players.filter(p => p.pendingApproval);
     const card = document.getElementById('pendingRequestsCard');
     const list = document.getElementById('pendingRequestsList');
     if (user.role === 'coach' && pending.length) {
         card.style.display = 'block';
-        list.innerHTML = pending.map(p => `<div class="member-card"><div>⏳ ${p.childName}<br><small>Parent: ${p.parents[0]?.name}</small></div><button onclick="approvePlayer('${p.id}')" style="background:#10b981; border:none; padding:6px 12px; border-radius:20px; color:white">✅ Approuver</button></div>`).join('');
+        list.innerHTML = pending.map(p => `<div class="member-card"><div>⏳ ${p.childName}<br>Parent: ${p.parents[0]?.name}<br>📞 ${p.parents[0]?.phone}<br>✉️ ${p.parents[0]?.email}</div><button onclick="approvePlayer('${p.id}')" style="background:#10b981; border:none; padding:6px 12px; border-radius:20px; color:white">✅ Approuver</button></div>`).join('');
     } else card.style.display = 'none';
 }
 
@@ -646,23 +894,122 @@ function approvePlayer(playerId) {
     const team = appData.teams[appData.currentUser.teamCode];
     if (team.players[playerId]) {
         team.players[playerId].pendingApproval = false;
-        if (appData.currentUser.playerId === playerId) appData.currentUser.pendingApproval = false;
-        saveData(); saveSession();
+        saveData();
         loadTeamMembers();
-        showToast('✅ Joueur approuvé !');
+        showToast('Joueur approuvé');
     }
 }
 
-function loadReminders() {
+// ============ CHAT PRIVÉ ==========
+function loadConversations() {
     const user = appData.currentUser;
-    if (user.role !== 'coach') return;
-    const container = document.getElementById('activeReminders');
     const team = appData.teams[user.teamCode];
-    const reminders = team.reminders || [];
-    if (!reminders.length) { container.innerHTML = '<div class="empty-state">Aucun rappel programmé</div>'; return; }
-    container.innerHTML = reminders.map(r => `<div style="padding:6px 0; border-bottom:1px solid #f3f4f6">📅 ${r.daysBefore} jours avant ${r.eventTitle} - ${r.sent ? '✅ Envoyé' : '⏳ En attente'}</div>`).join('');
+    if (!team) return;
+    
+    const conversations = new Map();
+    const allMessages = team.privateMessages || [];
+    
+    if (user.role === 'admin') {
+        for (let code in appData.teams) {
+            const msgs = appData.teams[code].privateMessages || [];
+            msgs.forEach(msg => {
+                const otherId = msg.from === 'admin' ? msg.to : msg.from;
+                if (!conversations.has(otherId)) {
+                    conversations.set(otherId, { id: otherId, name: `Équipe ${appData.teams[code].name}`, lastMessage: msg.text, lastTime: msg.timestamp, unread: !msg.seen && msg.to === 'admin' });
+                }
+            });
+        }
+    } else if (user.role === 'coach') {
+        allMessages.forEach(msg => {
+            const otherId = msg.from === 'coach' ? msg.to : msg.from;
+            const player = Object.values(team.players || {}).find(p => p.parents.some(parent => parent.id === otherId) || p.id === otherId);
+            if (!conversations.has(otherId)) {
+                conversations.set(otherId, { id: otherId, name: player ? `Parent de ${player.childName}` : otherId, lastMessage: msg.text, lastTime: msg.timestamp, unread: !msg.seen && msg.to === 'coach' });
+            }
+        });
+    } else if (user.role === 'player') {
+        allMessages.forEach(msg => {
+            if (msg.from === user.parentId || msg.to === user.parentId || msg.from === 'coach' || msg.to === 'coach' || msg.from === 'admin') {
+                const otherId = msg.from === user.parentId ? msg.to : msg.from;
+                if (!conversations.has(otherId)) {
+                    let name = otherId === 'coach' ? 'Coach' : otherId === 'admin' ? 'Administrateur' : 'Autre parent';
+                    if (otherId !== 'coach' && otherId !== 'admin') {
+                        const otherParent = Object.values(team.players || {}).flatMap(p => p.parents).find(p => p.id === otherId);
+                        if (otherParent) name = otherParent.name;
+                    }
+                    conversations.set(otherId, { id: otherId, name: name, lastMessage: msg.text, lastTime: msg.timestamp, unread: !msg.seen && msg.to === user.parentId });
+                }
+            }
+        });
+        // Ajouter la possibilité de parler au coach
+        if (!conversations.has('coach')) {
+            conversations.set('coach', { id: 'coach', name: 'Coach', lastMessage: '', lastTime: '', unread: false });
+        }
+    }
+    
+    const convArray = Array.from(conversations.values()).sort((a,b) => new Date(b.lastTime) - new Date(a.lastTime));
+    const container = document.getElementById('conversationsList');
+    if (convArray.length === 0) { container.innerHTML = '<div class="empty-state">Aucune conversation</div>'; return; }
+    container.innerHTML = convArray.map(conv => `<div class="conversation-item" onclick="openConversation('${conv.id}', '${conv.name.replace(/'/g, "\\'")}')"><div class="conversation-avatar">${conv.name.charAt(0)}</div><div class="conversation-info"><div class="conversation-name">${conv.name}</div><div class="conversation-last">${conv.lastMessage?.substring(0, 40) || 'Nouvelle conversation'}</div></div>${conv.unread ? '<div class="unread-indicator"></div>' : ''}</div>`).join('');
+    
+    const unreadCount = convArray.filter(c => c.unread).length;
+    const badge = document.getElementById('chatUnreadBadge');
+    if (unreadCount > 0) { badge.innerText = unreadCount; badge.classList.remove('hidden'); } 
+    else badge.classList.add('hidden');
 }
 
+function openConversation(otherId, otherName) {
+    const user = appData.currentUser;
+    const team = appData.teams[user.teamCode];
+    document.getElementById('chatHeader').innerHTML = `<span>💬 ${otherName}</span>`;
+    document.getElementById('chatInputArea').classList.remove('hidden');
+    
+    (team.privateMessages || []).forEach(msg => {
+        if ((msg.to === user.parentId || msg.to === user.role) && (msg.from === otherId) && !msg.seen) {
+            msg.seen = true;
+        }
+    });
+    saveData();
+    
+    const messages = (team.privateMessages || []).filter(msg => 
+        (msg.from === otherId && (msg.to === user.parentId || msg.to === user.role)) || 
+        (msg.to === otherId && (msg.from === user.parentId || msg.from === user.role))
+    ).sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+    
+    const chatContainer = document.getElementById('chatMessages');
+    const currentId = user.parentId || user.role;
+    chatContainer.innerHTML = messages.map(msg => {
+        const isSent = msg.from === currentId || (msg.from === 'coach' && user.role === 'coach') || msg.from === 'admin';
+        return `<div class="chat-message ${isSent ? 'sent' : 'received'}"><div>${msg.text}</div><div class="message-meta"><span>${new Date(msg.timestamp).toLocaleTimeString()}</span>${msg.seen ? '<span>✓✓</span>' : '<span>✓</span>'}</div></div>`;
+    }).join('');
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    currentConversation = { otherId, otherName };
+}
+
+function sendPrivateMessage() {
+    const input = document.getElementById('messageInput');
+    const text = input.value.trim();
+    if (!text || !currentConversation) return;
+    const user = appData.currentUser;
+    const team = appData.teams[user.teamCode];
+    const message = {
+        id: Date.now().toString(),
+        from: user.role === 'admin' ? 'admin' : (user.role === 'coach' ? 'coach' : user.parentId),
+        to: currentConversation.otherId,
+        text: text,
+        timestamp: new Date().toISOString(),
+        seen: false
+    };
+    if (!team.privateMessages) team.privateMessages = [];
+    team.privateMessages.push(message);
+    saveData();
+    input.value = '';
+    openConversation(currentConversation.otherId, currentConversation.otherName);
+    loadConversations();
+    loadDashboard();
+}
+
+// ============ ADMIN ==========
 function loadAllTeams() {
     const container = document.getElementById('allTeamsList');
     container.innerHTML = Object.entries(appData.teams).map(([code, team]) => `
@@ -673,59 +1020,7 @@ function loadAllTeams() {
         </div>
     `).join('');
 }
-
-function deleteTeamAdmin(code) { if (confirm('Supprimer cette équipe ?')) { delete appData.teams[code]; saveData(); loadAllTeams(); showToast('Équipe supprimée'); } }
-
-// ============ MODALS ==========
-function showMatchModal() { document.getElementById('matchModal').style.display = 'flex'; }
-function closeMatchModal() { document.getElementById('matchModal').style.display = 'none'; }
-function createMatch() {
-    const user = appData.currentUser;
-    const match = {
-        id: Date.now().toString(),
-        type: document.getElementById('matchType').value,
-        title: document.getElementById('matchTitle').value,
-        matchDateTime: document.getElementById('matchDate').value,
-        callTime: document.getElementById('matchCallTime').value,
-        location: document.getElementById('matchLocation').value,
-        notes: document.getElementById('matchNotes').value
-    };
-    if (!match.title || !match.matchDateTime || !match.location) { showToast('Remplissez tous les champs'); return; }
-    if (user.role === 'admin') for (let code in appData.teams) appData.teams[code].matches.push({...match});
-    else appData.teams[user.teamCode].matches.push(match);
-    saveData();
-    closeMatchModal();
-    loadMatches();
-    loadDashboard();
-    document.getElementById('matchTitle').value = '';
-    document.getElementById('matchNotes').value = '';
-    showToast('⚽ Match créé !');
-}
-
-function showOtherEventModal() { document.getElementById('otherEventModal').style.display = 'flex'; }
-function closeOtherEventModal() { document.getElementById('otherEventModal').style.display = 'none'; }
-function createOtherEvent() {
-    const user = appData.currentUser;
-    const event = {
-        id: Date.now().toString(),
-        type: document.getElementById('otherEventType').value,
-        title: document.getElementById('otherEventTitle').value,
-        dateTime: document.getElementById('otherEventDate').value,
-        location: document.getElementById('otherEventLocation').value,
-        notes: document.getElementById('otherEventNotes').value
-    };
-    if (!event.title || !event.dateTime || !event.location) { showToast('Remplissez tous les champs'); return; }
-    if (user.role === 'admin') for (let code in appData.teams) appData.teams[code].otherEvents.push({...event});
-    else appData.teams[user.teamCode].otherEvents.push(event);
-    saveData();
-    closeOtherEventModal();
-    loadOtherEvents();
-    loadDashboard();
-    document.getElementById('otherEventTitle').value = '';
-    document.getElementById('otherEventNotes').value = '';
-    showToast('📅 Événement créé !');
-}
-
+function deleteTeamAdmin(code) { if (confirm('Supprimer ?')) { delete appData.teams[code]; saveData(); loadAllTeams(); showToast('Équipe supprimée'); } }
 function showGlobalMessage() { document.getElementById('globalMsgModal').style.display = 'flex'; }
 function closeGlobalMsg() { document.getElementById('globalMsgModal').style.display = 'none'; }
 function sendGlobalMessage() {
@@ -733,12 +1028,14 @@ function sendGlobalMessage() {
     if (!text) return;
     for (let code in appData.teams) {
         if (!appData.teams[code].messages) appData.teams[code].messages = [];
-        appData.teams[code].messages.push({ author: '👑 ADMIN FCBM', text: `🌊 ${text}`, timestamp: new Date().toISOString() });
+        appData.teams[code].messages.push({ author: 'ADMIN', text: text, timestamp: new Date().toISOString() });
+        const adminMsg = { id: Date.now().toString(), from: 'admin', to: 'coach', text: `📢 ADMIN: ${text}`, timestamp: new Date().toISOString(), seen: false };
+        if (!appData.teams[code].privateMessages) appData.teams[code].privateMessages = [];
+        appData.teams[code].privateMessages.push(adminMsg);
     }
     saveData();
     closeGlobalMsg();
-    document.getElementById('globalMsgText').value = '';
-    showToast('📢 Message envoyé à toutes les équipes !');
+    showToast('Message envoyé');
 }
 
 loadData();
