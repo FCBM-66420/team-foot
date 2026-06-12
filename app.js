@@ -35,7 +35,14 @@ function saveData() {
 }
 
 function showToast(message, duration = 2500) {
-    const toast = document.getElementById('toast');
+    let toast = document.getElementById('toast');
+    if (!toast) {
+        // Créer le toast s'il n'existe pas
+        toast = document.createElement('div');
+        toast.id = 'toast';
+        toast.className = 'toast hidden';
+        document.body.appendChild(toast);
+    }
     toast.textContent = message;
     toast.classList.remove('hidden');
     setTimeout(() => toast.classList.add('hidden'), duration);
@@ -43,34 +50,46 @@ function showToast(message, duration = 2500) {
 
 // ============ ÉCRAN DE CONNEXION ============
 function hideAllForms() {
-    document.getElementById('playerJoinForm').classList.add('hidden');
-    document.getElementById('coachLoginForm').classList.add('hidden');
-    document.getElementById('createTeamForm').classList.add('hidden');
-    document.getElementById('adminLoginForm').classList.add('hidden');
+    const playerForm = document.getElementById('playerJoinForm');
+    const coachForm = document.getElementById('coachLoginForm');
+    const createForm = document.getElementById('createTeamForm');
+    const adminForm = document.getElementById('adminLoginForm');
+    
+    if (playerForm) playerForm.classList.add('hidden');
+    if (coachForm) coachForm.classList.add('hidden');
+    if (createForm) createForm.classList.add('hidden');
+    if (adminForm) adminForm.classList.add('hidden');
 }
 
 function showJoinTeam() {
     hideAllForms();
-    document.getElementById('playerJoinForm').classList.remove('hidden');
+    const form = document.getElementById('playerJoinForm');
+    if (form) form.classList.remove('hidden');
 }
 
 function showCoachLogin() {
     hideAllForms();
-    document.getElementById('coachLoginForm').classList.remove('hidden');
+    const form = document.getElementById('coachLoginForm');
+    if (form) form.classList.remove('hidden');
 }
 
 function showAdminLogin() {
     hideAllForms();
-    document.getElementById('adminLoginForm').classList.remove('hidden');
+    const form = document.getElementById('adminLoginForm');
+    if (form) form.classList.remove('hidden');
 }
 
 function showCreateTeam() {
     hideAllForms();
-    document.getElementById('createTeamForm').classList.remove('hidden');
+    const form = document.getElementById('createTeamForm');
+    if (form) form.classList.remove('hidden');
 }
 
 function loginAsAdmin() {
-    const code = document.getElementById('adminCode').value;
+    const codeInput = document.getElementById('adminCode');
+    if (!codeInput) return;
+    
+    const code = codeInput.value;
     if (code === appData.admin.password) {
         currentUser = { role: 'admin' };
         saveData();
@@ -82,8 +101,13 @@ function loginAsAdmin() {
 }
 
 function loginAsCoach() {
-    const teamCode = document.getElementById('coachTeamCode').value.toUpperCase();
-    const password = document.getElementById('coachPassword').value;
+    const teamCodeInput = document.getElementById('coachTeamCode');
+    const passwordInput = document.getElementById('coachPassword');
+    
+    if (!teamCodeInput || !passwordInput) return;
+    
+    const teamCode = teamCodeInput.value.toUpperCase();
+    const password = passwordInput.value;
     
     if (appData.teams[teamCode] && appData.teams[teamCode].coachPassword === password) {
         currentUser = { role: 'coach', teamCode: teamCode };
@@ -97,8 +121,13 @@ function loginAsCoach() {
 }
 
 function requestToJoin() {
-    const teamCode = document.getElementById('playerTeamCode').value.toUpperCase();
-    const playerName = document.getElementById('playerName').value.trim();
+    const teamCodeInput = document.getElementById('playerTeamCode');
+    const playerNameInput = document.getElementById('playerName');
+    
+    if (!teamCodeInput || !playerNameInput) return;
+    
+    const teamCode = teamCodeInput.value.toUpperCase();
+    const playerName = playerNameInput.value.trim();
     
     if (!appData.teams[teamCode]) {
         showToast('Code équipe invalide');
@@ -120,15 +149,21 @@ function requestToJoin() {
     saveData();
     showToast('✅ Demande envoyée ! Le coach va valider votre inscription.');
     
-    document.getElementById('playerTeamCode').value = '';
-    document.getElementById('playerName').value = '';
+    teamCodeInput.value = '';
+    playerNameInput.value = '';
     hideAllForms();
 }
 
 function createTeam() {
-    const teamName = document.getElementById('newTeamName').value.trim();
-    const teamCode = document.getElementById('newTeamCode').value.toUpperCase();
-    const coachPassword = document.getElementById('newCoachPassword').value;
+    const teamNameInput = document.getElementById('newTeamName');
+    const teamCodeInput = document.getElementById('newTeamCode');
+    const coachPasswordInput = document.getElementById('newCoachPassword');
+    
+    if (!teamNameInput || !teamCodeInput || !coachPasswordInput) return;
+    
+    const teamName = teamNameInput.value.trim();
+    const teamCode = teamCodeInput.value.toUpperCase();
+    const coachPassword = coachPasswordInput.value;
     
     if (!teamName || !teamCode || !coachPassword) {
         showToast('Veuillez remplir tous les champs');
@@ -154,30 +189,45 @@ function createTeam() {
 
 // ============ AFFICHAGE PRINCIPAL ============
 function showMainApp() {
-    document.getElementById('splashScreen').classList.add('hidden');
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('mainApp').classList.remove('hidden');
+    // Cacher l'écran de connexion, afficher l'app
+    const splash = document.getElementById('splashScreen');
+    const loginScreen = document.getElementById('loginScreen');
+    const mainApp = document.getElementById('mainApp');
+    
+    if (splash) splash.classList.add('hidden');
+    if (loginScreen) loginScreen.classList.add('hidden');
+    if (mainApp) mainApp.classList.remove('hidden');
     
     const isAdmin = currentUser.role === 'admin';
     const isCoach = currentUser.role === 'coach';
     
     // Configurer l'affichage selon le rôle
-    document.getElementById('fabButton').style.display = (isAdmin || isCoach) ? 'block' : 'none';
-    document.getElementById('adminNavBtn').style.display = isAdmin ? 'flex' : 'none';
-    document.getElementById('coachActionsCard').style.display = (isAdmin || isCoach) ? 'block' : 'none';
+    const fabButton = document.getElementById('fabButton');
+    if (fabButton) fabButton.style.display = (isAdmin || isCoach) ? 'block' : 'none';
     
-    // Afficher les infos
+    const adminNavBtn = document.getElementById('adminNavBtn');
+    if (adminNavBtn) adminNavBtn.style.display = isAdmin ? 'flex' : 'none';
+    
+    const coachActionsCard = document.getElementById('coachActionsCard');
+    if (coachActionsCard) coachActionsCard.style.display = (isAdmin || isCoach) ? 'block' : 'none';
+    
+    // Afficher les infos utilisateur
+    const teamNameEl = document.getElementById('teamName');
+    const userRoleLabel = document.getElementById('userRoleLabel');
+    const teamAvatar = document.getElementById('teamAvatar');
+    const welcomeMessage = document.getElementById('welcomeMessage');
+    
     if (isAdmin) {
-        document.getElementById('teamName').innerHTML = 'Team-Foot';
-        document.getElementById('userRoleLabel').innerHTML = 'Super Admin';
-        document.getElementById('teamAvatar').innerHTML = '👑';
-        document.getElementById('welcomeMessage').innerHTML = 'Bonjour Administrateur 👋';
+        if (teamNameEl) teamNameEl.innerHTML = 'Team-Foot';
+        if (userRoleLabel) userRoleLabel.innerHTML = 'Super Admin';
+        if (teamAvatar) teamAvatar.innerHTML = '👑';
+        if (welcomeMessage) welcomeMessage.innerHTML = 'Bonjour Administrateur 👋';
     } else if (isCoach) {
         const team = appData.teams[currentUser.teamCode];
-        document.getElementById('teamName').innerHTML = team.name;
-        document.getElementById('userRoleLabel').innerHTML = 'Coach';
-        document.getElementById('teamAvatar').innerHTML = '👥';
-        document.getElementById('welcomeMessage').innerHTML = `Bonjour Coach ${team.name} 👋`;
+        if (teamNameEl) teamNameEl.innerHTML = team.name;
+        if (userRoleLabel) userRoleLabel.innerHTML = 'Coach';
+        if (teamAvatar) teamAvatar.innerHTML = '👥';
+        if (welcomeMessage) welcomeMessage.innerHTML = `Bonjour Coach ${team.name} 👋`;
     }
     
     // Charger les données
@@ -196,62 +246,121 @@ function showMainApp() {
 function setupEventListeners() {
     // Navigation par onglets
     document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const view = item.dataset.view;
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            item.classList.add('active');
-            document.getElementById(`${view}View`).classList.add('active');
-            
-            if (view === 'messages') loadMessages();
-            if (view === 'team') loadTeamView();
-            if (view === 'admin') loadAllTeams();
-        });
+        item.removeEventListener('click', handleNavClick);
+        item.addEventListener('click', handleNavClick);
     });
     
     // Envoi de message
-    document.getElementById('sendMessageBtn')?.addEventListener('click', sendMessage);
-    document.getElementById('messageInput')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
+    const sendBtn = document.getElementById('sendMessageBtn');
+    if (sendBtn) {
+        sendBtn.removeEventListener('click', sendMessage);
+        sendBtn.addEventListener('click', sendMessage);
+    }
+    
+    const messageInput = document.getElementById('messageInput');
+    if (messageInput) {
+        messageInput.removeEventListener('keypress', handleMessageKeypress);
+        messageInput.addEventListener('keypress', handleMessageKeypress);
+    }
     
     // Déconnexion
-    document.getElementById('logoutBtnMain')?.addEventListener('click', logout);
+    const logoutBtn = document.getElementById('logoutBtnMain');
+    if (logoutBtn) {
+        logoutBtn.removeEventListener('click', logout);
+        logoutBtn.addEventListener('click', logout);
+    }
+}
+
+function handleNavClick(e) {
+    const item = e.currentTarget;
+    const view = item.dataset.view;
+    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    item.classList.add('active');
+    const targetView = document.getElementById(`${view}View`);
+    if (targetView) targetView.classList.add('active');
+    
+    if (view === 'messages') loadMessages();
+    if (view === 'team') loadTeamView();
+    if (view === 'admin') loadAllTeams();
+}
+
+function handleMessageKeypress(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
 }
 
 function logout() {
     currentUser = null;
     currentTeamCode = null;
-    location.reload();
+    
+    // Réinitialiser l'affichage
+    const splash = document.getElementById('splashScreen');
+    const loginScreen = document.getElementById('loginScreen');
+    const mainApp = document.getElementById('mainApp');
+    
+    if (splash) splash.classList.add('hidden');
+    if (mainApp) mainApp.classList.add('hidden');
+    if (loginScreen) loginScreen.classList.remove('hidden');
+    
+    // Réinitialiser les formulaires
+    const adminCode = document.getElementById('adminCode');
+    const coachTeamCode = document.getElementById('coachTeamCode');
+    const coachPassword = document.getElementById('coachPassword');
+    const playerTeamCode = document.getElementById('playerTeamCode');
+    const playerName = document.getElementById('playerName');
+    
+    if (adminCode) adminCode.value = '';
+    if (coachTeamCode) coachTeamCode.value = '';
+    if (coachPassword) coachPassword.value = '';
+    if (playerTeamCode) playerTeamCode.value = '';
+    if (playerName) playerName.value = '';
+    
+    hideAllForms();
 }
 
 // ============ GESTION DES ÉVÉNEMENTS ============
 function showCreateEventModal() {
-    document.getElementById('eventModal').classList.remove('hidden');
+    const modal = document.getElementById('eventModal');
+    if (modal) modal.classList.remove('hidden');
+    
     // Pré-remplir les dates par défaut
     const now = new Date();
     const defaultMatch = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
     const defaultCall = new Date(defaultMatch.getTime() - 2 * 60 * 60 * 1000);
-    document.getElementById('modalMatchDateTime').value = defaultMatch.toISOString().slice(0, 16);
-    document.getElementById('modalCallTime').value = defaultCall.toISOString().slice(0, 16);
+    
+    const matchInput = document.getElementById('modalMatchDateTime');
+    const callInput = document.getElementById('modalCallTime');
+    
+    if (matchInput) matchInput.value = defaultMatch.toISOString().slice(0, 16);
+    if (callInput) callInput.value = defaultCall.toISOString().slice(0, 16);
 }
 
 function closeEventModal() {
-    document.getElementById('eventModal').classList.add('hidden');
+    const modal = document.getElementById('eventModal');
+    if (modal) modal.classList.add('hidden');
 }
 
 function createEventFromModal() {
+    const typeSelect = document.getElementById('modalEventType');
+    const titleInput = document.getElementById('modalEventTitle');
+    const matchInput = document.getElementById('modalMatchDateTime');
+    const callInput = document.getElementById('modalCallTime');
+    const locationInput = document.getElementById('modalLocation');
+    const notesInput = document.getElementById('modalNotes');
+    
+    if (!typeSelect || !titleInput || !matchInput || !callInput || !locationInput) return;
+    
     const event = {
         id: Date.now().toString(),
-        type: document.getElementById('modalEventType').value,
-        title: document.getElementById('modalEventTitle').value,
-        matchDateTime: document.getElementById('modalMatchDateTime').value,
-        callTime: document.getElementById('modalCallTime').value,
-        location: document.getElementById('modalLocation').value,
-        notes: document.getElementById('modalNotes').value,
+        type: typeSelect.value,
+        title: titleInput.value.trim(),
+        matchDateTime: matchInput.value,
+        callTime: callInput.value,
+        location: locationInput.value.trim(),
+        notes: notesInput ? notesInput.value.trim() : '',
         attendances: {}
     };
     
@@ -284,13 +393,15 @@ function createEventFromModal() {
     showToast('Événement créé avec succès !');
     
     // Reset form
-    document.getElementById('modalEventTitle').value = '';
-    document.getElementById('modalLocation').value = '';
-    document.getElementById('modalNotes').value = '';
+    if (titleInput) titleInput.value = '';
+    if (locationInput) locationInput.value = '';
+    if (notesInput) notesInput.value = '';
 }
 
 function loadEvents() {
     const container = document.getElementById('eventsList');
+    if (!container) return;
+    
     let events = [];
     
     if (currentUser.role === 'admin') {
@@ -303,9 +414,11 @@ function loadEvents() {
             events.push(...teamEvents);
         }
         events.sort((a,b) => new Date(a.matchDateTime) - new Date(b.matchDateTime));
-    } else {
+    } else if (currentUser.role === 'coach' || currentUser.role === 'player') {
         const team = appData.teams[currentUser.teamCode];
-        events = (team.events || []).sort((a,b) => new Date(a.matchDateTime) - new Date(b.matchDateTime));
+        if (team) {
+            events = (team.events || []).sort((a,b) => new Date(a.matchDateTime) - new Date(b.matchDateTime));
+        }
     }
     
     if (events.length === 0) {
@@ -322,6 +435,7 @@ function loadEvents() {
     }
     
     const isAdminOrCoach = (currentUser.role === 'admin' || currentUser.role === 'coach');
+    const isPlayer = (currentUser.role === 'player');
     const currentPlayerId = currentUser.playerId;
     
     container.innerHTML = events.map(event => {
@@ -333,7 +447,7 @@ function loadEvents() {
         });
         
         let attendanceHtml = '';
-        if (!isAdminOrCoach && currentPlayerId) {
+        if (isPlayer && currentPlayerId) {
             const playerStatus = event.attendances?.[currentPlayerId] || 'waiting';
             attendanceHtml = `
                 <div class="status-buttons">
@@ -346,13 +460,17 @@ function loadEvents() {
                 </div>
             `;
         } else if (isAdminOrCoach) {
-            const team = currentUser.role === 'admin' ? 
-                appData.teams[event.teamCode] : appData.teams[currentUser.teamCode];
-            const players = team?.players || {};
+            let team = null;
+            if (currentUser.role === 'admin') {
+                team = appData.teams[event.teamCode];
+            } else {
+                team = appData.teams[currentUser.teamCode];
+            }
+            const players = team ? (team.players || {}) : {};
             const stats = Object.values(players).map(p => {
                 const status = event.attendances?.[p.id] || 'waiting';
                 const icon = status === 'present' ? '✅' : status === 'absent' ? '❌' : '⏳';
-                return `<span style="margin-right:8px; font-size:12px;">${p.name.split(' ')[0]}: ${icon}</span>`;
+                return `<span style="margin-right:8px; font-size:12px;">${(p.name || 'Joueur').split(' ')[0]}: ${icon}</span>`;
             }).join('');
             attendanceHtml = `<div style="margin-top:12px; padding-top:12px; border-top:1px solid #e2e8f0; font-size:12px;">
                 <strong>📊 Réponses:</strong><br>${stats || 'Aucun joueur'}</div>`;
@@ -364,7 +482,7 @@ function loadEvents() {
                     <span class="event-title">${escapeHtml(event.title)}</span>
                     <span class="event-badge">${getTypeLabel(event.type)}</span>
                 </div>
-                ${event.teamName ? `<div style="font-size:11px; color:#1a73e8; margin-bottom:8px;">🏷️ ${event.teamName}</div>` : ''}
+                ${event.teamName ? `<div style="font-size:11px; color:#1a73e8; margin-bottom:8px;">🏷️ ${escapeHtml(event.teamName)}</div>` : ''}
                 <div class="event-details">
                     <div>📅 ${matchDate}</div>
                     <div>⏰ Convocation: ${callDate}</div>
@@ -378,9 +496,14 @@ function loadEvents() {
 }
 
 function setAttendance(eventId, status) {
-    if (currentUser.role !== 'player') return;
+    if (currentUser.role !== 'player') {
+        showToast('Seuls les joueurs peuvent modifier leur statut');
+        return;
+    }
     
     const team = appData.teams[currentTeamCode];
+    if (!team) return;
+    
     const event = team.events.find(e => e.id === eventId);
     if (event) {
         if (!event.attendances) event.attendances = {};
@@ -402,8 +525,9 @@ function setAttendance(eventId, status) {
             isSystem: true
         };
         if (!team.messages) team.messages = [];
-        team.messages.push(autoMessage);
+        team.messages.unshift(autoMessage);
         saveData();
+        loadMessages();
     }
 }
 
@@ -422,11 +546,14 @@ function updateEventSelector() {
     }
     
     selector.innerHTML = '<option value="">Sélectionner un événement</option>' + 
-        events.map(e => `<option value="${e.id}">${e.title} - ${new Date(e.matchDateTime).toLocaleDateString()}</option>`).join('');
+        events.map(e => `<option value="${e.id}">${escapeHtml(e.title)} - ${new Date(e.matchDateTime).toLocaleDateString()}</option>`).join('');
 }
 
 function notifyNonResponders() {
-    const eventId = document.getElementById('eventSelector').value;
+    const selector = document.getElementById('eventSelector');
+    if (!selector) return;
+    
+    const eventId = selector.value;
     if (!eventId) {
         showToast('Sélectionnez un événement');
         return;
@@ -447,7 +574,7 @@ function notifyNonResponders() {
         event = team.events.find(e => e.id === eventId);
     }
     
-    if (!event) return;
+    if (!event || !team) return;
     
     const nonResponders = Object.values(team.players || {}).filter(p => {
         const status = event.attendances?.[p.id];
@@ -469,7 +596,7 @@ function notifyNonResponders() {
     };
     
     if (!team.messages) team.messages = [];
-    team.messages.push(message);
+    team.messages.unshift(message);
     saveData();
     
     showToast(`📢 Relance envoyée à ${nonResponders.length} joueur(s)`);
@@ -478,7 +605,10 @@ function notifyNonResponders() {
 
 // ============ MESSAGES (VESTIAIRE) ============
 function sendMessage() {
-    const text = document.getElementById('messageInput').value.trim();
+    const textarea = document.getElementById('messageInput');
+    if (!textarea) return;
+    
+    const text = textarea.value.trim();
     if (!text) return;
     
     let team;
@@ -512,7 +642,7 @@ function sendMessage() {
     }
     
     saveData();
-    document.getElementById('messageInput').value = '';
+    textarea.value = '';
     loadMessages();
     showToast('Message envoyé !');
 }
@@ -531,9 +661,11 @@ function loadMessages() {
             messages.push(...teamMessages);
         }
         messages.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-    } else {
+    } else if (currentUser.role === 'coach' || currentUser.role === 'player') {
         const team = appData.teams[currentUser.teamCode];
-        messages = (team.messages || []).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+        if (team) {
+            messages = (team.messages || []).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+        }
     }
     
     if (messages.length === 0) {
@@ -545,22 +677,12 @@ function loadMessages() {
         <div class="message ${m.isSystem ? 'system' : ''}">
             <div class="message-header">
                 <span class="message-author">${escapeHtml(m.author)}</span>
-                ${m.teamName ? `<span style="font-size:10px; color:#1a73e8;">${m.teamName}</span>` : ''}
+                ${m.teamName ? `<span style="font-size:10px; color:#1a73e8;">${escapeHtml(m.teamName)}</span>` : ''}
                 <span style="font-size:10px;">${new Date(m.timestamp).toLocaleTimeString()}</span>
             </div>
             <div class="message-text">${escapeHtml(m.text)}</div>
         </div>
     `).join('');
-    
-    // Mettre à jour le badge
-    const unreadCount = messages.filter(m => !m.isSystem).length;
-    const badge = document.getElementById('messageBadge');
-    if (unreadCount > 0) {
-        badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
-        badge.classList.remove('hidden');
-    } else {
-        badge.classList.add('hidden');
-    }
 }
 
 // ============ GESTION DE L'ÉQUIPE ============
@@ -573,11 +695,13 @@ function loadTeamView() {
             displayPlayersList(firstTeam);
             displayPendingRequests(firstTeam);
         }
-    } else {
+    } else if (currentUser.role === 'coach' || currentUser.role === 'player') {
         const team = appData.teams[currentUser.teamCode];
-        displayTeamStats(team);
-        displayPlayersList(team);
-        displayPendingRequests(team);
+        if (team) {
+            displayTeamStats(team);
+            displayPlayersList(team);
+            displayPendingRequests(team);
+        }
     }
 }
 
@@ -595,14 +719,21 @@ function displayTeamStats(team) {
     const responseRate = totalPlayers > 0 && (team.events || []).length > 0 ? 
         Math.round((totalResponses / (totalPlayers * (team.events || []).length)) * 100) : 0;
     
-    document.getElementById('playerCount').innerHTML = playerCount;
-    document.getElementById('eventCount').innerHTML = eventCount;
-    document.getElementById('responseRate').innerHTML = `${responseRate}%`;
-    document.getElementById('playersBadge').innerHTML = `${playerCount} joueurs`;
+    const playerCountEl = document.getElementById('playerCount');
+    const eventCountEl = document.getElementById('eventCount');
+    const responseRateEl = document.getElementById('responseRate');
+    const playersBadge = document.getElementById('playersBadge');
+    
+    if (playerCountEl) playerCountEl.innerHTML = playerCount;
+    if (eventCountEl) eventCountEl.innerHTML = eventCount;
+    if (responseRateEl) responseRateEl.innerHTML = `${responseRate}%`;
+    if (playersBadge) playersBadge.innerHTML = `${playerCount} joueurs`;
 }
 
 function displayPlayersList(team) {
     const container = document.getElementById('playersList');
+    if (!container) return;
+    
     const players = Object.entries(team.players || {}).map(([id, p]) => ({id, ...p}));
     
     if (players.length === 0) {
@@ -610,12 +741,14 @@ function displayPlayersList(team) {
         return;
     }
     
+    const isAdminOrCoach = (currentUser.role === 'coach' || currentUser.role === 'admin');
+    
     container.innerHTML = players.map(p => `
         <div class="player-card">
             <span class="player-name">${escapeHtml(p.name)}</span>
             <div>
                 <span class="player-status">Membre</span>
-                ${(currentUser.role === 'coach' || currentUser.role === 'admin') ? 
+                ${isAdminOrCoach ? 
                     `<button class="remove-btn" onclick="removePlayer('${p.id}')">❌</button>` : ''}
             </div>
         </div>
@@ -627,7 +760,11 @@ function displayPendingRequests(team) {
     const requestsList = document.getElementById('requestsList');
     const pending = Object.entries(team.pendingPlayers || {});
     
-    if (pending.length === 0 || (currentUser.role !== 'coach' && currentUser.role !== 'admin')) {
+    if (!container || !requestsList) return;
+    
+    const isAdminOrCoach = (currentUser.role === 'coach' || currentUser.role === 'admin');
+    
+    if (pending.length === 0 || !isAdminOrCoach) {
         container.classList.add('hidden');
         return;
     }
@@ -648,6 +785,8 @@ function approvePlayer(playerId) {
     } else {
         team = appData.teams[currentUser.teamCode];
     }
+    
+    if (!team) return;
     
     const playerData = team.pendingPlayers[playerId];
     if (playerData) {
@@ -671,8 +810,9 @@ function approvePlayer(playerId) {
             isSystem: true
         };
         if (!team.messages) team.messages = [];
-        team.messages.push(autoMessage);
+        team.messages.unshift(autoMessage);
         saveData();
+        loadMessages();
         
         showToast(`${playerData.name} a rejoint l'équipe !`);
     }
@@ -685,6 +825,8 @@ function removePlayer(playerId) {
     } else {
         team = appData.teams[currentUser.teamCode];
     }
+    
+    if (!team) return;
     
     const player = team.players[playerId];
     if (player && confirm(`Retirer ${player.name} de l'équipe ?`)) {
@@ -725,9 +867,7 @@ function loadAllTeams() {
 }
 
 function showCreateTeamModal() {
-    // Réutiliser le formulaire de création
-    document.getElementById('createTeamForm').classList.remove('hidden');
-    document.getElementById('adminView').classList.add('hidden');
+    showCreateTeam();
 }
 
 function deleteTeam(teamCode) {
@@ -736,6 +876,31 @@ function deleteTeam(teamCode) {
         saveData();
         loadAllTeams();
         showToast('Équipe supprimée');
+    }
+}
+
+// ============ CONNEXION JOUEUR ============
+// Cette fonction est appelée quand un coach approuve un joueur
+// Elle crée une session joueur
+function loginAsPlayer(teamCode, playerId, playerName) {
+    currentUser = { 
+        role: 'player', 
+        teamCode: teamCode,
+        playerId: playerId,
+        playerName: playerName
+    };
+    currentTeamCode = teamCode;
+    showMainApp();
+    showToast(`🎮 Bienvenue ${playerName} !`);
+}
+
+// Fonction pour qu'un joueur approuvé puisse se connecter
+function playerLogin(teamCode, playerId) {
+    const team = appData.teams[teamCode];
+    if (team && team.players[playerId]) {
+        loginAsPlayer(teamCode, playerId, team.players[playerId].name);
+    } else {
+        showToast('Accès non autorisé');
     }
 }
 
@@ -780,12 +945,20 @@ window.removePlayer = removePlayer;
 window.deleteTeam = deleteTeam;
 window.showCreateTeamModal = showCreateTeamModal;
 window.hideAllForms = hideAllForms;
+window.loginAsPlayer = loginAsPlayer;
+window.playerLogin = playerLogin;
 
 // ============ DÉMARRAGE ============
 loadData();
 
-// Simuler le splash screen puis afficher login
-setTimeout(() => {
-    document.getElementById('splashScreen')?.classList.add('hidden');
-    document.getElementById('loginScreen')?.classList.remove('hidden');
-}, 1800);
+// Attendre que le DOM soit chargé
+document.addEventListener('DOMContentLoaded', function() {
+    // S'assurer que l'écran de connexion est visible et l'app cachée
+    const splash = document.getElementById('splashScreen');
+    const loginScreen = document.getElementById('loginScreen');
+    const mainApp = document.getElementById('mainApp');
+    
+    if (splash) splash.classList.add('hidden');
+    if (mainApp) mainApp.classList.add('hidden');
+    if (loginScreen) loginScreen.classList.remove('hidden');
+});
