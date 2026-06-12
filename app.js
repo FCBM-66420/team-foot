@@ -1,4 +1,4 @@
-// ============ STRUCTURE DE DONNÉES ============
+// ============ STRUCTURE DE DONNÉES ==========
 let appData = {
     admin: {
         password: "admin123"
@@ -9,13 +9,12 @@ let appData = {
 let currentUser = null;
 let currentTeamCode = null;
 
-// ============ INITIALISATION ============
+// ============ INITIALISATION ==========
 function loadData() {
     const saved = localStorage.getItem('teamfoot_data');
     if (saved) {
         appData = JSON.parse(saved);
     } else {
-        // Équipe de démo
         appData.teams = {
             "TIGERS24": {
                 name: "Tigres FC",
@@ -36,19 +35,13 @@ function saveData() {
 
 function showToast(message, duration = 2500) {
     let toast = document.getElementById('toast');
-    if (!toast) {
-        // Créer le toast s'il n'existe pas
-        toast = document.createElement('div');
-        toast.id = 'toast';
-        toast.className = 'toast hidden';
-        document.body.appendChild(toast);
-    }
+    if (!toast) return;
     toast.textContent = message;
     toast.classList.remove('hidden');
     setTimeout(() => toast.classList.add('hidden'), duration);
 }
 
-// ============ ÉCRAN DE CONNEXION ============
+// ============ ÉCRAN DE CONNEXION ==========
 function hideAllForms() {
     const playerForm = document.getElementById('playerJoinForm');
     const coachForm = document.getElementById('coachLoginForm');
@@ -187,9 +180,8 @@ function createTeam() {
     showCoachLogin();
 }
 
-// ============ AFFICHAGE PRINCIPAL ============
+// ============ AFFICHAGE PRINCIPAL ==========
 function showMainApp() {
-    // Cacher l'écran de connexion, afficher l'app
     const splash = document.getElementById('splashScreen');
     const loginScreen = document.getElementById('loginScreen');
     const mainApp = document.getElementById('mainApp');
@@ -201,7 +193,6 @@ function showMainApp() {
     const isAdmin = currentUser.role === 'admin';
     const isCoach = currentUser.role === 'coach';
     
-    // Configurer l'affichage selon le rôle
     const fabButton = document.getElementById('fabButton');
     if (fabButton) fabButton.style.display = (isAdmin || isCoach) ? 'block' : 'none';
     
@@ -211,7 +202,6 @@ function showMainApp() {
     const coachActionsCard = document.getElementById('coachActionsCard');
     if (coachActionsCard) coachActionsCard.style.display = (isAdmin || isCoach) ? 'block' : 'none';
     
-    // Afficher les infos utilisateur
     const teamNameEl = document.getElementById('teamName');
     const userRoleLabel = document.getElementById('userRoleLabel');
     const teamAvatar = document.getElementById('teamAvatar');
@@ -230,7 +220,6 @@ function showMainApp() {
         if (welcomeMessage) welcomeMessage.innerHTML = `Bonjour Coach ${team.name} 👋`;
     }
     
-    // Charger les données
     loadEvents();
     loadMessages();
     loadTeamView();
@@ -244,13 +233,11 @@ function showMainApp() {
 }
 
 function setupEventListeners() {
-    // Navigation par onglets
     document.querySelectorAll('.nav-item').forEach(item => {
         item.removeEventListener('click', handleNavClick);
         item.addEventListener('click', handleNavClick);
     });
     
-    // Envoi de message
     const sendBtn = document.getElementById('sendMessageBtn');
     if (sendBtn) {
         sendBtn.removeEventListener('click', sendMessage);
@@ -263,7 +250,6 @@ function setupEventListeners() {
         messageInput.addEventListener('keypress', handleMessageKeypress);
     }
     
-    // Déconnexion
     const logoutBtn = document.getElementById('logoutBtnMain');
     if (logoutBtn) {
         logoutBtn.removeEventListener('click', logout);
@@ -296,7 +282,6 @@ function logout() {
     currentUser = null;
     currentTeamCode = null;
     
-    // Réinitialiser l'affichage
     const splash = document.getElementById('splashScreen');
     const loginScreen = document.getElementById('loginScreen');
     const mainApp = document.getElementById('mainApp');
@@ -305,7 +290,6 @@ function logout() {
     if (mainApp) mainApp.classList.add('hidden');
     if (loginScreen) loginScreen.classList.remove('hidden');
     
-    // Réinitialiser les formulaires
     const adminCode = document.getElementById('adminCode');
     const coachTeamCode = document.getElementById('coachTeamCode');
     const coachPassword = document.getElementById('coachPassword');
@@ -321,12 +305,11 @@ function logout() {
     hideAllForms();
 }
 
-// ============ GESTION DES ÉVÉNEMENTS ============
+// ============ GESTION DES ÉVÉNEMENTS ==========
 function showCreateEventModal() {
     const modal = document.getElementById('eventModal');
     if (modal) modal.classList.remove('hidden');
     
-    // Pré-remplir les dates par défaut
     const now = new Date();
     const defaultMatch = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
     const defaultCall = new Date(defaultMatch.getTime() - 2 * 60 * 60 * 1000);
@@ -375,10 +358,9 @@ function createEventFromModal() {
     }
     
     if (currentUser.role === 'admin') {
-        // Admin ajoute à toutes les équipes
         for (let code in appData.teams) {
             if (!appData.teams[code].events) appData.teams[code].events = [];
-            appData.teams[code].events.unshift({...event, teamAdded: code});
+            appData.teams[code].events.unshift({...event});
         }
     } else {
         const team = appData.teams[currentUser.teamCode];
@@ -392,7 +374,6 @@ function createEventFromModal() {
     updateEventSelector();
     showToast('Événement créé avec succès !');
     
-    // Reset form
     if (titleInput) titleInput.value = '';
     if (locationInput) locationInput.value = '';
     if (notesInput) notesInput.value = '';
@@ -408,13 +389,12 @@ function loadEvents() {
         for (let code in appData.teams) {
             const teamEvents = (appData.teams[code].events || []).map(e => ({
                 ...e,
-                teamName: appData.teams[code].name,
-                teamCode: code
+                teamName: appData.teams[code].name
             }));
             events.push(...teamEvents);
         }
         events.sort((a,b) => new Date(a.matchDateTime) - new Date(b.matchDateTime));
-    } else if (currentUser.role === 'coach' || currentUser.role === 'player') {
+    } else if (currentUser.role === 'coach') {
         const team = appData.teams[currentUser.teamCode];
         if (team) {
             events = (team.events || []).sort((a,b) => new Date(a.matchDateTime) - new Date(b.matchDateTime));
@@ -427,7 +407,7 @@ function loadEvents() {
                 <div class="empty-icon">📅</div>
                 <p>Aucun événement programmé</p>
                 ${(currentUser.role === 'coach' || currentUser.role === 'admin') ? 
-                    '<button class="btn-primary" onclick="showCreateEventModal()">➕ Créer un événement</button>' : 
+                    '<button class="btn-primary" onclick="window.showCreateEventModal()" style="margin-top:16px">➕ Créer un événement</button>' : 
                     '<small>Revenez plus tard</small>'}
             </div>
         `;
@@ -435,8 +415,6 @@ function loadEvents() {
     }
     
     const isAdminOrCoach = (currentUser.role === 'admin' || currentUser.role === 'coach');
-    const isPlayer = (currentUser.role === 'player');
-    const currentPlayerId = currentUser.playerId;
     
     container.innerHTML = events.map(event => {
         const matchDate = new Date(event.matchDateTime).toLocaleString('fr-FR', {
@@ -447,33 +425,9 @@ function loadEvents() {
         });
         
         let attendanceHtml = '';
-        if (isPlayer && currentPlayerId) {
-            const playerStatus = event.attendances?.[currentPlayerId] || 'waiting';
-            attendanceHtml = `
-                <div class="status-buttons">
-                    <button class="status-btn ${playerStatus === 'present' ? 'active' : ''}" 
-                        onclick="setAttendance('${event.id}', 'present')">✅ Présent</button>
-                    <button class="status-btn ${playerStatus === 'absent' ? 'active' : ''} absent" 
-                        onclick="setAttendance('${event.id}', 'absent')">❌ Absent</button>
-                    <button class="status-btn ${playerStatus === 'waiting' ? 'active' : ''} waiting" 
-                        onclick="setAttendance('${event.id}', 'waiting')">⏳ En attente</button>
-                </div>
-            `;
-        } else if (isAdminOrCoach) {
-            let team = null;
-            if (currentUser.role === 'admin') {
-                team = appData.teams[event.teamCode];
-            } else {
-                team = appData.teams[currentUser.teamCode];
-            }
-            const players = team ? (team.players || {}) : {};
-            const stats = Object.values(players).map(p => {
-                const status = event.attendances?.[p.id] || 'waiting';
-                const icon = status === 'present' ? '✅' : status === 'absent' ? '❌' : '⏳';
-                return `<span style="margin-right:8px; font-size:12px;">${(p.name || 'Joueur').split(' ')[0]}: ${icon}</span>`;
-            }).join('');
-            attendanceHtml = `<div style="margin-top:12px; padding-top:12px; border-top:1px solid #e2e8f0; font-size:12px;">
-                <strong>📊 Réponses:</strong><br>${stats || 'Aucun joueur'}</div>`;
+        if (isAdminOrCoach) {
+            attendanceHtml = `<div style="margin-top:12px; padding-top:12px; border-top:1px solid #e2e8f0; font-size:12px; color:#64748b;">
+                📊 Les joueurs pourront répondre Présent/Absent/En attente</div>`;
         }
         
         return `
@@ -493,42 +447,6 @@ function loadEvents() {
             </div>
         `;
     }).join('');
-}
-
-function setAttendance(eventId, status) {
-    if (currentUser.role !== 'player') {
-        showToast('Seuls les joueurs peuvent modifier leur statut');
-        return;
-    }
-    
-    const team = appData.teams[currentTeamCode];
-    if (!team) return;
-    
-    const event = team.events.find(e => e.id === eventId);
-    if (event) {
-        if (!event.attendances) event.attendances = {};
-        event.attendances[currentUser.playerId] = status;
-        saveData();
-        loadEvents();
-        
-        const statusText = status === 'present' ? 'Présent' : status === 'absent' ? 'Absent' : 'En attente';
-        showToast(`Statut mis à jour: ${statusText}`);
-        
-        // Ajouter un message automatique dans le vestiaire
-        const playerName = team.players[currentUser.playerId]?.name || 'Un joueur';
-        const autoMessage = {
-            id: Date.now().toString(),
-            author: '📢 Système',
-            authorId: 'system',
-            text: `${playerName} a répondu ${statusText === 'Présent' ? '✅ PRÉSENT' : statusText === 'Absent' ? '❌ ABSENT' : '⏳ EN ATTENTE'} pour "${event.title}"`,
-            timestamp: new Date().toISOString(),
-            isSystem: true
-        };
-        if (!team.messages) team.messages = [];
-        team.messages.unshift(autoMessage);
-        saveData();
-        loadMessages();
-    }
 }
 
 function updateEventSelector() {
@@ -576,16 +494,6 @@ function notifyNonResponders() {
     
     if (!event || !team) return;
     
-    const nonResponders = Object.values(team.players || {}).filter(p => {
-        const status = event.attendances?.[p.id];
-        return !status || status === 'waiting';
-    });
-    
-    if (nonResponders.length === 0) {
-        showToast('✅ Tout le monde a répondu !');
-        return;
-    }
-    
     const message = {
         id: Date.now().toString(),
         author: '📢 Coach',
@@ -599,11 +507,11 @@ function notifyNonResponders() {
     team.messages.unshift(message);
     saveData();
     
-    showToast(`📢 Relance envoyée à ${nonResponders.length} joueur(s)`);
+    showToast(`📢 Relance envoyée dans le vestiaire`);
     loadMessages();
 }
 
-// ============ MESSAGES (VESTIAIRE) ============
+// ============ MESSAGES ==========
 function sendMessage() {
     const textarea = document.getElementById('messageInput');
     if (!textarea) return;
@@ -613,7 +521,6 @@ function sendMessage() {
     
     let team;
     if (currentUser.role === 'admin') {
-        // Admin envoie à toutes les équipes
         for (let code in appData.teams) {
             team = appData.teams[code];
             const message = {
@@ -628,12 +535,11 @@ function sendMessage() {
         }
     } else {
         team = appData.teams[currentUser.teamCode];
-        const author = currentUser.role === 'coach' ? `👥 Coach ${team.name}` : 
-                       (team.players[currentUser.playerId]?.name || 'Joueur');
+        const author = currentUser.role === 'coach' ? `👥 Coach` : 'Joueur';
         const message = {
             id: Date.now().toString(),
             author: author,
-            authorId: currentUser.playerId || currentUser.role,
+            authorId: currentUser.role,
             text: text,
             timestamp: new Date().toISOString()
         };
@@ -661,7 +567,7 @@ function loadMessages() {
             messages.push(...teamMessages);
         }
         messages.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-    } else if (currentUser.role === 'coach' || currentUser.role === 'player') {
+    } else if (currentUser.role === 'coach') {
         const team = appData.teams[currentUser.teamCode];
         if (team) {
             messages = (team.messages || []).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -685,17 +591,16 @@ function loadMessages() {
     `).join('');
 }
 
-// ============ GESTION DE L'ÉQUIPE ============
+// ============ GESTION DE L'ÉQUIPE ==========
 function loadTeamView() {
     if (currentUser.role === 'admin') {
-        // Admin: afficher un aperçu de la première équipe
         const firstTeam = Object.values(appData.teams)[0];
         if (firstTeam) {
             displayTeamStats(firstTeam);
             displayPlayersList(firstTeam);
             displayPendingRequests(firstTeam);
         }
-    } else if (currentUser.role === 'coach' || currentUser.role === 'player') {
+    } else if (currentUser.role === 'coach') {
         const team = appData.teams[currentUser.teamCode];
         if (team) {
             displayTeamStats(team);
@@ -709,16 +614,6 @@ function displayTeamStats(team) {
     const playerCount = Object.keys(team.players || {}).length;
     const eventCount = (team.events || []).length;
     
-    // Calculer le taux de réponse moyen
-    let totalResponses = 0;
-    let totalPlayers = playerCount;
-    (team.events || []).forEach(event => {
-        const responses = Object.values(event.attendances || {}).filter(s => s !== 'waiting').length;
-        totalResponses += responses;
-    });
-    const responseRate = totalPlayers > 0 && (team.events || []).length > 0 ? 
-        Math.round((totalResponses / (totalPlayers * (team.events || []).length)) * 100) : 0;
-    
     const playerCountEl = document.getElementById('playerCount');
     const eventCountEl = document.getElementById('eventCount');
     const responseRateEl = document.getElementById('responseRate');
@@ -726,7 +621,7 @@ function displayTeamStats(team) {
     
     if (playerCountEl) playerCountEl.innerHTML = playerCount;
     if (eventCountEl) eventCountEl.innerHTML = eventCount;
-    if (responseRateEl) responseRateEl.innerHTML = `${responseRate}%`;
+    if (responseRateEl) responseRateEl.innerHTML = `0%`;
     if (playersBadge) playersBadge.innerHTML = `${playerCount} joueurs`;
 }
 
@@ -737,19 +632,16 @@ function displayPlayersList(team) {
     const players = Object.entries(team.players || {}).map(([id, p]) => ({id, ...p}));
     
     if (players.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><p>Aucun joueur</p></div>';
+        container.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><p>Aucun joueur</p><small>Les joueurs doivent faire une demande</small></div>';
         return;
     }
-    
-    const isAdminOrCoach = (currentUser.role === 'coach' || currentUser.role === 'admin');
     
     container.innerHTML = players.map(p => `
         <div class="player-card">
             <span class="player-name">${escapeHtml(p.name)}</span>
             <div>
                 <span class="player-status">Membre</span>
-                ${isAdminOrCoach ? 
-                    `<button class="remove-btn" onclick="removePlayer('${p.id}')">❌</button>` : ''}
+                <button class="remove-btn" onclick="window.removePlayer('${p.id}')">❌</button>
             </div>
         </div>
     `).join('');
@@ -762,9 +654,7 @@ function displayPendingRequests(team) {
     
     if (!container || !requestsList) return;
     
-    const isAdminOrCoach = (currentUser.role === 'coach' || currentUser.role === 'admin');
-    
-    if (pending.length === 0 || !isAdminOrCoach) {
+    if (pending.length === 0) {
         container.classList.add('hidden');
         return;
     }
@@ -773,7 +663,7 @@ function displayPendingRequests(team) {
     requestsList.innerHTML = pending.map(([id, p]) => `
         <div class="player-card">
             <span class="player-name">🕐 ${escapeHtml(p.name)}</span>
-            <button class="approve-btn" onclick="approvePlayer('${id}')">✅ Approuver</button>
+            <button class="approve-btn" onclick="window.approvePlayer('${id}')">✅ Approuver</button>
         </div>
     `).join('');
 }
@@ -800,20 +690,6 @@ function approvePlayer(playerId) {
         saveData();
         loadTeamView();
         
-        // Message automatique
-        const autoMessage = {
-            id: Date.now().toString(),
-            author: '📢 Système',
-            authorId: 'system',
-            text: `👋 Bienvenue à ${playerData.name} qui rejoint l'équipe !`,
-            timestamp: new Date().toISOString(),
-            isSystem: true
-        };
-        if (!team.messages) team.messages = [];
-        team.messages.unshift(autoMessage);
-        saveData();
-        loadMessages();
-        
         showToast(`${playerData.name} a rejoint l'équipe !`);
     }
 }
@@ -837,7 +713,7 @@ function removePlayer(playerId) {
     }
 }
 
-// ============ ADMIN - GESTION DES ÉQUIPES ============
+// ============ ADMIN ==========
 function loadAllTeams() {
     const container = document.getElementById('allTeamsList');
     if (!container) return;
@@ -861,7 +737,7 @@ function loadAllTeams() {
                 <span>📅 ${(team.events || []).length}</span>
                 <span>💬 ${(team.messages || []).length}</span>
             </div>
-            <button class="btn-danger-small" onclick="deleteTeam('${code}')">🗑️ Supprimer</button>
+            <button class="btn-danger-small" onclick="window.deleteTeam('${code}')">🗑️ Supprimer</button>
         </div>
     `).join('');
 }
@@ -879,32 +755,7 @@ function deleteTeam(teamCode) {
     }
 }
 
-// ============ CONNEXION JOUEUR ============
-// Cette fonction est appelée quand un coach approuve un joueur
-// Elle crée une session joueur
-function loginAsPlayer(teamCode, playerId, playerName) {
-    currentUser = { 
-        role: 'player', 
-        teamCode: teamCode,
-        playerId: playerId,
-        playerName: playerName
-    };
-    currentTeamCode = teamCode;
-    showMainApp();
-    showToast(`🎮 Bienvenue ${playerName} !`);
-}
-
-// Fonction pour qu'un joueur approuvé puisse se connecter
-function playerLogin(teamCode, playerId) {
-    const team = appData.teams[teamCode];
-    if (team && team.players[playerId]) {
-        loginAsPlayer(teamCode, playerId, team.players[playerId].name);
-    } else {
-        showToast('Accès non autorisé');
-    }
-}
-
-// ============ UTILITAIRES ============
+// ============ UTILITAIRES ==========
 function getTypeLabel(type) {
     const map = {
         'match_amical': '⚽ Amical',
@@ -938,27 +789,26 @@ window.createTeam = createTeam;
 window.showCreateEventModal = showCreateEventModal;
 window.closeEventModal = closeEventModal;
 window.createEventFromModal = createEventFromModal;
-window.setAttendance = setAttendance;
 window.notifyNonResponders = notifyNonResponders;
 window.approvePlayer = approvePlayer;
 window.removePlayer = removePlayer;
 window.deleteTeam = deleteTeam;
 window.showCreateTeamModal = showCreateTeamModal;
 window.hideAllForms = hideAllForms;
-window.loginAsPlayer = loginAsPlayer;
-window.playerLogin = playerLogin;
 
-// ============ DÉMARRAGE ============
+// ============ DÉMARRAGE ==========
 loadData();
 
-// Attendre que le DOM soit chargé
 document.addEventListener('DOMContentLoaded', function() {
-    // S'assurer que l'écran de connexion est visible et l'app cachée
-    const splash = document.getElementById('splashScreen');
+    // Cacher le splash après 1.5s
+    setTimeout(function() {
+        const splash = document.getElementById('splashScreen');
+        if (splash) splash.classList.add('hidden');
+    }, 1500);
+    
+    // S'assurer que l'écran de connexion est visible
     const loginScreen = document.getElementById('loginScreen');
     const mainApp = document.getElementById('mainApp');
-    
-    if (splash) splash.classList.add('hidden');
-    if (mainApp) mainApp.classList.add('hidden');
     if (loginScreen) loginScreen.classList.remove('hidden');
+    if (mainApp) mainApp.classList.add('hidden');
 });

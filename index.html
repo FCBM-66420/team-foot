@@ -23,7 +23,7 @@
         </div>
 
         <!-- Écran de connexion -->
-        <div id="loginScreen" class="screen hidden">
+        <div id="loginScreen" class="screen">
             <div class="login-header">
                 <div class="login-icon">⚽</div>
                 <h2>Team-Foot</h2>
@@ -31,7 +31,7 @@
             </div>
 
             <div class="login-methods">
-                <button class="login-method-btn" onclick="showJoinTeam()">
+                <button class="login-method-btn" onclick="window.showJoinTeam()">
                     <span class="method-icon">🎮</span>
                     <div class="method-text">
                         <strong>Je suis joueur</strong>
@@ -40,7 +40,7 @@
                     <span class="chevron">›</span>
                 </button>
 
-                <button class="login-method-btn" onclick="showCoachLogin()">
+                <button class="login-method-btn" onclick="window.showCoachLogin()">
                     <span class="method-icon">👥</span>
                     <div class="method-text">
                         <strong>Je suis coach</strong>
@@ -49,7 +49,7 @@
                     <span class="chevron">›</span>
                 </button>
 
-                <button class="login-method-btn" onclick="showAdminLogin()">
+                <button class="login-method-btn" onclick="window.showAdminLogin()">
                     <span class="method-icon">👑</span>
                     <div class="method-text">
                         <strong>Administrateur</strong>
@@ -63,12 +63,12 @@
             <div id="playerJoinForm" class="login-form hidden">
                 <div class="form-card">
                     <div class="form-header">
-                        <button class="back-btn" onclick="hideAllForms()">←</button>
+                        <button class="back-btn" onclick="window.hideAllForms()">←</button>
                         <h3>Rejoindre une équipe</h3>
                     </div>
                     <input type="text" id="playerTeamCode" placeholder="Code de l'équipe" class="mobile-input">
                     <input type="text" id="playerName" placeholder="Votre nom et prénom" class="mobile-input">
-                    <button class="btn-primary btn-block" onclick="requestToJoin()">Envoyer ma demande</button>
+                    <button class="btn-primary btn-block" onclick="window.requestToJoin()">Envoyer ma demande</button>
                 </div>
             </div>
 
@@ -76,13 +76,13 @@
             <div id="coachLoginForm" class="login-form hidden">
                 <div class="form-card">
                     <div class="form-header">
-                        <button class="back-btn" onclick="hideAllForms()">←</button>
+                        <button class="back-btn" onclick="window.hideAllForms()">←</button>
                         <h3>Connexion coach</h3>
                     </div>
                     <input type="text" id="coachTeamCode" placeholder="Code équipe" class="mobile-input">
                     <input type="password" id="coachPassword" placeholder="Mot de passe" class="mobile-input">
-                    <button class="btn-primary btn-block" onclick="loginAsCoach()">Se connecter</button>
-                    <button class="btn-secondary btn-block" onclick="showCreateTeam()">➕ Créer une équipe</button>
+                    <button class="btn-primary btn-block" onclick="window.loginAsCoach()">Se connecter</button>
+                    <button class="btn-secondary btn-block" onclick="window.showCreateTeam()">➕ Créer une équipe</button>
                 </div>
             </div>
 
@@ -90,13 +90,13 @@
             <div id="createTeamForm" class="login-form hidden">
                 <div class="form-card">
                     <div class="form-header">
-                        <button class="back-btn" onclick="showCoachLogin()">←</button>
+                        <button class="back-btn" onclick="window.showCoachLogin()">←</button>
                         <h3>Nouvelle équipe</h3>
                     </div>
                     <input type="text" id="newTeamName" placeholder="Nom de l'équipe" class="mobile-input">
                     <input type="text" id="newTeamCode" placeholder="Code unique (ex: TIGERS24)" class="mobile-input">
                     <input type="password" id="newCoachPassword" placeholder="Mot de passe coach" class="mobile-input">
-                    <button class="btn-primary btn-block" onclick="createTeam()">Créer l'équipe</button>
+                    <button class="btn-primary btn-block" onclick="window.createTeam()">Créer l'équipe</button>
                 </div>
             </div>
 
@@ -104,11 +104,11 @@
             <div id="adminLoginForm" class="login-form hidden">
                 <div class="form-card">
                     <div class="form-header">
-                        <button class="back-btn" onclick="hideAllForms()">←</button>
+                        <button class="back-btn" onclick="window.hideAllForms()">←</button>
                         <h3>Accès administrateur</h3>
                     </div>
                     <input type="password" id="adminCode" placeholder="Code admin" class="mobile-input">
-                    <button class="btn-primary btn-block" onclick="loginAsAdmin()">Se connecter</button>
+                    <button class="btn-primary btn-block" onclick="window.loginAsAdmin()">Se connecter</button>
                     <p class="admin-hint">Code par défaut : <strong>admin123</strong></p>
                 </div>
             </div>
@@ -142,7 +142,7 @@
                 <!-- Vue Événements -->
                 <div id="eventsView" class="view active">
                     <div id="fabButton" style="display: none;">
-                        <button class="fab" onclick="showCreateEventModal()">
+                        <button class="fab" onclick="window.showCreateEventModal()">
                             <span class="fab-icon">+</span>
                         </button>
                     </div>
@@ -154,7 +154,7 @@
                     </div>
                 </div>
 
-                <!-- Vue Vestiaire (Messages) -->
+                <!-- Vue Vestiaire -->
                 <div id="messagesView" class="view hidden">
                     <div class="messages-container-mobile">
                         <div id="messagesList" class="messages-list-mobile">
@@ -209,10 +209,10 @@
                         <select id="eventSelector" class="mobile-select">
                             <option value="">Choisir un événement</option>
                         </select>
-                        <button class="btn-warning btn-block" onclick="notifyNonResponders()">
+                        <button class="btn-warning btn-block" onclick="window.notifyNonResponders()">
                             ⏰ Relancer les non-répondants
                         </button>
-                        <button class="btn-primary btn-block" onclick="showCreateEventModal()" style="margin-top: 12px;">
+                        <button class="btn-primary btn-block" onclick="window.showCreateEventModal()" style="margin-top: 12px;">
                             ➕ Créer un événement
                         </button>
                     </div>
@@ -226,7 +226,7 @@
                     <div id="allTeamsList" class="teams-list-mobile"></div>
                     
                     <div class="admin-actions">
-                        <button class="btn-primary btn-block" onclick="showCreateTeamModal()">
+                        <button class="btn-primary btn-block" onclick="window.showCreateTeamModal()">
                             ➕ Créer une nouvelle équipe
                         </button>
                     </div>
@@ -261,7 +261,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>📅 Nouvel événement</h3>
-                <button class="close-modal" onclick="closeEventModal()">✕</button>
+                <button class="close-modal" onclick="window.closeEventModal()">✕</button>
             </div>
             <div class="modal-body">
                 <select id="modalEventType" class="mobile-input">
@@ -278,8 +278,8 @@
                 <textarea id="modalNotes" placeholder="Notes (tenue, matériel...)" rows="2" class="mobile-input"></textarea>
             </div>
             <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeEventModal()">Annuler</button>
-                <button class="btn-primary" onclick="createEventFromModal()">Créer</button>
+                <button class="btn-secondary" onclick="window.closeEventModal()">Annuler</button>
+                <button class="btn-primary" onclick="window.createEventFromModal()">Créer</button>
             </div>
         </div>
     </div>
