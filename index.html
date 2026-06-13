@@ -135,13 +135,11 @@
         .event-header { display: flex; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
         .event-title { font-weight: 700; color: var(--club-blue); }
         .event-badge { font-size: 11px; padding: 4px 8px; background: var(--bg-light); border-radius: 20px; }
-        .cancel-reason { background: #fee2e2; color: #dc2626; padding: 8px 12px; border-radius: 12px; font-size: 12px; margin-top: 8px; }
         
         .member-card { background: white; border-radius: 16px; padding: 12px; margin-bottom: 8px; border-left: 3px solid var(--club-yellow); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .member-info { flex: 1; }
         .member-name { font-weight: 600; }
         .member-detail { font-size: 11px; color: #6b7280; margin-top: 4px; }
-        .parent-info { background: #f8fafc; border-radius: 12px; padding: 8px; margin-top: 6px; font-size: 12px; }
         
         .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: flex-end; z-index: 300; }
         .modal.hidden { display: none; }
@@ -161,27 +159,6 @@
         .btn-approve { background: #10b981; color: white; }
         .btn-remove { background: #ef4444; color: white; }
         .btn-chat { background: var(--club-yellow); color: var(--club-blue); margin-left: 8px; }
-        
-        /* Chat styles */
-        .messages-layout { display: flex; flex-direction: column; height: calc(100vh - 250px); background: white; border-radius: 20px; overflow: hidden; }
-        .conversations-list { border-bottom: 1px solid #e5e7eb; max-height: 200px; overflow-y: auto; }
-        .conversation-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #f3f4f6; }
-        .conversation-item.active { background: #f3f4f6; }
-        .conversation-avatar { width: 44px; height: 44px; background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
-        .conversation-info { flex: 1; }
-        .conversation-name { font-weight: 600; font-size: 14px; }
-        .conversation-last { font-size: 11px; color: #9ca3af; margin-top: 2px; }
-        .chat-area { flex: 1; display: flex; flex-direction: column; }
-        .chat-header { padding: 12px 16px; border-bottom: 1px solid #e5e7eb; font-weight: 600; background: #f9fafb; }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
-        .chat-message { max-width: 80%; padding: 10px 14px; border-radius: 20px; font-size: 13px; }
-        .chat-message.sent { align-self: flex-end; background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); color: white; border-bottom-right-radius: 4px; }
-        .chat-message.received { align-self: flex-start; background: #f3f4f6; color: #1f2937; border-bottom-left-radius: 4px; }
-        .message-meta { display: flex; gap: 8px; align-items: center; margin-top: 4px; font-size: 9px; opacity: 0.7; }
-        .chat-input-area { display: flex; gap: 10px; padding: 12px; border-top: 1px solid #e5e7eb; background: white; }
-        .chat-input-area.hidden { display: none; }
-        .chat-input-area textarea { flex: 1; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 24px; resize: none; font-size: 14px; font-family: inherit; }
-        .send-msg-btn { background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 18px; color: white; }
         
         .fab {
             position: fixed;
@@ -205,6 +182,27 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         
         .team-selector { background: white; border-radius: 20px; padding: 16px; margin-bottom: 16px; }
+        
+        /* Messages chat */
+        .messages-layout { display: flex; flex-direction: column; height: calc(100vh - 250px); background: white; border-radius: 20px; overflow: hidden; }
+        .conversations-list { border-bottom: 1px solid #e5e7eb; max-height: 200px; overflow-y: auto; }
+        .conversation-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #f3f4f6; }
+        .conversation-item.active { background: #f3f4f6; }
+        .conversation-avatar { width: 44px; height: 44px; background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
+        .conversation-info { flex: 1; }
+        .conversation-name { font-weight: 600; font-size: 14px; }
+        .conversation-last { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+        .chat-area { flex: 1; display: flex; flex-direction: column; }
+        .chat-header { padding: 12px 16px; border-bottom: 1px solid #e5e7eb; font-weight: 600; background: #f9fafb; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+        .chat-message { max-width: 80%; padding: 10px 14px; border-radius: 20px; font-size: 13px; }
+        .chat-message.sent { align-self: flex-end; background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); color: white; border-bottom-right-radius: 4px; }
+        .chat-message.received { align-self: flex-start; background: #f3f4f6; color: #1f2937; border-bottom-left-radius: 4px; }
+        .message-meta { display: flex; gap: 8px; align-items: center; margin-top: 4px; font-size: 9px; opacity: 0.7; }
+        .chat-input-area { display: flex; gap: 10px; padding: 12px; border-top: 1px solid #e5e7eb; background: white; }
+        .chat-input-area.hidden { display: none; }
+        .chat-input-area textarea { flex: 1; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 24px; resize: none; font-size: 14px; font-family: inherit; }
+        .send-msg-btn { background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 18px; color: white; }
     </style>
 </head>
 <body>
@@ -371,9 +369,7 @@
 
             <!-- Matchs -->
             <div id="matchesTab" class="tab-pane hidden">
-                <div style="margin-bottom:16px">
-                    <h3 style="color:var(--club-blue); display:inline-block">🏆 Matchs</h3>
-                </div>
+                <h3 style="color:var(--club-blue); margin-bottom:16px">🏆 Matchs</h3>
                 <div id="matchesList"><div class="loading-spinner"><div class="spinner"></div></div></div>
             </div>
 
@@ -520,55 +516,27 @@
 
 <div id="toast" class="toast hidden"></div>
 
-<!-- Firebase SDK -->
+<!-- Firebase SDK (version compat pour navigateur) -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
 <script>
-// ============ CONFIGURATION FIREBASE ============
-// !!! REMPLACEZ PAR VOS DONNÉES FIREBASE !!!
-// Import the functions you need from the SDKs you need
-
-// Import the functions you need from the SDKs you need
-
-import { initializeApp } from "firebase/app";
-
-import { getAnalytics } from "firebase/analytics";
-
-// TODO: Add SDKs for Firebase products that you want to use
-
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-
-// Your web app's Firebase configuration
-
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-
+// ============ CONFIGURATION FIREBASE (VOS VALEURS) ============
 const firebaseConfig = {
-
-  apiKey: "AIzaSyAy26GgYnspaJvOSgyMzNyPvKnFWV9lzrg",
-
-  authDomain: "team-foot-barcares-c1e7e.firebaseapp.com",
-
-  projectId: "team-foot-barcares-c1e7e",
-
-  storageBucket: "team-foot-barcares-c1e7e.firebasestorage.app",
-
-  messagingSenderId: "731521527465",
-
-  appId: "1:731521527465:web:24ce0dac8f3fab717e03b8",
-
-  measurementId: "G-7Y5EW0BETQ"
-
+    apiKey: "AIzaSyAy26GgYnspaJvOSgyMzNyPvKnFWV9lzrg",
+    authDomain: "team-foot-barcares-c1e7e.firebaseapp.com",
+    projectId: "team-foot-barcares-c1e7e",
+    storageBucket: "team-foot-barcares-c1e7e.firebasestorage.app",
+    messagingSenderId: "731521527465",
+    appId: "1:731521527465:web:24ce0dac8f3fab717e03b8",
+    measurementId: "G-7Y5EW0BETQ"
 };
 
-
-// Initialize Firebase
-
-const app = initializeApp(firebaseConfig);
-
-const analytics = getAnalytics(app);
+// Initialisation Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
 
 // ============ VARIABLES GLOBALES ==========
 let currentUser = null;
@@ -921,14 +889,22 @@ async function showMainApp() {
         await loadTeamSelectors();
     }
     
-    // Navigation
+    // Navigation - CORRIGÉE
     document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.onclick = async () => {
-            const tab = btn.dataset.tab;
+        btn.onclick = async (e) => {
+            e.preventDefault();
+            const tab = btn.getAttribute('data-tab');
+            console.log('Navigation vers:', tab);
+            
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
-            document.getElementById(`${tab}Tab`).classList.add('active');
+            
+            const targetPane = document.getElementById(`${tab}Tab`);
+            if (targetPane) {
+                targetPane.classList.add('active');
+            }
+            
             if (tab === 'matches') await loadMatches();
             if (tab === 'events') await loadOtherEvents();
             if (tab === 'team') await loadTeamMembers();
@@ -986,8 +962,6 @@ async function loadMatches() {
             return;
         }
         
-        const isAdminOrCoach = (currentUser.role === 'admin' || currentUser.role === 'coach');
-        
         container.innerHTML = matches.map(m => `
             <div class="event-card">
                 <div class="event-header">
@@ -1000,7 +974,6 @@ async function loadMatches() {
                     📍 ${escapeHtml(m.location)}<br>
                     ⏰ Convocation: ${formatDate(m.callTime)}
                 </div>
-                ${m.cancelReason ? `<div class="cancel-reason">⚠️ Annulé: ${escapeHtml(m.cancelReason)}</div>` : ''}
                 ${m.notes ? `<div style="margin-top:8px; font-size:12px; color:#0055a4">📌 ${escapeHtml(m.notes)}</div>` : ''}
             </div>
         `).join('');
@@ -1080,12 +1053,6 @@ async function loadTeamMembers() {
                     ${p.birthDate ? `<div class="member-detail">📅 ${p.birthDate}</div>` : ''}
                     ${isCoach && p.phone ? `<div class="member-detail">📞 ${p.phone}</div>` : ''}
                     ${isCoach && p.email ? `<div class="member-detail">✉️ ${p.email}</div>` : ''}
-                    ${p.isMinor && p.parents ? `
-                        <div class="parent-info">
-                            <strong>Parents:</strong><br>
-                            ${p.parents.map(parent => `👤 ${escapeHtml(parent.name)}<br>📞 ${parent.phone}<br>✉️ ${parent.email}`).join('<br>')}
-                        </div>
-                    ` : ''}
                 </div>
                 <div>
                     ${!p.pendingApproval && isCoach ? `<button class="btn-small btn-chat" onclick="startChatWith('${p.uid}', '${escapeHtml(p.name)}')">💬</button>` : ''}
@@ -1119,6 +1086,7 @@ async function approvePlayer(uid) {
     await db.collection('users').doc(uid).update({ pendingApproval: false });
     showToast('Joueur approuvé');
     await loadTeamMembers();
+    if (currentUser.role === 'admin') await loadAdminPlayersList();
 }
 
 async function removePlayer(uid) {
@@ -1132,170 +1100,93 @@ async function removePlayer(uid) {
         }
         showToast('Joueur retiré');
         await loadTeamMembers();
+        if (currentUser.role === 'admin') await loadAdminPlayersList();
     }
 }
 
-// ============ CHAT PRIVÉ ==========
+// ============ CHAT ==========
 async function loadConversations() {
-    if (currentUser.role === 'player') {
-        await loadPlayerConversations();
-    } else if (currentUser.role === 'coach') {
-        await loadCoachConversations();
-    } else if (currentUser.role === 'admin') {
-        await loadAdminConversations();
-    }
-}
-
-async function loadPlayerConversations() {
     const container = document.getElementById('conversationsList');
-    const conversations = [];
+    if (!container) return;
     
-    // Coach de l'équipe
-    const teamQuery = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
-    if (!teamQuery.empty) {
-        const teamId = teamQuery.docs[0].id;
-        const coachesSnap = await db.collection('users').where('role', '==', 'coach').where('teamId', '==', teamId).get();
+    if (currentUser.role === 'admin') {
+        const coachesSnap = await db.collection('users').where('role', '==', 'coach').get();
+        const playersSnap = await db.collection('users').where('role', '==', 'player').where('pendingApproval', '==', false).get();
+        
+        let conversations = [];
         coachesSnap.forEach(coach => {
-            conversations.push({
-                id: coach.id,
-                name: `Coach ${coach.data().name}`,
-                type: 'coach',
-                lastMessage: '',
-                lastTime: ''
+            conversations.push({ id: coach.id, name: `${coach.data().name} (${coach.data().teamName})`, type: 'coach' });
+        });
+        playersSnap.forEach(player => {
+            conversations.push({ id: player.id, name: `${player.data().name} (${player.data().teamName})`, type: 'player' });
+        });
+        
+        container.innerHTML = conversations.map(conv => `
+            <div class="conversation-item" onclick="openConversation('${conv.id}', '${escapeHtml(conv.name)}', '${conv.type}')">
+                <div class="conversation-avatar">${conv.name.charAt(0).toUpperCase()}</div>
+                <div class="conversation-info">
+                    <div class="conversation-name">${escapeHtml(conv.name)}</div>
+                    <div class="conversation-last">Cliquez pour discuter</div>
+                </div>
+            </div>
+        `).join('');
+    } else if (currentUser.role === 'coach') {
+        const teamQuery = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+        let conversations = [{ id: 'admin', name: 'Administrateur', type: 'admin' }];
+        
+        if (!teamQuery.empty) {
+            const playerIds = teamQuery.docs[0].data().players || [];
+            for (const pid of playerIds) {
+                const userDoc = await db.collection('users').doc(pid).get();
+                if (userDoc.exists && !userDoc.data().pendingApproval) {
+                    conversations.push({ id: pid, name: userDoc.data().name, type: 'player' });
+                }
+            }
+        }
+        
+        container.innerHTML = conversations.map(conv => `
+            <div class="conversation-item" onclick="openConversation('${conv.id}', '${escapeHtml(conv.name)}', '${conv.type}')">
+                <div class="conversation-avatar">${conv.name.charAt(0).toUpperCase()}</div>
+                <div class="conversation-info">
+                    <div class="conversation-name">${escapeHtml(conv.name)}</div>
+                    <div class="conversation-last">Cliquez pour discuter</div>
+                </div>
+            </div>
+        `).join('');
+    } else if (currentUser.role === 'player') {
+        const teamQuery = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+        let conversations = [
+            { id: 'admin', name: 'Administrateur', type: 'admin' }
+        ];
+        
+        if (!teamQuery.empty) {
+            const teamId = teamQuery.docs[0].id;
+            const coachesSnap = await db.collection('users').where('role', '==', 'coach').where('teamId', '==', teamId).get();
+            coachesSnap.forEach(coach => {
+                conversations.push({ id: coach.id, name: `Coach ${coach.data().name}`, type: 'coach' });
             });
-        });
-    }
-    
-    // Autres joueurs de la même équipe
-    const teamData = teamQuery.docs[0].data();
-    const playerIds = teamData.players || [];
-    for (const pid of playerIds) {
-        if (pid !== currentUser.uid) {
-            const userDoc = await db.collection('users').doc(pid).get();
-            if (userDoc.exists && !userDoc.data().pendingApproval) {
-                conversations.push({
-                    id: pid,
-                    name: userDoc.data().name,
-                    type: 'player',
-                    lastMessage: '',
-                    lastTime: ''
-                });
+            
+            const playerIds = teamQuery.docs[0].data().players || [];
+            for (const pid of playerIds) {
+                if (pid !== currentUser.uid) {
+                    const userDoc = await db.collection('users').doc(pid).get();
+                    if (userDoc.exists && !userDoc.data().pendingApproval) {
+                        conversations.push({ id: pid, name: userDoc.data().name, type: 'player' });
+                    }
+                }
             }
         }
-    }
-    
-    // Admin (toujours disponible)
-    conversations.push({
-        id: 'admin',
-        name: 'Administrateur',
-        type: 'admin',
-        lastMessage: '',
-        lastTime: ''
-    });
-    
-    // Charger les derniers messages
-    const messagesSnap = await db.collection('messages')
-        .where('teamCode', '==', currentUser.teamCode)
-        .orderBy('timestamp', 'desc')
-        .limit(50)
-        .get();
-    
-    const lastMessages = {};
-    messagesSnap.forEach(doc => {
-        const msg = doc.data();
-        const otherId = msg.from === currentUser.uid ? msg.to : msg.from;
-        if (!lastMessages[otherId]) {
-            lastMessages[otherId] = { text: msg.text, time: msg.timestamp };
-        }
-    });
-    
-    for (const conv of conversations) {
-        if (lastMessages[conv.id]) {
-            conv.lastMessage = lastMessages[conv.id].text;
-            conv.lastTime = lastMessages[conv.id].time;
-        }
-    }
-    
-    conversations.sort((a,b) => new Date(b.lastTime) - new Date(a.lastTime));
-    
-    container.innerHTML = conversations.map(conv => `
-        <div class="conversation-item" onclick="openConversation('${conv.id}', '${conv.name.replace(/'/g, "\\'")}', '${conv.type}')">
-            <div class="conversation-avatar">${conv.name.charAt(0).toUpperCase()}</div>
-            <div class="conversation-info">
-                <div class="conversation-name">${escapeHtml(conv.name)}</div>
-                <div class="conversation-last">${escapeHtml(conv.lastMessage?.substring(0, 40) || 'Nouvelle conversation')}</div>
+        
+        container.innerHTML = conversations.map(conv => `
+            <div class="conversation-item" onclick="openConversation('${conv.id}', '${escapeHtml(conv.name)}', '${conv.type}')">
+                <div class="conversation-avatar">${conv.name.charAt(0).toUpperCase()}</div>
+                <div class="conversation-info">
+                    <div class="conversation-name">${escapeHtml(conv.name)}</div>
+                    <div class="conversation-last">Cliquez pour discuter</div>
+                </div>
             </div>
-        </div>
-    `).join('');
-}
-
-async function loadCoachConversations() {
-    const container = document.getElementById('conversationsList');
-    const conversations = [];
-    
-    // Admin
-    conversations.push({ id: 'admin', name: 'Administrateur', type: 'admin' });
-    
-    // Joueurs de l'équipe
-    const teamQuery = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
-    if (!teamQuery.empty) {
-        const playerIds = teamQuery.docs[0].data().players || [];
-        for (const pid of playerIds) {
-            const userDoc = await db.collection('users').doc(pid).get();
-            if (userDoc.exists && !userDoc.data().pendingApproval) {
-                conversations.push({
-                    id: pid,
-                    name: userDoc.data().name,
-                    type: 'player'
-                });
-            }
-        }
+        `).join('');
     }
-    
-    container.innerHTML = conversations.map(conv => `
-        <div class="conversation-item" onclick="openConversation('${conv.id}', '${conv.name.replace(/'/g, "\\'")}', '${conv.type}')">
-            <div class="conversation-avatar">${conv.name.charAt(0).toUpperCase()}</div>
-            <div class="conversation-info">
-                <div class="conversation-name">${escapeHtml(conv.name)}</div>
-                <div class="conversation-last">Cliquez pour discuter</div>
-            </div>
-        </div>
-    `).join('');
-}
-
-async function loadAdminConversations() {
-    const container = document.getElementById('conversationsList');
-    const conversations = [];
-    
-    // Tous les coachs
-    const coachesSnap = await db.collection('users').where('role', '==', 'coach').get();
-    coachesSnap.forEach(coach => {
-        conversations.push({
-            id: coach.id,
-            name: `${coach.data().name} (${coach.data().teamName})`,
-            type: 'coach'
-        });
-    });
-    
-    // Tous les joueurs approuvés
-    const playersSnap = await db.collection('users').where('role', '==', 'player').where('pendingApproval', '==', false).get();
-    playersSnap.forEach(player => {
-        conversations.push({
-            id: player.id,
-            name: `${player.data().name} (${player.data().teamName})`,
-            type: 'player'
-        });
-    });
-    
-    container.innerHTML = conversations.map(conv => `
-        <div class="conversation-item" onclick="openConversation('${conv.id}', '${conv.name.replace(/'/g, "\\'")}', '${conv.type}')">
-            <div class="conversation-avatar">${conv.name.charAt(0).toUpperCase()}</div>
-            <div class="conversation-info">
-                <div class="conversation-name">${escapeHtml(conv.name)}</div>
-                <div class="conversation-last">Cliquez pour discuter</div>
-            </div>
-        </div>
-    `).join('');
 }
 
 function startChatWith(userId, userName) {
@@ -1309,9 +1200,8 @@ async function openConversation(otherId, otherName, otherType) {
     document.getElementById('chatHeader').innerHTML = `<span>💬 ${escapeHtml(otherName)}</span>`;
     document.getElementById('chatInputArea').classList.remove('hidden');
     
-    // Marquer les messages comme lus
+    // Marquer comme lu
     const messagesSnap = await db.collection('messages')
-        .where('teamCode', '==', currentUser.teamCode || 'admin')
         .where('to', '==', currentUser.uid)
         .where('from', '==', otherId)
         .get();
@@ -1327,11 +1217,10 @@ async function openConversation(otherId, otherName, otherType) {
 async function loadChatMessages(otherId) {
     const container = document.getElementById('chatMessages');
     
-    let query = db.collection('messages')
-        .where('teamCode', '==', currentUser.teamCode || 'admin')
-        .orderBy('timestamp', 'asc');
+    const messagesSnap = await db.collection('messages')
+        .orderBy('timestamp', 'asc')
+        .get();
     
-    const messagesSnap = await query.get();
     const messages = [];
     messagesSnap.forEach(doc => {
         const msg = doc.data();
@@ -1376,7 +1265,6 @@ async function sendPrivateMessage() {
     await db.collection('messages').add(message);
     input.value = '';
     await loadChatMessages(currentConversation.otherId);
-    await loadConversations();
 }
 
 function updateUnreadBadge() {
@@ -1461,6 +1349,7 @@ async function removePlayerFromAdmin(playerId) {
         await db.collection('users').doc(playerId).update({ teamCode: null, teamName: null });
         showToast('Joueur retiré');
         await loadAdminPlayersList();
+        await loadTeamMembers();
     }
 }
 
@@ -1597,7 +1486,6 @@ async function sendTeamMessage() {
             });
         }
         
-        // Envoyer aussi au coach
         const coachesSnap = await db.collection('users').where('role', '==', 'coach').where('teamId', '==', teamId).get();
         coachesSnap.forEach(coach => {
             db.collection('messages').add({
@@ -1639,7 +1527,7 @@ async function init() {
         document.getElementById('loginScreen').classList.remove('hidden');
     }
     
-    // Écouter les messages pour le badge
+    // Écouter les messages non lus
     if (currentUser && currentUser.uid) {
         db.collection('messages')
             .where('to', '==', currentUser.uid)
