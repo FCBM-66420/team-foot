@@ -16,7 +16,6 @@
             --bg-light: #f5f7fc;
         }
         
-        /* Écran de connexion */
         .screen { min-height: 100vh; }
         .screen.hidden { display: none; }
         
@@ -75,7 +74,6 @@
         .mode-btn.active { background: var(--club-blue); color: white; }
         .mode-btn.inactive { background: #f3f4f6; color: #6b7280; }
         
-        /* Interface principale */
         .app-header { background: linear-gradient(135deg, var(--club-blue) 0%, var(--club-blue-clair) 100%); padding: 20px; color: white; }
         .header-content { display: flex; justify-content: space-between; align-items: center; }
         .team-badge { display: flex; align-items: center; gap: 12px; }
@@ -107,12 +105,14 @@
             padding: 8px;
             cursor: pointer;
             border-radius: 12px;
+            position: relative;
         }
         .nav-icon { font-size: 22px; color: #9ca3af; }
         .nav-btn span:not(.nav-icon) { font-size: 11px; color: #9ca3af; }
         .nav-btn.active { background: var(--bg-light); }
         .nav-btn.active .nav-icon { color: var(--club-blue); }
         .nav-btn.active span:not(.nav-icon) { color: var(--club-blue); font-weight: 500; }
+        .unread-badge { position: absolute; top: -5px; right: 5px; background: #ef4444; color: white; font-size: 10px; padding: 2px 6px; border-radius: 20px; }
         
         .main-content { padding: 20px 16px 80px; }
         .tab-pane { display: none; animation: fadeIn 0.3s ease; }
@@ -160,13 +160,28 @@
         .btn-small { padding: 6px 12px; border-radius: 20px; border: none; cursor: pointer; font-size: 12px; }
         .btn-approve { background: #10b981; color: white; }
         .btn-remove { background: #ef4444; color: white; }
-        .btn-edit { background: var(--club-yellow); color: var(--club-blue); }
+        .btn-chat { background: var(--club-yellow); color: var(--club-blue); margin-left: 8px; }
         
-        .loading-spinner { display: flex; justify-content: center; padding: 40px; }
-        .spinner { width: 40px; height: 40px; border: 3px solid #e2e8f0; border-top-color: var(--club-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        footer { text-align: center; padding: 12px; font-size: 10px; color: #9ca3af; background: white; margin-top: 20px; border-radius: 16px; }
+        /* Chat styles */
+        .messages-layout { display: flex; flex-direction: column; height: calc(100vh - 250px); background: white; border-radius: 20px; overflow: hidden; }
+        .conversations-list { border-bottom: 1px solid #e5e7eb; max-height: 200px; overflow-y: auto; }
+        .conversation-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #f3f4f6; }
+        .conversation-item.active { background: #f3f4f6; }
+        .conversation-avatar { width: 44px; height: 44px; background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
+        .conversation-info { flex: 1; }
+        .conversation-name { font-weight: 600; font-size: 14px; }
+        .conversation-last { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+        .chat-area { flex: 1; display: flex; flex-direction: column; }
+        .chat-header { padding: 12px 16px; border-bottom: 1px solid #e5e7eb; font-weight: 600; background: #f9fafb; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+        .chat-message { max-width: 80%; padding: 10px 14px; border-radius: 20px; font-size: 13px; }
+        .chat-message.sent { align-self: flex-end; background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); color: white; border-bottom-right-radius: 4px; }
+        .chat-message.received { align-self: flex-start; background: #f3f4f6; color: #1f2937; border-bottom-left-radius: 4px; }
+        .message-meta { display: flex; gap: 8px; align-items: center; margin-top: 4px; font-size: 9px; opacity: 0.7; }
+        .chat-input-area { display: flex; gap: 10px; padding: 12px; border-top: 1px solid #e5e7eb; background: white; }
+        .chat-input-area.hidden { display: none; }
+        .chat-input-area textarea { flex: 1; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 24px; resize: none; font-size: 14px; font-family: inherit; }
+        .send-msg-btn { background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 18px; color: white; }
         
         .fab {
             position: fixed;
@@ -183,6 +198,13 @@
             box-shadow: 0 4px 12px rgba(0,85,164,0.4);
             z-index: 90;
         }
+        
+        footer { text-align: center; padding: 12px; font-size: 10px; color: #9ca3af; background: white; margin-top: 20px; border-radius: 16px; }
+        .loading-spinner { display: flex; justify-content: center; padding: 40px; }
+        .spinner { width: 40px; height: 40px; border: 3px solid #e2e8f0; border-top-color: var(--club-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .team-selector { background: white; border-radius: 20px; padding: 16px; margin-bottom: 16px; }
     </style>
 </head>
 <body>
@@ -212,7 +234,7 @@
             </button>
         </div>
 
-        <!-- Panneau Joueur (connexion + inscription) -->
+        <!-- Panneau Joueur -->
         <div id="playerPanel" class="login-form-panel hidden">
             <div class="form-header">
                 <button class="back-icon" onclick="hideAllForms()">←</button>
@@ -223,14 +245,12 @@
                 <button id="playerRegisterModeBtn" class="mode-btn inactive" onclick="setPlayerMode('register')">Inscription</button>
             </div>
             
-            <!-- Formulaire de connexion -->
             <div id="playerLoginForm">
                 <input type="email" id="playerEmail" placeholder="Email" class="team-input">
                 <input type="password" id="playerPassword" placeholder="Mot de passe" class="team-input">
                 <button class="btn-primary" onclick="loginAsPlayer()">Se connecter</button>
             </div>
             
-            <!-- Formulaire d'inscription -->
             <div id="playerRegisterForm" style="display:none">
                 <input type="text" id="regTeamCode" placeholder="Code équipe" class="team-input">
                 <div class="radio-group">
@@ -256,7 +276,7 @@
                 </div>
                 
                 <button class="btn-primary" onclick="registerPlayer()">S'inscrire</button>
-                <p class="form-hint">L'inscription sera validée par le coach</p>
+                <p class="form-hint">L'inscription sera validée par le coach ou l'admin</p>
             </div>
         </div>
 
@@ -269,7 +289,7 @@
             <input type="email" id="coachEmail" placeholder="Email" class="team-input">
             <input type="password" id="coachPwd" placeholder="Mot de passe" class="team-input">
             <button class="btn-primary" onclick="loginAsCoach()">Se connecter</button>
-            <button class="btn-secondary" onclick="showCreateTeam()">➕ Créer une équipe</button>
+            <p class="form-hint">Contactez l'administrateur pour obtenir vos identifiants</p>
         </div>
 
         <!-- Panneau Admin -->
@@ -283,17 +303,28 @@
             <p class="form-hint">Code: <strong>admin123</strong></p>
         </div>
 
-        <!-- Création équipe -->
+        <!-- Création équipe (admin seulement) -->
         <div id="createTeamForm" class="login-form-panel hidden">
             <div class="form-header">
-                <button class="back-icon" onclick="showCoachLogin()">←</button>
+                <button class="back-icon" onclick="showAdminLogin()">←</button>
                 <h3>Nouvelle équipe</h3>
             </div>
             <input type="text" id="newTeamName" placeholder="Nom de l'équipe" class="team-input">
             <input type="text" id="newTeamCode" placeholder="Code unique (ex: FCBM24)" class="team-input">
-            <input type="email" id="newCoachEmail" placeholder="Email du coach" class="team-input">
-            <input type="password" id="newCoachPwd" placeholder="Mot de passe coach" class="team-input">
             <button class="btn-primary" onclick="createTeam()">Créer l'équipe</button>
+        </div>
+
+        <!-- Création compte coach (admin seulement) -->
+        <div id="createCoachForm" class="login-form-panel hidden">
+            <div class="form-header">
+                <button class="back-icon" onclick="showAdminLogin()">←</button>
+                <h3>Créer un compte coach</h3>
+            </div>
+            <select id="coachTeamSelect" class="team-input"></select>
+            <input type="text" id="newCoachName" placeholder="Nom du coach" class="team-input">
+            <input type="email" id="newCoachEmail" placeholder="Email du coach" class="team-input">
+            <input type="password" id="newCoachPwd" placeholder="Mot de passe" class="team-input">
+            <button class="btn-primary" onclick="createCoachAccount()">Créer le compte coach</button>
         </div>
     </div>
 
@@ -321,6 +352,7 @@
             <button class="nav-btn" data-tab="matches"><span class="nav-icon">🏆</span><span>Matchs</span></button>
             <button class="nav-btn" data-tab="events"><span class="nav-icon">📅</span><span>Événements</span></button>
             <button class="nav-btn" data-tab="team"><span class="nav-icon">👥</span><span>Équipe</span></button>
+            <button class="nav-btn" data-tab="chat"><span class="nav-icon">💬</span><span>Chat</span><span id="chatUnreadBadge" class="unread-badge hidden">0</span></button>
             <button class="nav-btn" data-tab="admin" id="adminNavBtn" style="display:none"><span class="nav-icon">👑</span><span>Admin</span></button>
         </div>
 
@@ -361,16 +393,35 @@
                 </div>
             </div>
 
+            <!-- Chat -->
+            <div id="chatTab" class="tab-pane hidden">
+                <div class="messages-layout">
+                    <div class="conversations-list" id="conversationsList"></div>
+                    <div class="chat-area">
+                        <div class="chat-header" id="chatHeader"><span>Sélectionnez une conversation</span></div>
+                        <div class="chat-messages" id="chatMessages"></div>
+                        <div class="chat-input-area hidden" id="chatInputArea">
+                            <textarea id="messageInput" placeholder="Votre message..." rows="1"></textarea>
+                            <button id="sendMsgBtn" class="send-msg-btn">📤</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Admin -->
             <div id="adminTab" class="tab-pane hidden">
                 <h3 style="color:var(--club-blue)">🌍 Administration</h3>
                 <div style="margin-bottom:20px">
+                    <button class="btn-primary" onclick="showCreateTeamModal()" style="margin-bottom:10px">🏟️ Créer une équipe</button>
+                    <button class="btn-primary" onclick="showCreateCoachModal()" style="margin-bottom:10px">👥 Créer un compte coach</button>
                     <button class="btn-primary" onclick="showMatchModal()" style="margin-bottom:10px">⚽ Ajouter un match</button>
                     <button class="btn-primary" onclick="showOtherEventModal()" style="margin-bottom:10px">📅 Ajouter un événement</button>
-                    <button class="btn-secondary" onclick="sendGlobalMessage()">📢 Message à TOUTES les équipes</button>
+                    <button class="btn-secondary" onclick="showTeamMessageModal()">📢 Message à une ou plusieurs équipes</button>
                 </div>
                 <h4 style="margin:20px 0 10px; color:var(--club-blue)">Liste des équipes</h4>
                 <div id="allTeamsList"></div>
+                <h4 style="margin:20px 0 10px; color:var(--club-blue)">Comptes coachs</h4>
+                <div id="coachesList"></div>
                 <h4 style="margin:20px 0 10px; color:var(--club-blue)">Tous les joueurs</h4>
                 <div id="adminPlayersList"></div>
             </div>
@@ -385,6 +436,7 @@
     <div class="modal-container">
         <div class="modal-header"><h3>⚽ Nouveau match</h3><button class="modal-close" onclick="closeMatchModal()">✕</button></div>
         <div class="modal-body">
+            <select id="matchTeamSelect" class="team-input"></select>
             <select id="matchType" class="team-input">
                 <option value="match_amical">⚽ Match amical</option>
                 <option value="coupe">🏆 Coupe</option>
@@ -396,15 +448,11 @@
             <label style="font-weight:600">⏰ Heure de convocation</label>
             <input type="datetime-local" id="matchCallTime" class="team-input">
             <input type="text" id="matchLocation" placeholder="Lieu du match" class="team-input">
-            <textarea id="matchNotes" placeholder="Notes (tenue, etc.)" rows="2" class="team-input"></textarea>
-            <div id="cancelReasonDiv" style="display:none">
-                <label style="font-weight:600; color:#dc2626">⚠️ Motivation de l'annulation</label>
-                <input type="text" id="cancelReason" placeholder="Raison..." class="team-input">
-            </div>
+            <textarea id="matchNotes" placeholder="Notes" rows="2" class="team-input"></textarea>
         </div>
         <div class="modal-footer">
-            <button onclick="closeMatchModal()" class="btn-secondary" style="flex:1">Annuler</button>
-            <button id="matchSubmitBtn" onclick="createMatch()" class="btn-primary" style="flex:1">Créer</button>
+            <button onclick="closeMatchModal()" class="btn-secondary">Annuler</button>
+            <button onclick="createMatch()" class="btn-primary">Créer</button>
         </div>
     </div>
 </div>
@@ -414,6 +462,7 @@
     <div class="modal-container">
         <div class="modal-header"><h3>📅 Événement</h3><button class="modal-close" onclick="closeOtherEventModal()">✕</button></div>
         <div class="modal-body">
+            <select id="eventTeamSelect" class="team-input"></select>
             <select id="otherEventType" class="team-input">
                 <option value="entrainement">🏋️ Entraînement</option>
                 <option value="soiree">🎉 Soirée d'équipe</option>
@@ -427,6 +476,22 @@
         <div class="modal-footer">
             <button onclick="closeOtherEventModal()" class="btn-secondary">Annuler</button>
             <button onclick="createOtherEvent()" class="btn-primary">Créer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal message équipe (admin) -->
+<div id="teamMessageModal" class="modal hidden">
+    <div class="modal-container">
+        <div class="modal-header"><h3>📢 Message aux équipes</h3><button class="modal-close" onclick="closeTeamMessageModal()">✕</button></div>
+        <div class="modal-body">
+            <label style="font-weight:600">Sélectionner les équipes</label>
+            <div id="teamCheckboxList" class="team-selector"></div>
+            <textarea id="teamMessageText" placeholder="Votre message..." rows="4" class="team-input"></textarea>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeTeamMessageModal()" class="btn-secondary">Annuler</button>
+            <button onclick="sendTeamMessage()" class="btn-primary">Envoyer</button>
         </div>
     </div>
 </div>
@@ -463,23 +528,52 @@
 <script>
 // ============ CONFIGURATION FIREBASE ============
 // !!! REMPLACEZ PAR VOS DONNÉES FIREBASE !!!
+// Import the functions you need from the SDKs you need
+
+// Import the functions you need from the SDKs you need
+
+import { initializeApp } from "firebase/app";
+
+import { getAnalytics } from "firebase/analytics";
+
+// TODO: Add SDKs for Firebase products that you want to use
+
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+
+// Your web app's Firebase configuration
+
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+
 const firebaseConfig = {
-    apiKey: "VOTRE_API_KEY",
-    authDomain: "VOTRE_AUTH_DOMAIN",
-    projectId: "VOTRE_PROJECT_ID",
-    storageBucket: "VOTRE_STORAGE_BUCKET",
-    messagingSenderId: "VOTRE_MESSAGING_SENDER_ID",
-    appId: "VOTRE_APP_ID"
+
+  apiKey: "AIzaSyAy26GgYnspaJvOSgyMzNyPvKnFWV9lzrg",
+
+  authDomain: "team-foot-barcares-c1e7e.firebaseapp.com",
+
+  projectId: "team-foot-barcares-c1e7e",
+
+  storageBucket: "team-foot-barcares-c1e7e.firebasestorage.app",
+
+  messagingSenderId: "731521527465",
+
+  appId: "1:731521527465:web:24ce0dac8f3fab717e03b8",
+
+  measurementId: "G-7Y5EW0BETQ"
+
 };
 
-// Initialisation Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
+
+// Initialize Firebase
+
+const app = initializeApp(firebaseConfig);
+
+const analytics = getAnalytics(app);
 
 // ============ VARIABLES GLOBALES ==========
 let currentUser = null;
-let editingMatchId = null;
+let currentConversation = null;
+let unreadCount = 0;
 
 // ============ FONCTIONS UTILITAIRES ==========
 function showToast(message) {
@@ -493,24 +587,14 @@ function hideAllForms() {
     document.querySelectorAll('.login-form-panel').forEach(el => el.classList.add('hidden'));
 }
 
-function showPlayerPanel() {
-    hideAllForms();
-    document.getElementById('playerPanel').classList.remove('hidden');
-}
-
-function showCoachLogin() {
-    hideAllForms();
-    document.getElementById('coachLoginForm').classList.remove('hidden');
-}
-
-function showAdminLogin() {
-    hideAllForms();
-    document.getElementById('adminLoginForm').classList.remove('hidden');
-}
-
-function showCreateTeam() {
-    hideAllForms();
-    document.getElementById('createTeamForm').classList.remove('hidden');
+function showPlayerPanel() { hideAllForms(); document.getElementById('playerPanel').classList.remove('hidden'); }
+function showCoachLogin() { hideAllForms(); document.getElementById('coachLoginForm').classList.remove('hidden'); }
+function showAdminLogin() { hideAllForms(); document.getElementById('adminLoginForm').classList.remove('hidden'); }
+function showCreateTeamModal() { hideAllForms(); document.getElementById('createTeamForm').classList.remove('hidden'); }
+function showCreateCoachModal() { 
+    hideAllForms(); 
+    loadTeamSelectors();
+    document.getElementById('createCoachForm').classList.remove('hidden'); 
 }
 
 function setPlayerMode(mode) {
@@ -535,6 +619,21 @@ function setPlayerMode(mode) {
 function toggleParentFields(isMinor) {
     const parentFields = document.getElementById('parentFieldsSection');
     parentFields.style.display = isMinor ? 'block' : 'none';
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleString('fr-FR');
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
 }
 
 // ============ AUTHENTIFICATION ============
@@ -575,7 +674,6 @@ async function registerPlayer() {
         return;
     }
     
-    // Vérifier l'équipe
     const teamQuery = await db.collection('teams').where('code', '==', teamCode).get();
     if (teamQuery.empty) {
         showToast('Code équipe invalide');
@@ -597,6 +695,7 @@ async function registerPlayer() {
             role: 'player',
             teamCode: teamCode,
             teamName: teamData.name,
+            teamId: teamDoc.id,
             isMinor: isMinor,
             pendingApproval: true,
             createdAt: new Date().toISOString()
@@ -614,7 +713,7 @@ async function registerPlayer() {
             players: firebase.firestore.FieldValue.arrayUnion(uid)
         });
         
-        showToast('Inscription réussie ! En attente de validation du coach');
+        showToast('Inscription réussie ! En attente de validation');
         setTimeout(() => location.reload(), 2000);
     } catch (error) {
         showToast('Erreur: ' + error.message);
@@ -659,10 +758,8 @@ function loginAsAdmin() {
 async function createTeam() {
     const name = document.getElementById('newTeamName').value.trim();
     const code = document.getElementById('newTeamCode').value.toUpperCase();
-    const coachEmail = document.getElementById('newCoachEmail').value;
-    const coachPassword = document.getElementById('newCoachPwd').value;
     
-    if (!name || !code || !coachEmail || !coachPassword) {
+    if (!name || !code) {
         showToast('Remplissez tous les champs');
         return;
     }
@@ -674,29 +771,53 @@ async function createTeam() {
             return;
         }
         
-        const coachCred = await auth.createUserWithEmailAndPassword(coachEmail, coachPassword);
-        
         await db.collection('teams').add({
             name: name,
             code: code,
-            coachId: coachCred.user.uid,
             players: [],
             matches: [],
             otherEvents: [],
             createdAt: new Date().toISOString()
         });
         
-        await db.collection('users').doc(coachCred.user.uid).set({
-            uid: coachCred.user.uid,
-            name: name + ' Coach',
-            email: coachEmail,
+        showToast(`Équipe ${name} créée !`);
+        showAdminLogin();
+    } catch (error) {
+        showToast('Erreur: ' + error.message);
+    }
+}
+
+async function createCoachAccount() {
+    const teamId = document.getElementById('coachTeamSelect').value;
+    const name = document.getElementById('newCoachName').value;
+    const email = document.getElementById('newCoachEmail').value;
+    const password = document.getElementById('newCoachPwd').value;
+    
+    if (!teamId || !name || !email || !password) {
+        showToast('Remplissez tous les champs');
+        return;
+    }
+    
+    const teamDoc = await db.collection('teams').doc(teamId).get();
+    const teamData = teamDoc.data();
+    
+    try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const uid = userCredential.user.uid;
+        
+        await db.collection('users').doc(uid).set({
+            uid: uid,
+            name: name,
+            email: email,
             role: 'coach',
-            teamCode: code,
+            teamCode: teamData.code,
+            teamName: teamData.name,
+            teamId: teamId,
             createdAt: new Date().toISOString()
         });
         
-        showToast(`Équipe ${name} créée !`);
-        showCoachLogin();
+        showToast(`Compte coach créé pour ${name}`);
+        showAdminLogin();
     } catch (error) {
         showToast('Erreur: ' + error.message);
     }
@@ -711,7 +832,7 @@ async function logout() {
     showToast('Déconnecté');
 }
 
-// ============ PARAMÈTRES UTILISATEUR ==========
+// ============ PARAMÈTRES ==========
 async function changeUserPassword() {
     const oldPwd = document.getElementById('oldPasswordInput').value;
     const newPwd = document.getElementById('newPasswordInput').value;
@@ -758,9 +879,6 @@ function showSettingsModal() {
 
 function closeSettingsModal() {
     document.getElementById('settingsModal').classList.add('hidden');
-    document.getElementById('oldPasswordInput').value = '';
-    document.getElementById('newPasswordInput').value = '';
-    document.getElementById('confirmPasswordInput').value = '';
 }
 
 // ============ AFFICHAGE PRINCIPAL ==========
@@ -770,7 +888,6 @@ async function showMainApp() {
     
     const isAdmin = currentUser.role === 'admin';
     const isCoach = currentUser.role === 'coach';
-    const isPlayer = currentUser.role === 'player';
     
     document.getElementById('adminNavBtn').style.display = isAdmin ? 'flex' : 'none';
     document.getElementById('fabButton').style.display = (isAdmin || isCoach) ? 'flex' : 'none';
@@ -781,7 +898,7 @@ async function showMainApp() {
         document.getElementById('headerIcon').innerHTML = '👑';
         document.getElementById('welcomeText').innerHTML = 'Bonjour Administrateur 👋';
     } else if (isCoach) {
-        document.getElementById('headerTeamName').innerText = currentUser.teamCode || 'Mon équipe';
+        document.getElementById('headerTeamName').innerText = currentUser.teamName || currentUser.teamCode;
         document.getElementById('headerRole').innerText = 'Coach';
         document.getElementById('headerIcon').innerHTML = '👥';
         document.getElementById('welcomeText').innerHTML = `Bonjour Coach ${currentUser.name} 👋`;
@@ -796,7 +913,13 @@ async function showMainApp() {
     await loadMatches();
     await loadOtherEvents();
     await loadTeamMembers();
-    if (isAdmin) await loadAllTeams();
+    await loadConversations();
+    if (isAdmin) {
+        await loadAllTeams();
+        await loadCoachesList();
+        await loadAdminPlayersList();
+        await loadTeamSelectors();
+    }
     
     // Navigation
     document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -809,7 +932,8 @@ async function showMainApp() {
             if (tab === 'matches') await loadMatches();
             if (tab === 'events') await loadOtherEvents();
             if (tab === 'team') await loadTeamMembers();
-            if (tab === 'admin' && isAdmin) await loadAllTeams();
+            if (tab === 'chat') { await loadConversations(); updateUnreadBadge(); }
+            if (tab === 'admin' && isAdmin) { await loadAllTeams(); await loadCoachesList(); await loadAdminPlayersList(); }
         };
     });
 }
@@ -848,7 +972,7 @@ async function loadMatches() {
             const teamsSnap = await db.collection('teams').get();
             teamsSnap.forEach(team => {
                 const teamMatches = team.data().matches || [];
-                matches.push(...teamMatches.map(m => ({ ...m, teamName: team.data().name })));
+                matches.push(...teamMatches.map(m => ({ ...m, teamName: team.data().name, teamCode: team.data().code })));
             });
         } else {
             const teamQuery = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
@@ -868,7 +992,7 @@ async function loadMatches() {
             <div class="event-card">
                 <div class="event-header">
                     <strong class="event-title">${escapeHtml(m.title)}</strong>
-                    <span class="event-badge">${getMatchTypeLabel(m.type)}</span>
+                    <span class="event-badge">${m.type === 'match_amical' ? 'Amical' : m.type === 'coupe' ? 'Coupe' : 'Championnat'}</span>
                 </div>
                 ${m.teamName ? `<div style="font-size:11px; color:#0055a4; margin-bottom:8px">🏷️ ${escapeHtml(m.teamName)}</div>` : ''}
                 <div style="margin-top:8px; font-size:13px">
@@ -878,12 +1002,6 @@ async function loadMatches() {
                 </div>
                 ${m.cancelReason ? `<div class="cancel-reason">⚠️ Annulé: ${escapeHtml(m.cancelReason)}</div>` : ''}
                 ${m.notes ? `<div style="margin-top:8px; font-size:12px; color:#0055a4">📌 ${escapeHtml(m.notes)}</div>` : ''}
-                ${isAdminOrCoach && !m.cancelReason ? `
-                    <div style="display:flex; gap:8px; margin-top:12px">
-                        <button onclick="editMatch('${m.id}')" style="background:#FFD700; border:none; padding:6px 12px; border-radius:20px; cursor:pointer">✏️ Modifier</button>
-                        <button onclick="cancelMatch('${m.id}')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:20px; cursor:pointer">❌ Annuler</button>
-                    </div>
-                ` : ''}
             </div>
         `).join('');
     } catch (error) {
@@ -917,7 +1035,7 @@ async function loadOtherEvents() {
             <div class="event-card">
                 <div class="event-header">
                     <strong class="event-title">${escapeHtml(e.title)}</strong>
-                    <span class="event-badge">${getEventTypeLabel(e.type)}</span>
+                    <span class="event-badge">${e.type === 'entrainement' ? '🏋️ Entraînement' : e.type === 'soiree' ? '🎉 Soirée' : '📋 Réunion'}</span>
                 </div>
                 ${e.teamName ? `<div style="font-size:11px; color:#0055a4; margin-bottom:8px">🏷️ ${escapeHtml(e.teamName)}</div>` : ''}
                 <div style="margin-top:8px; font-size:13px">
@@ -936,17 +1054,7 @@ async function loadTeamMembers() {
     const container = document.getElementById('teamMembersList');
     try {
         if (currentUser.role === 'admin') {
-            const usersSnap = await db.collection('users').where('role', '==', 'player').get();
-            const players = [];
-            usersSnap.forEach(doc => players.push({ id: doc.id, ...doc.data() }));
-            container.innerHTML = players.map(p => `
-                <div class="member-card">
-                    <div class="member-info">
-                        <div class="member-name">⚽ ${escapeHtml(p.name)}</div>
-                        <div class="member-detail">${escapeHtml(p.teamName || p.teamCode)}</div>
-                    </div>
-                </div>
-            `).join('');
+            container.innerHTML = '<div class="empty-state">Sélectionnez une équipe dans l\'onglet Admin</div>';
             return;
         }
         
@@ -979,13 +1087,16 @@ async function loadTeamMembers() {
                         </div>
                     ` : ''}
                 </div>
-                ${isCoach && !p.pendingApproval ? `<button class="btn-small btn-remove" onclick="removePlayer('${p.uid}')">❌ Retirer</button>` : ''}
+                <div>
+                    ${!p.pendingApproval && isCoach ? `<button class="btn-small btn-chat" onclick="startChatWith('${p.uid}', '${escapeHtml(p.name)}')">💬</button>` : ''}
+                    ${isCoach && !p.pendingApproval ? `<button class="btn-small btn-remove" onclick="removePlayer('${p.uid}')">❌</button>` : ''}
+                </div>
             </div>
         `).join('');
         
         const pendingCard = document.getElementById('pendingRequestsCard');
         const pendingList = document.getElementById('pendingRequestsList');
-        if (isCoach && pendingPlayers.length > 0) {
+        if ((isCoach || currentUser.role === 'admin') && pendingPlayers.length > 0) {
             pendingCard.style.display = 'block';
             pendingList.innerHTML = pendingPlayers.map(p => `
                 <div class="member-card">
@@ -1024,6 +1135,261 @@ async function removePlayer(uid) {
     }
 }
 
+// ============ CHAT PRIVÉ ==========
+async function loadConversations() {
+    if (currentUser.role === 'player') {
+        await loadPlayerConversations();
+    } else if (currentUser.role === 'coach') {
+        await loadCoachConversations();
+    } else if (currentUser.role === 'admin') {
+        await loadAdminConversations();
+    }
+}
+
+async function loadPlayerConversations() {
+    const container = document.getElementById('conversationsList');
+    const conversations = [];
+    
+    // Coach de l'équipe
+    const teamQuery = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+    if (!teamQuery.empty) {
+        const teamId = teamQuery.docs[0].id;
+        const coachesSnap = await db.collection('users').where('role', '==', 'coach').where('teamId', '==', teamId).get();
+        coachesSnap.forEach(coach => {
+            conversations.push({
+                id: coach.id,
+                name: `Coach ${coach.data().name}`,
+                type: 'coach',
+                lastMessage: '',
+                lastTime: ''
+            });
+        });
+    }
+    
+    // Autres joueurs de la même équipe
+    const teamData = teamQuery.docs[0].data();
+    const playerIds = teamData.players || [];
+    for (const pid of playerIds) {
+        if (pid !== currentUser.uid) {
+            const userDoc = await db.collection('users').doc(pid).get();
+            if (userDoc.exists && !userDoc.data().pendingApproval) {
+                conversations.push({
+                    id: pid,
+                    name: userDoc.data().name,
+                    type: 'player',
+                    lastMessage: '',
+                    lastTime: ''
+                });
+            }
+        }
+    }
+    
+    // Admin (toujours disponible)
+    conversations.push({
+        id: 'admin',
+        name: 'Administrateur',
+        type: 'admin',
+        lastMessage: '',
+        lastTime: ''
+    });
+    
+    // Charger les derniers messages
+    const messagesSnap = await db.collection('messages')
+        .where('teamCode', '==', currentUser.teamCode)
+        .orderBy('timestamp', 'desc')
+        .limit(50)
+        .get();
+    
+    const lastMessages = {};
+    messagesSnap.forEach(doc => {
+        const msg = doc.data();
+        const otherId = msg.from === currentUser.uid ? msg.to : msg.from;
+        if (!lastMessages[otherId]) {
+            lastMessages[otherId] = { text: msg.text, time: msg.timestamp };
+        }
+    });
+    
+    for (const conv of conversations) {
+        if (lastMessages[conv.id]) {
+            conv.lastMessage = lastMessages[conv.id].text;
+            conv.lastTime = lastMessages[conv.id].time;
+        }
+    }
+    
+    conversations.sort((a,b) => new Date(b.lastTime) - new Date(a.lastTime));
+    
+    container.innerHTML = conversations.map(conv => `
+        <div class="conversation-item" onclick="openConversation('${conv.id}', '${conv.name.replace(/'/g, "\\'")}', '${conv.type}')">
+            <div class="conversation-avatar">${conv.name.charAt(0).toUpperCase()}</div>
+            <div class="conversation-info">
+                <div class="conversation-name">${escapeHtml(conv.name)}</div>
+                <div class="conversation-last">${escapeHtml(conv.lastMessage?.substring(0, 40) || 'Nouvelle conversation')}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function loadCoachConversations() {
+    const container = document.getElementById('conversationsList');
+    const conversations = [];
+    
+    // Admin
+    conversations.push({ id: 'admin', name: 'Administrateur', type: 'admin' });
+    
+    // Joueurs de l'équipe
+    const teamQuery = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+    if (!teamQuery.empty) {
+        const playerIds = teamQuery.docs[0].data().players || [];
+        for (const pid of playerIds) {
+            const userDoc = await db.collection('users').doc(pid).get();
+            if (userDoc.exists && !userDoc.data().pendingApproval) {
+                conversations.push({
+                    id: pid,
+                    name: userDoc.data().name,
+                    type: 'player'
+                });
+            }
+        }
+    }
+    
+    container.innerHTML = conversations.map(conv => `
+        <div class="conversation-item" onclick="openConversation('${conv.id}', '${conv.name.replace(/'/g, "\\'")}', '${conv.type}')">
+            <div class="conversation-avatar">${conv.name.charAt(0).toUpperCase()}</div>
+            <div class="conversation-info">
+                <div class="conversation-name">${escapeHtml(conv.name)}</div>
+                <div class="conversation-last">Cliquez pour discuter</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function loadAdminConversations() {
+    const container = document.getElementById('conversationsList');
+    const conversations = [];
+    
+    // Tous les coachs
+    const coachesSnap = await db.collection('users').where('role', '==', 'coach').get();
+    coachesSnap.forEach(coach => {
+        conversations.push({
+            id: coach.id,
+            name: `${coach.data().name} (${coach.data().teamName})`,
+            type: 'coach'
+        });
+    });
+    
+    // Tous les joueurs approuvés
+    const playersSnap = await db.collection('users').where('role', '==', 'player').where('pendingApproval', '==', false).get();
+    playersSnap.forEach(player => {
+        conversations.push({
+            id: player.id,
+            name: `${player.data().name} (${player.data().teamName})`,
+            type: 'player'
+        });
+    });
+    
+    container.innerHTML = conversations.map(conv => `
+        <div class="conversation-item" onclick="openConversation('${conv.id}', '${conv.name.replace(/'/g, "\\'")}', '${conv.type}')">
+            <div class="conversation-avatar">${conv.name.charAt(0).toUpperCase()}</div>
+            <div class="conversation-info">
+                <div class="conversation-name">${escapeHtml(conv.name)}</div>
+                <div class="conversation-last">Cliquez pour discuter</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function startChatWith(userId, userName) {
+    openConversation(userId, userName, 'player');
+    document.querySelector('.nav-btn[data-tab="chat"]').click();
+}
+
+async function openConversation(otherId, otherName, otherType) {
+    currentConversation = { otherId, otherName, otherType };
+    
+    document.getElementById('chatHeader').innerHTML = `<span>💬 ${escapeHtml(otherName)}</span>`;
+    document.getElementById('chatInputArea').classList.remove('hidden');
+    
+    // Marquer les messages comme lus
+    const messagesSnap = await db.collection('messages')
+        .where('teamCode', '==', currentUser.teamCode || 'admin')
+        .where('to', '==', currentUser.uid)
+        .where('from', '==', otherId)
+        .get();
+    
+    for (const doc of messagesSnap.docs) {
+        await doc.ref.update({ seen: true });
+    }
+    
+    await loadChatMessages(otherId);
+    updateUnreadBadge();
+}
+
+async function loadChatMessages(otherId) {
+    const container = document.getElementById('chatMessages');
+    
+    let query = db.collection('messages')
+        .where('teamCode', '==', currentUser.teamCode || 'admin')
+        .orderBy('timestamp', 'asc');
+    
+    const messagesSnap = await query.get();
+    const messages = [];
+    messagesSnap.forEach(doc => {
+        const msg = doc.data();
+        if ((msg.from === currentUser.uid && msg.to === otherId) || 
+            (msg.from === otherId && msg.to === currentUser.uid)) {
+            messages.push(msg);
+        }
+    });
+    
+    if (messages.length === 0) {
+        container.innerHTML = '<div class="empty-state">Aucun message</div>';
+        return;
+    }
+    
+    container.innerHTML = messages.map(msg => `
+        <div class="chat-message ${msg.from === currentUser.uid ? 'sent' : 'received'}">
+            <div>${escapeHtml(msg.text)}</div>
+            <div class="message-meta">
+                <span>${new Date(msg.timestamp).toLocaleTimeString()}</span>
+                ${msg.seen ? '<span>✓✓</span>' : '<span>✓</span>'}
+            </div>
+        </div>
+    `).join('');
+    container.scrollTop = container.scrollHeight;
+}
+
+async function sendPrivateMessage() {
+    const input = document.getElementById('messageInput');
+    const text = input.value.trim();
+    if (!text || !currentConversation) return;
+    
+    const message = {
+        id: Date.now().toString(),
+        from: currentUser.uid,
+        to: currentConversation.otherId,
+        text: text,
+        timestamp: new Date().toISOString(),
+        seen: false,
+        teamCode: currentUser.teamCode || 'admin'
+    };
+    
+    await db.collection('messages').add(message);
+    input.value = '';
+    await loadChatMessages(currentConversation.otherId);
+    await loadConversations();
+}
+
+function updateUnreadBadge() {
+    const badge = document.getElementById('chatUnreadBadge');
+    if (unreadCount > 0) {
+        badge.innerText = unreadCount > 9 ? '9+' : unreadCount;
+        badge.classList.remove('hidden');
+    } else {
+        badge.classList.add('hidden');
+    }
+}
+
+// ============ ADMIN ==========
 async function loadAllTeams() {
     const container = document.getElementById('allTeamsList');
     const teamsSnap = await db.collection('teams').get();
@@ -1033,7 +1399,42 @@ async function loadAllTeams() {
             <div style="background:white; border-radius:16px; padding:16px; margin-bottom:12px; border-left:4px solid #FFD700">
                 <div><strong>${escapeHtml(team.name)}</strong> <span style="color:#0055a4">(${team.code})</span></div>
                 <div style="margin-top:8px; font-size:13px">👥 ${(team.players || []).length} joueurs | 🏆 ${(team.matches || []).length} matchs</div>
-                <button onclick="deleteTeam('${doc.id}')" style="margin-top:12px; background:#ef4444; border:none; padding:8px 16px; border-radius:20px; color:white; cursor:pointer">🗑️ Supprimer</button>
+                <button onclick="deleteTeam('${doc.id}')" class="btn-small btn-remove" style="margin-top:8px">🗑️ Supprimer</button>
+            </div>
+        `;
+    }).join('');
+}
+
+async function loadCoachesList() {
+    const container = document.getElementById('coachesList');
+    const coachesSnap = await db.collection('users').where('role', '==', 'coach').get();
+    container.innerHTML = coachesSnap.docs.map(doc => {
+        const coach = doc.data();
+        return `
+            <div style="background:white; border-radius:16px; padding:12px; margin-bottom:8px; border-left:3px solid var(--club-yellow)">
+                <div><strong>${escapeHtml(coach.name)}</strong></div>
+                <div style="font-size:12px; color:#6b7280">✉️ ${coach.email} | 🏷️ ${coach.teamName}</div>
+                <button onclick="deleteCoach('${doc.id}')" class="btn-small btn-remove" style="margin-top:8px">🗑️ Supprimer</button>
+            </div>
+        `;
+    }).join('');
+}
+
+async function loadAdminPlayersList() {
+    const container = document.getElementById('adminPlayersList');
+    const playersSnap = await db.collection('users').where('role', '==', 'player').get();
+    container.innerHTML = playersSnap.docs.map(doc => {
+        const player = doc.data();
+        return `
+            <div style="background:white; border-radius:16px; padding:12px; margin-bottom:8px; border-left:3px solid var(--club-yellow)">
+                <div><strong>⚽ ${escapeHtml(player.name)}</strong> <span style="font-size:12px; color:#6b7280">(${player.teamName || 'Sans équipe'})</span></div>
+                <div style="font-size:12px">📞 ${player.phone || '-'} | ✉️ ${player.email}</div>
+                ${player.pendingApproval ? '<span style="background:#fef3c7; padding:2px 8px; border-radius:20px; font-size:11px">⏳ En attente</span>' : ''}
+                <div style="margin-top:8px">
+                    <button onclick="approvePlayer('${doc.id}')" class="btn-small btn-approve">✅ Approuver</button>
+                    <button onclick="removePlayerFromAdmin('${doc.id}')" class="btn-small btn-remove">❌ Retirer</button>
+                    <button onclick="startChatWith('${doc.id}', '${escapeHtml(player.name)}')" class="btn-small btn-chat">💬</button>
+                </div>
             </div>
         `;
     }).join('');
@@ -1047,20 +1448,37 @@ async function deleteTeam(teamId) {
     }
 }
 
-// ============ CRÉATION MATCH ==========
-function showMatchModal() {
-    editingMatchId = null;
-    document.getElementById('cancelReasonDiv').style.display = 'none';
-    document.getElementById('matchModal').classList.remove('hidden');
+async function deleteCoach(coachId) {
+    if (confirm('Supprimer ce compte coach ?')) {
+        await db.collection('users').doc(coachId).delete();
+        await loadCoachesList();
+        showToast('Coach supprimé');
+    }
 }
 
-function closeMatchModal() {
-    document.getElementById('matchModal').classList.add('hidden');
-    document.getElementById('matchTitle').value = '';
-    document.getElementById('matchNotes').value = '';
+async function removePlayerFromAdmin(playerId) {
+    if (confirm('Retirer ce joueur ?')) {
+        await db.collection('users').doc(playerId).update({ teamCode: null, teamName: null });
+        showToast('Joueur retiré');
+        await loadAdminPlayersList();
+    }
+}
+
+async function loadTeamSelectors() {
+    const teamSelect = document.getElementById('coachTeamSelect');
+    const matchTeamSelect = document.getElementById('matchTeamSelect');
+    const eventTeamSelect = document.getElementById('eventTeamSelect');
+    const teamsSnap = await db.collection('teams').get();
+    
+    const options = teamsSnap.docs.map(doc => `<option value="${doc.id}">${escapeHtml(doc.data().name)} (${doc.data().code})</option>`).join('');
+    
+    if (teamSelect) teamSelect.innerHTML = options;
+    if (matchTeamSelect) matchTeamSelect.innerHTML = options;
+    if (eventTeamSelect) eventTeamSelect.innerHTML = options;
 }
 
 async function createMatch() {
+    const teamId = document.getElementById('matchTeamSelect').value;
     const match = {
         id: Date.now().toString(),
         type: document.getElementById('matchType').value,
@@ -1077,56 +1495,17 @@ async function createMatch() {
         return;
     }
     
-    if (currentUser.role === 'admin') {
-        const teamsSnap = await db.collection('teams').get();
-        for (const teamDoc of teamsSnap.docs) {
-            const matches = teamDoc.data().matches || [];
-            matches.push(match);
-            await teamDoc.ref.update({ matches: matches });
-        }
-    } else {
-        const teamQuery = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
-        if (!teamQuery.empty) {
-            const matches = teamQuery.docs[0].data().matches || [];
-            matches.push(match);
-            await teamQuery.docs[0].ref.update({ matches: matches });
-        }
-    }
+    const teamDoc = await db.collection('teams').doc(teamId).get();
+    const matches = teamDoc.data().matches || [];
+    matches.push(match);
+    await db.collection('teams').doc(teamId).update({ matches: matches });
     
     closeMatchModal();
-    await loadMatches();
     showToast('Match créé !');
 }
 
-async function editMatch(matchId) {
-    editingMatchId = matchId;
-    document.getElementById('matchModal').classList.remove('hidden');
-    // Charger les données du match pour modification
-    showToast('Fonctionnalité à venir');
-}
-
-async function cancelMatch(matchId) {
-    const reason = prompt('Motivation de l\'annulation (quelques mots) :');
-    if (!reason) return;
-    
-    const teamQuery = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
-    if (!teamQuery.empty) {
-        const teamDoc = teamQuery.docs[0];
-        const matches = teamDoc.data().matches || [];
-        const updatedMatches = matches.map(m => {
-            if (m.id === matchId) return { ...m, cancelReason: reason };
-            return m;
-        });
-        await teamDoc.ref.update({ matches: updatedMatches });
-        showToast('Match annulé');
-        await loadMatches();
-    }
-}
-
-function showOtherEventModal() { document.getElementById('otherEventModal').classList.remove('hidden'); }
-function closeOtherEventModal() { document.getElementById('otherEventModal').classList.add('hidden'); }
-
 async function createOtherEvent() {
+    const teamId = document.getElementById('eventTeamSelect').value;
     const event = {
         id: Date.now().toString(),
         type: document.getElementById('otherEventType').value,
@@ -1142,69 +1521,99 @@ async function createOtherEvent() {
         return;
     }
     
-    if (currentUser.role === 'admin') {
-        const teamsSnap = await db.collection('teams').get();
-        for (const teamDoc of teamsSnap.docs) {
-            const events = teamDoc.data().otherEvents || [];
-            events.push(event);
-            await teamDoc.ref.update({ otherEvents: events });
-        }
-    } else {
-        const teamQuery = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
-        if (!teamQuery.empty) {
-            const events = teamQuery.docs[0].data().otherEvents || [];
-            events.push(event);
-            await teamQuery.docs[0].ref.update({ otherEvents: events });
-        }
-    }
+    const teamDoc = await db.collection('teams').doc(teamId).get();
+    const events = teamDoc.data().otherEvents || [];
+    events.push(event);
+    await db.collection('teams').doc(teamId).update({ otherEvents: events });
     
     closeOtherEventModal();
-    await loadOtherEvents();
     showToast('Événement créé');
 }
 
-async function sendGlobalMessage() {
-    const text = prompt('Message à envoyer à toutes les équipes :');
-    if (!text) return;
-    
-    const teamsSnap = await db.collection('teams').get();
-    for (const teamDoc of teamsSnap.docs) {
-        const messages = teamDoc.data().messages || [];
-        messages.push({
-            id: Date.now().toString(),
-            author: 'ADMIN',
-            text: text,
-            timestamp: new Date().toISOString()
-        });
-        await teamDoc.ref.update({ messages: messages });
-    }
-    showToast('Message envoyé à toutes les équipes');
+function showMatchModal() {
+    document.getElementById('matchModal').classList.remove('hidden');
+    loadTeamSelectors();
 }
 
-// ============ FONCTIONS UTILITAIRES ==========
-function formatDate(dateStr) {
-    if (!dateStr) return '';
-    return new Date(dateStr).toLocaleString('fr-FR');
+function closeMatchModal() {
+    document.getElementById('matchModal').classList.add('hidden');
 }
 
-function getMatchTypeLabel(type) {
-    const labels = { 'match_amical': 'Amical', 'coupe': 'Coupe', 'match_officiel': 'Championnat' };
-    return labels[type] || 'Match';
+function showOtherEventModal() {
+    document.getElementById('otherEventModal').classList.remove('hidden');
+    loadTeamSelectors();
 }
 
-function getEventTypeLabel(type) {
-    const labels = { 'entrainement': '🏋️ Entraînement', 'soiree': '🎉 Soirée', 'reunion': '📋 Réunion' };
-    return labels[type] || 'Événement';
+function closeOtherEventModal() {
+    document.getElementById('otherEventModal').classList.add('hidden');
 }
 
-function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
+function showTeamMessageModal() {
+    const container = document.getElementById('teamCheckboxList');
+    db.collection('teams').get().then(teamsSnap => {
+        container.innerHTML = teamsSnap.docs.map(doc => `
+            <div style="margin-bottom:8px">
+                <label style="display:flex; align-items:center; gap:8px">
+                    <input type="checkbox" value="${doc.id}"> 
+                    ${escapeHtml(doc.data().name)} (${doc.data().code})
+                </label>
+            </div>
+        `).join('');
+        document.getElementById('teamMessageModal').classList.remove('hidden');
     });
+}
+
+function closeTeamMessageModal() {
+    document.getElementById('teamMessageModal').classList.add('hidden');
+    document.getElementById('teamMessageText').value = '';
+}
+
+async function sendTeamMessage() {
+    const selectedTeams = [];
+    document.querySelectorAll('#teamCheckboxList input:checked').forEach(cb => {
+        selectedTeams.push(cb.value);
+    });
+    
+    const text = document.getElementById('teamMessageText').value.trim();
+    if (!text || selectedTeams.length === 0) {
+        showToast('Sélectionnez au moins une équipe et écrivez un message');
+        return;
+    }
+    
+    for (const teamId of selectedTeams) {
+        const teamDoc = await db.collection('teams').doc(teamId).get();
+        const teamData = teamDoc.data();
+        const playerIds = teamData.players || [];
+        
+        for (const playerId of playerIds) {
+            await db.collection('messages').add({
+                id: Date.now().toString() + playerId,
+                from: 'admin',
+                to: playerId,
+                text: `📢 Message de l'admin (${teamData.name}): ${text}`,
+                timestamp: new Date().toISOString(),
+                seen: false,
+                teamCode: teamData.code
+            });
+        }
+        
+        // Envoyer aussi au coach
+        const coachesSnap = await db.collection('users').where('role', '==', 'coach').where('teamId', '==', teamId).get();
+        coachesSnap.forEach(coach => {
+            db.collection('messages').add({
+                id: Date.now().toString() + coach.id,
+                from: 'admin',
+                to: coach.id,
+                text: `📢 Message de l'admin (${teamData.name}): ${text}`,
+                timestamp: new Date().toISOString(),
+                seen: false,
+                teamCode: teamData.code
+            });
+        });
+    }
+    
+    closeTeamMessageModal();
+    showToast(`Message envoyé à ${selectedTeams.length} équipe(s)`);
 }
 
 // ============ DÉMARRAGE ==========
@@ -1229,6 +1638,25 @@ async function init() {
     } else {
         document.getElementById('loginScreen').classList.remove('hidden');
     }
+    
+    // Écouter les messages pour le badge
+    if (currentUser && currentUser.uid) {
+        db.collection('messages')
+            .where('to', '==', currentUser.uid)
+            .where('seen', '==', false)
+            .onSnapshot(snapshot => {
+                unreadCount = snapshot.size;
+                updateUnreadBadge();
+            });
+    }
+    
+    document.getElementById('sendMsgBtn')?.addEventListener('click', sendPrivateMessage);
+    document.getElementById('messageInput')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendPrivateMessage();
+        }
+    });
 }
 
 init();
