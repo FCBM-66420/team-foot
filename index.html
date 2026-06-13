@@ -558,11 +558,40 @@ function hideAllForms() {
 function showPlayerPanel() { hideAllForms(); document.getElementById('playerPanel').classList.remove('hidden'); }
 function showCoachLogin() { hideAllForms(); document.getElementById('coachLoginForm').classList.remove('hidden'); }
 function showAdminLogin() { hideAllForms(); document.getElementById('adminLoginForm').classList.remove('hidden'); }
-function showCreateTeamModal() { hideAllForms(); document.getElementById('createTeamForm').classList.remove('hidden'); }
+function showCreateTeamModal() { 
+    hideAllForms(); 
+    document.getElementById('createTeamForm').classList.remove('hidden'); 
+}
+
 function showCreateCoachModal() { 
     hideAllForms(); 
     loadTeamSelectors();
     document.getElementById('createCoachForm').classList.remove('hidden'); 
+}
+
+function showMatchModal() { 
+    document.getElementById('matchModal').classList.remove('hidden'); 
+    loadTeamSelectors(); 
+}
+
+function showOtherEventModal() { 
+    document.getElementById('otherEventModal').classList.remove('hidden'); 
+    loadTeamSelectors(); 
+}
+
+function showTeamMessageModal() { 
+    const container = document.getElementById('teamCheckboxList');
+    db.collection('teams').get().then(teamsSnap => {
+        container.innerHTML = teamsSnap.docs.map(doc => `
+            <div style="margin-bottom:8px">
+                <label style="display:flex; align-items:center; gap:8px">
+                    <input type="checkbox" value="${doc.id}"> 
+                    ${escapeHtml(doc.data().name)} (${doc.data().code})
+                </label>
+            </div>
+        `).join('');
+        document.getElementById('teamMessageModal').classList.remove('hidden');
+    });
 }
 
 function setPlayerMode(mode) {
