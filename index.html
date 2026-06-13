@@ -175,6 +175,7 @@
         .status-btn.waiting.active { background: #f59e0b; }
         .status-btn.injured.active { background: #6366f1; }
         
+        /* FAB flottant déplaçable */
         .fab {
             position: fixed;
             bottom: 85px;
@@ -186,15 +187,17 @@
             border-radius: 50%;
             font-size: 28px;
             color: white;
-            cursor: pointer;
+            cursor: grab;
             box-shadow: 0 4px 12px rgba(0,85,164,0.4);
             z-index: 90;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.2s;
+            touch-action: none;
+            transition: box-shadow 0.2s;
         }
-        .fab:active { transform: scale(0.95); }
+        .fab:active { cursor: grabbing; }
+        .fab.dragging { opacity: 0.8; cursor: grabbing; }
         
         .player-select-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #e5e7eb; gap: 12px; }
         .player-select-item input { width: 22px; height: 22px; accent-color: var(--club-blue); }
@@ -431,7 +434,7 @@
             </div>
         </div>
         
-        <button id="fabButton" class="fab" style="display:none">+</button>
+        <div id="fab" class="fab" style="display:none">+</div>
     </div>
 </div>
 
@@ -601,7 +604,7 @@
             <p style="margin-bottom:16px">Sélectionnez le rôle que vous souhaitez utiliser :</p>
             <div id="availableRolesList" style="display:flex; flex-direction:column; gap:12px"></div>
             <div style="margin-top:20px; border-top:1px solid #e5e7eb; padding-top:16px">
-                <p style="margin-bottom:12px">Vous voulez accéder à un autre rôle ?</p>
+                <p style="margin-bottom:12px">Vous voulez accéder à un autre rôle (coach ou joueur) ?</p>
                 <button class="btn-secondary" onclick="requestRoleChange()">📝 Demander l'accès à un autre rôle</button>
             </div>
         </div>
@@ -668,7 +671,11 @@
                 <option value="player">Joueur</option>
             </select>
             <textarea id="requestMessage" placeholder="Message pour l'administrateur (optionnel)" rows="2" class="team-input"></textarea>
-            <button class="btn-primary" onclick="submitRoleRequest()">Envoyer la demande</button>
+            <p class="form-hint">Note: Vous ne pouvez pas demander le rôle administrateur</p>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeModal('requestRoleModal')" class="btn-secondary">Annuler</button>
+            <button onclick="submitRoleRequest()" class="btn-primary">Envoyer la demande</button>
         </div>
     </div>
 </div>
@@ -774,6 +781,64 @@ function toggleHistoryEvents() {
     const btn = document.getElementById('toggleEventsHistoryBtn');
     btn.innerText = showEventsPast ? '📅 Masquer historique' : '📜 Voir historique';
     loadDashboard();
+}
+
+// ============ FAB FLOTTANT DÉPLAÇABLE ==========
+function initDraggableFab() {
+    const fab = document.getElementById('fab');
+    if (!fab) return;
+    
+    let isDragging = false;
+    let startX, startY, initialLeft, initialBottom;
+    
+    const onTouchStart = (e) => {
+        e.preventDefault();
+        isDragging = true;
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        const rect = fab.getBoundingClientRect();
+        initialLeft = rect.left;
+        initialBottom = window.innerHeight - rect.bottom;
+        fab.classList.add('dragging');
+    };
+    
+    const onTouchMove = (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const deltaX = touch.clientX - startX;
+        const deltaY = touch.clientY - startY;
+        let newLeft = initialLeft + deltaX;
+        let newBottom = initialBottom - deltaY;
+        newLeft = Math.max(10, Math.min(window.innerWidth - 66, newLeft));
+        newBottom = Math.max(10, Math.min(window.innerHeight - 100, newBottom));
+        fab.style.left = newLeft + 'px';
+        fab.style.bottom = newBottom + 'px';
+        fab.style.right = 'auto';
+    };
+    
+    const onTouchEnd = (e) => {
+        isDragging = false;
+        fab.classList.remove('dragging');
+    };
+    
+    fab.addEventListener('touchstart', onTouchStart, { passive: false });
+    fab.addEventListener('touchmove', onTouchMove, { passive: false });
+    fab.addEventListener('touchend', onTouchEnd);
+    
+    fab.addEventListener('click', (e) => {
+        if (!isDragging) {
+            const activeTab = document.querySelector('.nav-btn.active')?.dataset.tab;
+            if (activeTab === 'matches') {
+                showMatchForm();
+            } else if (activeTab === 'events') {
+                showEventForm();
+            } else {
+                showMatchForm();
+            }
+        }
+    });
 }
 
 // ============ EXPORT STATISTIQUES CSV ==========
@@ -900,7 +965,7 @@ async function saveMatchScore() {
     else await loadAllMatchesAdmin();
 }
 
-// ============ DEMANDES DE CHANGEMENT DE RÔLE ==========
+// ============ DEMANDES DE CHANGEMENT DE RÔLE (PAS ADMIN) ==========
 async function requestRoleChange() {
     const teamsSnap = await db.collection('teams').get();
     const options = teamsSnap.docs.map(doc => `<option value="${doc.id}">${escapeHtml(doc.data().name)} (${doc.data().code})</option>`).join('');
@@ -912,6 +977,13 @@ async function submitRoleRequest() {
     const teamId = document.getElementById('requestedTeamSelect').value;
     const requestedRole = document.getElementById('requestedRoleSelect').value;
     const message = document.getElementById('requestMessage').value;
+    
+    // Vérifier que l'utilisateur ne demande pas le rôle admin
+    if (requestedRole === 'admin') {
+        showToast('Vous ne pouvez pas demander le rôle administrateur');
+        closeModal('requestRoleModal');
+        return;
+    }
     
     const teamDoc = await db.collection('teams').doc(teamId).get();
     const teamData = teamDoc.data();
@@ -963,56 +1035,59 @@ async function loadRoleRequestsForAdmin() {
                 </div>
             </div>
         `;
-    }).join('');
+    }).join();
 }
 
 async function approveRoleRequest(requestId, userId, requestedRole, teamCode, teamName, teamId) {
-    // Créer un lien entre les comptes
+    // Vérifier que ce n'est pas admin
+    if (requestedRole === 'admin') {
+        showToast('Impossible d\'approuver un rôle administrateur');
+        return;
+    }
+    
     const userDoc = await db.collection('users').doc(userId).get();
     if (userDoc.exists) {
         const linkedAccounts = userDoc.data().linkedAccounts || [];
-        if (!linkedAccounts.includes(userId)) {
-            // Créer un compte pour le nouveau rôle si nécessaire
-            if (requestedRole === 'coach') {
-                // Vérifier si l'utilisateur a déjà un compte coach
-                const existingCoach = await db.collection('users').where('email', '==', userDoc.data().email).where('role', '==', 'coach').get();
-                if (existingCoach.empty) {
-                    // Créer un nouveau compte coach
-                    const newUid = Date.now().toString() + userId;
-                    await db.collection('users').doc(newUid).set({
-                        uid: newUid,
-                        name: userDoc.data().name,
-                        email: userDoc.data().email,
-                        role: 'coach',
-                        teamCode: teamCode,
-                        teamName: teamName,
-                        teamId: teamId,
-                        createdAt: new Date().toISOString(),
-                        linkedTo: userId
-                    });
-                    linkedAccounts.push(newUid);
-                }
-            } else {
-                const existingPlayer = await db.collection('users').where('email', '==', userDoc.data().email).where('role', '==', 'player').get();
-                if (existingPlayer.empty) {
-                    const newUid = Date.now().toString() + userId;
-                    await db.collection('users').doc(newUid).set({
-                        uid: newUid,
-                        name: userDoc.data().name,
-                        email: userDoc.data().email,
-                        role: 'player',
-                        teamCode: teamCode,
-                        teamName: teamName,
-                        teamId: teamId,
-                        pendingApproval: false,
-                        createdAt: new Date().toISOString(),
-                        linkedTo: userId
-                    });
-                    linkedAccounts.push(newUid);
-                }
+        
+        // Créer un compte pour le nouveau rôle si nécessaire
+        if (requestedRole === 'coach') {
+            const existingCoach = await db.collection('users').where('email', '==', userDoc.data().email).where('role', '==', 'coach').get();
+            if (existingCoach.empty) {
+                const newUid = Date.now().toString() + userId;
+                await db.collection('users').doc(newUid).set({
+                    uid: newUid,
+                    name: userDoc.data().name,
+                    email: userDoc.data().email,
+                    role: 'coach',
+                    teamCode: teamCode,
+                    teamName: teamName,
+                    teamId: teamId,
+                    createdAt: new Date().toISOString(),
+                    linkedTo: userId
+                });
+                linkedAccounts.push(newUid);
             }
-            await db.collection('users').doc(userId).update({ linkedAccounts: linkedAccounts });
+        } else if (requestedRole === 'player') {
+            const existingPlayer = await db.collection('users').where('email', '==', userDoc.data().email).where('role', '==', 'player').get();
+            if (existingPlayer.empty) {
+                const newUid = Date.now().toString() + userId;
+                await db.collection('users').doc(newUid).set({
+                    uid: newUid,
+                    name: userDoc.data().name,
+                    email: userDoc.data().email,
+                    role: 'player',
+                    teamCode: teamCode,
+                    teamName: teamName,
+                    teamId: teamId,
+                    pendingApproval: false,
+                    createdAt: new Date().toISOString(),
+                    linkedTo: userId
+                });
+                linkedAccounts.push(newUid);
+            }
         }
+        
+        await db.collection('users').doc(userId).update({ linkedAccounts: linkedAccounts });
     }
     
     await db.collection('roleRequests').doc(requestId).update({ status: 'approved' });
@@ -1096,23 +1171,6 @@ async function createRecurrentEvents() {
     document.getElementById('recurrentNotes').value = '';
 }
 
-// ============ FAB FLOTTANT ==========
-function initFab() {
-    const fab = document.getElementById('fabButton');
-    if (!fab) return;
-    
-    fab.onclick = () => {
-        const activeTab = document.querySelector('.nav-btn.active')?.dataset.tab;
-        if (activeTab === 'matches') {
-            showMatchForm();
-        } else if (activeTab === 'events') {
-            showEventForm();
-        } else {
-            showMatchForm();
-        }
-    };
-}
-
 // ============ AFFICHAGE FORMULAIRES ==========
 function showCreateTeamForm() { document.getElementById('createTeamModal').classList.remove('hidden'); }
 function showCreateCoachForm() { document.getElementById('createCoachModal').classList.remove('hidden'); loadTeamSelectors(); }
@@ -1138,14 +1196,31 @@ async function loadAvailableRoles() {
     if (!currentUser || !currentUser.uid) return;
     const container = document.getElementById('availableRolesList');
     const linkedAccounts = currentUser.linkedAccounts || [];
-    let roles = [{ role: 'admin', name: 'Administrateur', active: currentUser.activeRole === 'admin' }];
+    let roles = [];
+    
+    // L'admin est un rôle spécial qui n'apparaît que pour l'admin principal
+    if (currentUser.role === 'admin' || currentUser.isAdmin) {
+        roles.push({ role: 'admin', name: 'Administrateur', active: currentUser.activeRole === 'admin' });
+    }
     
     for (const linkedId of linkedAccounts) {
         const userDoc = await db.collection('users').doc(linkedId).get();
         if (userDoc.exists) {
             const data = userDoc.data();
-            roles.push({ role: data.role, name: `${data.role === 'coach' ? 'Coach' : 'Joueur'} - ${data.teamName || data.teamCode}`, uid: linkedId, active: currentUser.activeRoleUid === linkedId });
+            if (data.role !== 'admin') { // Ne jamais afficher admin pour les comptes liés
+                roles.push({ role: data.role, name: `${data.role === 'coach' ? 'Coach' : 'Joueur'} - ${data.teamName || data.teamCode}`, uid: linkedId, active: currentUser.activeRoleUid === linkedId });
+            }
         }
+    }
+    
+    // Récupérer le rôle actuel de l'utilisateur (s'il n'est pas déjà dans la liste)
+    if (currentUser.role !== 'admin' && !roles.some(r => r.uid === currentUser.uid)) {
+        roles.unshift({ role: currentUser.role, name: `${currentUser.role === 'coach' ? 'Coach' : 'Joueur'} - ${currentUser.teamName || currentUser.teamCode}`, uid: currentUser.uid, active: true });
+    }
+    
+    if (roles.length === 0) {
+        container.innerHTML = '<p class="empty-state">Aucun rôle disponible</p>';
+        return;
     }
     
     container.innerHTML = roles.map(r => `<button class="btn-primary" style="margin-bottom:8px" onclick="switchToRole('${r.uid || r.role}', '${r.role}')">${r.active ? '✅ ' : ''}${escapeHtml(r.name)}</button>`).join('');
@@ -1154,6 +1229,10 @@ async function loadAvailableRoles() {
 async function switchToRole(uidOrRole, roleType) {
     closeModal('roleSwitchModal');
     if (roleType === 'admin') {
+        if (currentUser.role !== 'admin') {
+            showToast('Vous n\'êtes pas autorisé à accéder au mode administrateur');
+            return;
+        }
         currentUser.activeRole = 'admin';
         currentUser.activeRoleUid = null;
         localStorage.setItem('teamfoot_session', JSON.stringify(currentUser));
@@ -1162,11 +1241,13 @@ async function switchToRole(uidOrRole, roleType) {
         return;
     }
     const userDoc = await db.collection('users').doc(uidOrRole).get();
-    if (userDoc.exists) {
+    if (userDoc.exists && userDoc.data().role !== 'admin') {
         currentUser = { ...currentUser, ...userDoc.data(), activeRole: userDoc.data().role, activeRoleUid: uidOrRole };
         localStorage.setItem('teamfoot_session', JSON.stringify(currentUser));
         await showMainApp();
         showToast(`Mode ${userDoc.data().role === 'coach' ? 'Coach' : 'Joueur'} activé`);
+    } else {
+        showToast('Rôle non accessible');
     }
 }
 
@@ -1176,7 +1257,14 @@ async function linkAccount() {
     const userQuery = await db.collection('users').where('email', '==', email).get();
     if (userQuery.empty) { showToast('Aucun compte trouvé'); return; }
     const linkedAccount = userQuery.docs[0];
-    if (linkedAccount.data().uid === currentUser.uid) { showToast('Vous ne pouvez pas vous associer vous-même'); return; }
+    const linkedData = linkedAccount.data();
+    
+    if (linkedData.role === 'admin') {
+        showToast('Vous ne pouvez pas associer un compte administrateur');
+        return;
+    }
+    if (linkedData.uid === currentUser.uid) { showToast('Vous ne pouvez pas vous associer vous-même'); return; }
+    
     const linkedAccounts = currentUser.linkedAccounts || [];
     if (!linkedAccounts.includes(linkedAccount.id)) {
         linkedAccounts.push(linkedAccount.id);
@@ -1216,7 +1304,7 @@ function toggleParentFields(isMinor) { document.getElementById('parentFieldsSect
 function loginAsAdmin() {
     const code = document.getElementById('adminCodeInput').value;
     if (code === 'admin123') {
-        currentUser = { role: 'admin', name: 'Administrateur', activeRole: 'admin', uid: 'admin' };
+        currentUser = { role: 'admin', name: 'Administrateur', activeRole: 'admin', uid: 'admin', isAdmin: true };
         localStorage.setItem('teamfoot_session', JSON.stringify(currentUser));
         showMainApp();
         showToast('Bienvenue Administrateur');
@@ -1492,8 +1580,8 @@ async function showMainApp() {
     const isPlayer = currentUser.activeRole === 'player';
     
     document.getElementById('adminNavBtn').style.display = isAdmin ? 'flex' : 'none';
-    document.getElementById('fabButton').style.display = (isAdmin || isCoach) ? 'flex' : 'none';
-    initFab();
+    document.getElementById('fab').style.display = (isAdmin || isCoach) ? 'flex' : 'none';
+    initDraggableFab();
     
     if (isAdmin) {
         document.getElementById('headerTeamName').innerText = 'FC Barcarès Méditerranée';
@@ -2128,8 +2216,17 @@ async function init() {
     const session = localStorage.getItem('teamfoot_session');
     if (session) {
         const user = JSON.parse(session);
-        if (user.activeRole === 'admin') { currentUser = user; showMainApp(); }
-        else if (user.uid) { const doc = await db.collection('users').doc(user.uid).get(); if (doc.exists) { currentUser = { uid: user.uid, ...doc.data(), activeRole: user.activeRole || doc.data().role, activeRoleUid: user.uid }; showMainApp(); } else document.getElementById('loginScreen').classList.remove('hidden'); }
+        if (user.activeRole === 'admin' && user.role === 'admin') { 
+            currentUser = user; 
+            showMainApp(); 
+        }
+        else if (user.uid) { 
+            const doc = await db.collection('users').doc(user.uid).get(); 
+            if (doc.exists) { 
+                currentUser = { uid: user.uid, ...doc.data(), activeRole: user.activeRole || doc.data().role, activeRoleUid: user.uid }; 
+                showMainApp(); 
+            } else document.getElementById('loginScreen').classList.remove('hidden'); 
+        }
         else document.getElementById('loginScreen').classList.remove('hidden');
     } else document.getElementById('loginScreen').classList.remove('hidden');
     
