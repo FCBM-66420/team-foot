@@ -192,8 +192,8 @@
         
         .score-input { display: flex; gap: 12px; align-items: center; justify-content: center; margin-bottom: 16px; }
         .score-input input { width: 70px; padding: 8px; text-align: center; font-size: 18px; font-weight: bold; border-radius: 12px; border: 1px solid #e5e7eb; }
-        .player-select { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #e5e7eb; gap: 12px; }
-        .player-select input { width: 20px; height: 20px; accent-color: var(--blue); }
+        .player-select { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #e5e7eb; gap: 12px; flex-wrap: wrap; }
+        .player-select input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--blue); }
         
         .btn-small { padding: 6px 12px; border-radius: 20px; border: none; cursor: pointer; font-size: 12px; }
         .btn-approve { background: #10b981; color: white; }
@@ -282,6 +282,17 @@
         .status-absent { background: #fee2e2; color: #991b1b; }
         .status-waiting { background: #fed7aa; color: #9a3412; }
         .status-injured { background: #e0e7ff; color: #3730a3; }
+        
+        .chat-message { max-width: 80%; padding: 10px 14px; border-radius: 20px; font-size: 13px; }
+        .chat-message.sent { align-self: flex-end; background: linear-gradient(135deg, var(--blue), var(--blue-clair)); color: white; border-bottom-right-radius: 4px; }
+        .chat-message.received { align-self: flex-start; background: #f3f4f6; color: #1f2937; border-bottom-left-radius: 4px; }
+        .message-author-name { font-size: 10px; font-weight: 600; margin-bottom: 4px; display: block; }
+        .message-meta { display: flex; gap: 8px; align-items: center; margin-top: 4px; font-size: 9px; opacity: 0.7; }
+        .chat-input-area { display: flex; gap: 10px; padding: 12px; border-top: 1px solid #e5e7eb; background: white; }
+        .chat-input-area textarea { flex: 1; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 24px; resize: none; font-size: 14px; font-family: inherit; }
+        .send-msg-btn { background: linear-gradient(135deg, var(--blue), var(--blue-clair)); border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 18px; color: white; }
+        .conversation-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #f3f4f6; }
+        .conversation-avatar { width: 44px; height: 44px; background: linear-gradient(135deg, var(--blue), var(--blue-clair)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
     </style>
 </head>
 <body>
@@ -426,7 +437,7 @@
                         <div class="chat-messages" style="flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:12px" id="chatMessages"></div>
                         <div class="chat-input-area hidden" style="display:flex; gap:10px; padding:12px; border-top:1px solid #e5e7eb; background:white" id="chatInputArea">
                             <textarea id="messageInput" placeholder="Votre message..." rows="1" style="flex:1; padding:10px 14px; border:1px solid #e5e7eb; border-radius:24px; resize:none; font-size:14px; font-family:inherit"></textarea>
-                            <button id="sendMsgBtn" class="send-msg-btn" style="background:linear-gradient(135deg, var(--blue), var(--blue-clair)); border:none; width:44px; height:44px; border-radius:50%; cursor:pointer; font-size:18px; color:white">📤</button>
+                            <button id="sendMsgBtn" class="send-msg-btn">📤</button>
                         </div>
                     </div>
                 </div>
@@ -446,7 +457,7 @@
     </div>
 </div>
 
-<!-- MODAL MATCH -->
+<!-- MODALES -->
 <div id="matchModal" class="modal hidden">
     <div class="modal-content">
         <div class="modal-header"><h3 id="matchModalTitle">⚽ Nouveau match</h3><button class="icon-btn" onclick="closeModal('matchModal')" style="background:#eee; color:#333">✕</button></div>
@@ -483,7 +494,6 @@
     </div>
 </div>
 
-<!-- MODAL LIVE MATCH -->
 <div id="liveMatchModal" class="modal hidden">
     <div class="modal-content">
         <div class="modal-header"><h3>⚽ Match en direct</h3><button class="icon-btn" onclick="closeModal('liveMatchModal')" style="background:#eee; color:#333">✕</button></div>
@@ -626,6 +636,7 @@ let currentLiveMatch = null;
 let matchTimerInterval = null;
 let currentTeamSelectionCallback = null;
 let autoReminderInterval = null;
+let currentConversation = null;
 
 // ============ CRÉATION ADMIN ==========
 async function createDefaultAdmin() {
@@ -705,490 +716,9 @@ function formatTime(date) {
     return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 }
 
-// ============ RELANCES AUTOMATIQUES ==========
-async function startAutoReminderCheck() {
-    if (autoReminderInterval) clearInterval(autoReminderInterval);
-    autoReminderInterval = setInterval(() => {
-        checkAndSendReminders();
-    }, 60 * 60 * 1000);
-}
-
-async function checkAndSendReminders() {
-    if (!currentUser || currentUser.role !== 'coach') return;
-    
-    const team = await db.collection('teams').doc(currentUser.teamId).get();
-    const matches = team.data().matches || [];
-    const now = new Date();
-    
-    for (const match of matches) {
-        const matchDate = new Date(match.matchDateTime);
-        const daysDiff = Math.ceil((matchDate - now) / (1000 * 60 * 60 * 24));
-        
-        if (daysDiff <= 5 && daysDiff > 0 && match.convokedPlayers) {
-            for (const playerId of match.convokedPlayers) {
-                const status = match.attendances?.[playerId];
-                if (!status || status === 'waiting') {
-                    await sendReminderMessage(playerId, match.title, matchDate);
-                    
-                    const playerDoc = await db.collection('users').doc(playerId).get();
-                    const stats = playerDoc.data().stats || {};
-                    stats.reminders = (stats.reminders || 0) + 1;
-                    await db.collection('users').doc(playerId).update({ stats });
-                }
-            }
-        }
-    }
-}
-
-async function sendReminderMessage(playerId, matchTitle, matchDate) {
-    const message = {
-        id: Date.now().toString(),
-        from: 'system',
-        to: playerId,
-        text: `🔔 RAPPEL: Veuillez répondre pour "${matchTitle}" du ${matchDate.toLocaleDateString()}`,
-        timestamp: new Date().toISOString(),
-        seen: false,
-        isReminder: true,
-        expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
-    };
-    await db.collection('messages').add(message);
-    updateChatAlertBadge();
-}
-
-async function manualReminder(matchId, eventTitle) {
-    const team = await db.collection('teams').doc(currentUser.teamId).get();
-    const matches = team.data().matches || [];
-    const match = matches.find(m => m.id === matchId);
-    if (!match) return;
-    
-    let count = 0;
-    for (const playerId of (match.convokedPlayers || [])) {
-        const status = match.attendances?.[playerId];
-        if (!status || status === 'waiting') {
-            await sendReminderMessage(playerId, match.title, new Date(match.matchDateTime));
-            count++;
-        }
-    }
-    showToast(`Rappel envoyé à ${count} joueur(s)`);
-    await loadMatches(showMatchesHistory);
-}
-
-// ============ GESTION LIEU MATCH ==========
-function toggleMatchLocation() {
-    const type = document.getElementById('matchLocationType').value;
-    const locationInput = document.getElementById('matchLocation');
-    if (type === 'home') {
-        locationInput.value = 'Stade de la Mer, sortie N°11, 66420 LE BARCARÈS';
-        locationInput.readOnly = true;
-    } else {
-        locationInput.value = '';
-        locationInput.readOnly = false;
-    }
-}
-
-// ============ GESTION MATCHS ==========
-function showMatchModalForAdmin(action) {
-    currentTeamSelectionCallback = action;
-    loadTeamSelectorForAction();
-    document.getElementById('selectTeamModal').classList.remove('hidden');
-}
-
-async function loadTeamSelectorForAction() {
-    const teams = await db.collection('teams').get();
-    const select = document.getElementById('teamSelectForAction');
-    select.innerHTML = teams.docs.map(d => `<option value="${d.id}">${escapeHtml(d.data().name)} (${d.data().code})</option>`).join('');
-}
-
-async function proceedWithTeamSelection() {
-    const teamId = document.getElementById('teamSelectForAction').value;
-    closeModal('selectTeamModal');
-    const team = await db.collection('teams').doc(teamId).get();
-    currentUser.teamId = teamId;
-    currentUser.teamName = team.data().name;
-    if (currentTeamSelectionCallback === 'match') showMatchModal();
-    else if (currentTeamSelectionCallback === 'event') showEventModal();
-}
-
-async function showMatchModal(match = null) {
-    editingMatchId = match?.id || null;
-    document.getElementById('matchModalTitle').innerText = match ? '✏️ Modifier le match' : '⚽ Nouveau match';
-    document.getElementById('matchSubmitBtn').innerText = match ? 'Modifier' : 'Créer';
-    document.getElementById('matchOpponent').value = match?.title || '';
-    document.getElementById('matchDateTime').value = match?.matchDateTime || '';
-    document.getElementById('matchCallTime').value = match?.callTime || '';
-    
-    const isHome = match?.isHome !== undefined ? match.isHome : true;
-    document.getElementById('matchLocationType').value = isHome ? 'home' : 'away';
-    toggleMatchLocation();
-    if (!isHome && match?.location) document.getElementById('matchLocation').value = match.location;
-    
-    document.getElementById('matchNotes').value = match?.notes || '';
-    document.getElementById('scoreSection').style.display = match ? 'block' : 'none';
-    document.getElementById('cancelReasonDiv').style.display = match?.cancelReason ? 'block' : 'none';
-    document.getElementById('cancelReason').value = match?.cancelReason || '';
-    
-    if (match && currentUser.teamId) {
-        document.getElementById('homeScore').value = match.score?.home || 0;
-        document.getElementById('awayScore').value = match.score?.away || 0;
-        
-        const team = await db.collection('teams').doc(currentUser.teamId).get();
-        const players = [];
-        for (let pid of (team.data().players || [])) {
-            const p = await db.collection('users').doc(pid).get();
-            if (p.exists && !p.data().pendingApproval) players.push({ id: pid, name: p.data().name });
-        }
-        
-        document.getElementById('scorersList').innerHTML = players.map(p => `
-            <div class="player-select"><span style="flex:1">${escapeHtml(p.name)}</span>
-            <input type="number" id="goals_${p.id}" placeholder="Buts" min="0" style="width:60px" value="${(match.scorers || []).find(s => s.playerId === p.id)?.goals || 0}">
-            <input type="number" id="assists_${p.id}" placeholder="Passes" min="0" style="width:60px" value="${(match.assists || []).find(a => a.playerId === p.id)?.assists || 0}"></div>
-        `).join('');
-    }
-    
-    document.getElementById('matchModal').classList.remove('hidden');
-}
-
-async function saveMatch() {
-    const locationType = document.getElementById('matchLocationType').value;
-    const isHome = locationType === 'home';
-    
-    const match = {
-        id: editingMatchId || Date.now().toString(),
-        title: document.getElementById('matchOpponent').value,
-        matchDateTime: document.getElementById('matchDateTime').value,
-        callTime: document.getElementById('matchCallTime').value,
-        location: document.getElementById('matchLocation').value,
-        isHome: isHome,
-        notes: document.getElementById('matchNotes').value,
-        lastModified: new Date().toISOString(),
-        history: []
-    };
-    
-    if (editingMatchId && currentUser.teamId) {
-        const team = await db.collection('teams').doc(currentUser.teamId).get();
-        const oldMatch = (team.data().matches || []).find(m => m.id === editingMatchId);
-        if (oldMatch) match.history = [...(oldMatch.history || []), { ...oldMatch, archivedAt: new Date().toISOString() }];
-    }
-    
-    const homeScore = document.getElementById('homeScore')?.value;
-    if (homeScore) {
-        match.score = { home: parseInt(homeScore) || 0, away: parseInt(document.getElementById('awayScore')?.value) || 0 };
-        const scorers = [], assists = [];
-        document.querySelectorAll('#scorersList .player-select').forEach(div => {
-            const inputs = div.querySelectorAll('input[type="number"]');
-            if (inputs[0] && parseInt(inputs[0].value) > 0) scorers.push({ playerId: inputs[0].id.replace('goals_', ''), goals: parseInt(inputs[0].value) });
-            if (inputs[1] && parseInt(inputs[1].value) > 0) assists.push({ playerId: inputs[1].id.replace('assists_', ''), assists: parseInt(inputs[1].value) });
-        });
-        if (scorers.length) match.scorers = scorers;
-        if (assists.length) match.assists = assists;
-    }
-    
-    const cancelReason = document.getElementById('cancelReason')?.value;
-    if (cancelReason) match.cancelReason = cancelReason;
-    
-    const team = await db.collection('teams').doc(currentUser.teamId).get();
-    let matches = team.data().matches || [];
-    if (editingMatchId) matches = matches.filter(m => m.id !== editingMatchId);
-    matches.push(match);
-    await db.collection('teams').doc(currentUser.teamId).update({ matches });
-    closeModal('matchModal');
-    showToast(editingMatchId ? 'Match modifié' : 'Match créé');
-    await loadMatches(showMatchesHistory);
-    await loadDashboard();
-}
-
-// ============ MATCH EN DIRECT ==========
-async function openLiveMatch(match) {
-    currentLiveMatch = match;
-    const team = await db.collection('teams').doc(currentUser.teamId).get();
-    const players = [];
-    for (let pid of (team.data().players || [])) {
-        const p = await db.collection('users').doc(pid).get();
-        if (p.exists && !p.data().pendingApproval) players.push({ id: pid, name: p.data().name });
-    }
-    
-    const matchDate = new Date(match.matchDateTime);
-    const halftimeTime = new Date(matchDate.getTime() + 45 * 60000);
-    const secondHalfTime = new Date(matchDate.getTime() + 60 * 60000);
-    const endTime = new Date(matchDate.getTime() + 105 * 60000);
-    
-    const getMatchPhase = () => {
-        const now = new Date();
-        if (now < matchDate) return 'À venir';
-        if (now >= matchDate && now < halftimeTime) return 'Première mi-temps';
-        if (now >= halftimeTime && now < secondHalfTime) return 'Mi-temps';
-        if (now >= secondHalfTime && now < endTime) return 'Seconde mi-temps';
-        return 'Terminé';
-    };
-    
-    const content = `
-        <div class="live-timer" id="liveTimer">00:00</div>
-        <div class="times-row">
-            <div class="time-card"><div class="time-label">⏰ Début</div><div class="time-value" id="startTime">${formatTime(matchDate)}</div></div>
-            <div class="time-card"><div class="time-label">⏸️ Mi-temps</div><div class="time-value" id="halftimeTime">${formatTime(halftimeTime)}</div></div>
-            <div class="time-card"><div class="time-label">▶️ Reprise</div><div class="time-value" id="secondHalfTime">${formatTime(secondHalfTime)}</div></div>
-            <div class="time-card"><div class="time-label">🏁 Fin</div><div class="time-value" id="endTime">${formatTime(endTime)}</div></div>
-        </div>
-        <div class="times-row">
-            <div class="time-card"><div class="time-label">Phase actuelle</div><div class="time-value" id="matchPhase">${getMatchPhase()}</div></div>
-        </div>
-        
-        <div class="section-title">⚽ Score</div>
-        <div class="score-input">
-            <input type="number" id="liveHomeScore" value="${match.score?.home || 0}" min="0" style="width:70px; text-align:center">
-            <span style="font-size:20px">-</span>
-            <input type="number" id="liveAwayScore" value="${match.score?.away || 0}" min="0" style="width:70px; text-align:center">
-            <button onclick="updateLiveScore()" class="btn-small btn-approve">Mettre à jour</button>
-        </div>
-        
-        <div class="section-title">⚽ Buteurs</div>
-        <div id="liveScorersList" style="margin-bottom:16px">
-            ${(match.scorers || []).map(s => `<div class="player-select"><span>${getPlayerNameSync(s.playerId)} - ${s.goals} but(s)</span><button onclick="removeScorer('${s.playerId}')" class="btn-small btn-remove">❌</button></div>`).join('')}
-        </div>
-        <div class="player-select">
-            <select id="newScorerSelect" style="flex:1; padding:8px; border-radius:12px">
-                <option value="">Sélectionner un joueur</option>
-                ${players.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')}
-            </select>
-            <button onclick="addLiveScorer()" class="btn-small btn-approve">➕ Ajouter but</button>
-        </div>
-        
-        <div class="section-title">🎯 Passeurs décisifs</div>
-        <div id="liveAssistsList" style="margin-bottom:16px">
-            ${(match.assists || []).map(a => `<div class="player-select"><span>${getPlayerNameSync(a.playerId)} - ${a.assists} passe(s)</span><button onclick="removeAssist('${a.playerId}')" class="btn-small btn-remove">❌</button></div>`).join('')}
-        </div>
-        <div class="player-select">
-            <select id="newAssistSelect" style="flex:1; padding:8px; border-radius:12px">
-                <option value="">Sélectionner un joueur</option>
-                ${players.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')}
-            </select>
-            <button onclick="addLiveAssist()" class="btn-small btn-approve">➕ Ajouter passe</button>
-        </div>
-        
-        <div class="section-title">🟨 Cartons</div>
-        <div id="liveCardsList" style="margin-bottom:16px">
-            ${(match.cards || []).map(c => `<div class="player-select"><span>${getPlayerNameSync(c.playerId)} - ${c.card === 'white' ? '🟨 Blanc' : c.card === 'yellow' ? '🟨 Jaune' : c.card === 'green' ? '🟢 Vert' : '🟥 Rouge'}</span><button onclick="removeCard('${c.playerId}')" class="btn-small btn-remove">❌</button></div>`).join('')}
-        </div>
-        <div class="player-select">
-            <select id="cardPlayerSelect" style="flex:1; padding:8px; border-radius:12px">
-                <option value="">Sélectionner un joueur</option>
-                ${players.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')}
-            </select>
-            <div style="display:flex; gap:8px">
-                <button onclick="addCard('white')" class="btn-small btn-card">🟨 Blanc</button>
-                <button onclick="addCard('yellow')" class="btn-small btn-yellow">🟨 Jaune</button>
-                <button onclick="addCard('green')" class="btn-small btn-green">🟢 Vert</button>
-                <button onclick="addCard('red')" class="btn-small btn-red">🟥 Rouge</button>
-            </div>
-        </div>
-        
-        <div class="section-title">🔄 Remplacements</div>
-        <div id="liveSubstitutionsList" style="margin-bottom:16px">
-            ${(match.substitutions || []).map(s => `<div class="player-select"><span>${s.minute}' - ${getPlayerNameSync(s.playerOut)} → ${getPlayerNameSync(s.playerIn)}</span><button onclick="removeSubstitution('${s.minute}')" class="btn-small btn-remove">❌</button></div>`).join('')}
-        </div>
-        <div class="player-select">
-            <select id="subOutSelect" style="flex:1; padding:8px; border-radius:12px">
-                <option value="">Joueur qui sort</option>
-                ${players.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')}
-            </select>
-            <select id="subInSelect" style="flex:1; padding:8px; border-radius:12px">
-                <option value="">Joueur qui entre</option>
-                ${players.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')}
-            </select>
-            <input type="number" id="subMinute" placeholder="Minute" min="0" max="120" style="width:70px">
-            <button onclick="addSubstitution()" class="btn-small btn-approve">➕</button>
-        </div>
-        
-        <div style="display:flex; gap:12px; margin-top:20px">
-            <button onclick="endLiveMatch()" class="btn-primary">🏁 Terminer le match</button>
-            <button onclick="closeModal('liveMatchModal')" class="btn-secondary">Fermer</button>
-        </div>
-    `;
-    
-    document.getElementById('liveMatchContent').innerHTML = content;
-    document.getElementById('liveMatchModal').classList.remove('hidden');
-    startLiveTimer(matchDate, halftimeTime, secondHalfTime, endTime);
-}
-
-function startLiveTimer(start, halftime, secondHalf, end) {
-    if (matchTimerInterval) clearInterval(matchTimerInterval);
-    
-    matchTimerInterval = setInterval(() => {
-        const now = new Date();
-        let displayTime = '00:00';
-        let phase = '';
-        
-        if (now < start) { displayTime = '00:00'; phase = 'À venir'; }
-        else if (now >= start && now < halftime) {
-            const diff = Math.floor((now - start) / 1000);
-            const mins = Math.floor(diff / 60);
-            const secs = diff % 60;
-            displayTime = `${mins}:${secs.toString().padStart(2, '0')}`;
-            phase = 'Première mi-temps';
-        }
-        else if (now >= halftime && now < secondHalf) { displayTime = '45:00'; phase = 'Mi-temps'; }
-        else if (now >= secondHalf && now < end) {
-            const diff = Math.floor((now - secondHalf) / 1000);
-            const mins = 45 + Math.floor(diff / 60);
-            const secs = diff % 60;
-            displayTime = `${mins}:${secs.toString().padStart(2, '0')}`;
-            phase = 'Seconde mi-temps';
-        }
-        else { displayTime = '90:00'; phase = 'Terminé'; }
-        
-        const timerEl = document.getElementById('liveTimer');
-        if (timerEl) timerEl.innerText = displayTime;
-        const phaseEl = document.getElementById('matchPhase');
-        if (phaseEl) phaseEl.innerText = phase;
-    }, 1000);
-}
-
-async function updateLiveScore() {
-    const homeScore = parseInt(document.getElementById('liveHomeScore').value) || 0;
-    const awayScore = parseInt(document.getElementById('liveAwayScore').value) || 0;
-    
-    const team = await db.collection('teams').doc(currentUser.teamId).get();
-    const matches = team.data().matches || [];
-    const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, score: { home: homeScore, away: awayScore } } : m);
-    await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
-    currentLiveMatch.score = { home: homeScore, away: awayScore };
-    showToast('Score mis à jour');
-}
-
-async function addLiveScorer() {
-    const select = document.getElementById('newScorerSelect');
-    const playerId = select.value;
-    if (!playerId) { showToast('Sélectionnez un joueur'); return; }
-    
-    const team = await db.collection('teams').doc(currentUser.teamId).get();
-    const matches = team.data().matches || [];
-    let match = matches.find(m => m.id === currentLiveMatch.id);
-    let scorers = match.scorers || [];
-    const existing = scorers.find(s => s.playerId === playerId);
-    if (existing) existing.goals++;
-    else scorers.push({ playerId, goals: 1 });
-    
-    const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, scorers } : m);
-    await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
-    showToast('Buteur ajouté');
-    await openLiveMatch({ ...currentLiveMatch, scorers });
-}
-
-async function addLiveAssist() {
-    const select = document.getElementById('newAssistSelect');
-    const playerId = select.value;
-    if (!playerId) { showToast('Sélectionnez un joueur'); return; }
-    
-    const team = await db.collection('teams').doc(currentUser.teamId).get();
-    const matches = team.data().matches || [];
-    let match = matches.find(m => m.id === currentLiveMatch.id);
-    let assists = match.assists || [];
-    const existing = assists.find(a => a.playerId === playerId);
-    if (existing) existing.assists++;
-    else assists.push({ playerId, assists: 1 });
-    
-    const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, assists } : m);
-    await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
-    showToast('Passeur ajouté');
-    await openLiveMatch({ ...currentLiveMatch, assists });
-}
-
-async function addCard(cardType) {
-    const select = document.getElementById('cardPlayerSelect');
-    const playerId = select.value;
-    if (!playerId) { showToast('Sélectionnez un joueur'); return; }
-    
-    const team = await db.collection('teams').doc(currentUser.teamId).get();
-    const matches = team.data().matches || [];
-    let match = matches.find(m => m.id === currentLiveMatch.id);
-    let cards = match.cards || [];
-    cards.push({ playerId, card: cardType, minute: document.getElementById('liveTimer')?.innerText || '0' });
-    
-    const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, cards } : m);
-    await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
-    
-    const playerDoc = await db.collection('users').doc(playerId).get();
-    const stats = playerDoc.data().stats || { cards: { white: 0, yellow: 0, green: 0, red: 0 } };
-    stats.cards[cardType]++;
-    await db.collection('users').doc(playerId).update({ stats });
-    
-    showToast(`Carton ${cardType === 'white' ? 'blanc' : cardType === 'yellow' ? 'jaune' : cardType === 'green' ? 'vert' : 'rouge'} ajouté`);
-    await openLiveMatch({ ...currentLiveMatch, cards });
-}
-
-async function addSubstitution() {
-    const playerOut = document.getElementById('subOutSelect').value;
-    const playerIn = document.getElementById('subInSelect').value;
-    const minute = document.getElementById('subMinute').value;
-    if (!playerOut || !playerIn || !minute) { showToast('Remplissez tous les champs'); return; }
-    
-    const team = await db.collection('teams').doc(currentUser.teamId).get();
-    const matches = team.data().matches || [];
-    let match = matches.find(m => m.id === currentLiveMatch.id);
-    let substitutions = match.substitutions || [];
-    substitutions.push({ playerOut, playerIn, minute: parseInt(minute), timestamp: new Date().toISOString() });
-    
-    const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, substitutions } : m);
-    await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
-    showToast('Remplacement ajouté');
-    await openLiveMatch({ ...currentLiveMatch, substitutions });
-}
-
-async function endLiveMatch() {
-    if (confirm('Terminer le match ?')) {
-        if (matchTimerInterval) clearInterval(matchTimerInterval);
-        const team = await db.collection('teams').doc(currentUser.teamId).get();
-        const matches = team.data().matches || [];
-        const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, isLive: false, endedAt: new Date().toISOString() } : m);
-        await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
-        closeModal('liveMatchModal');
-        showToast('Match terminé');
-        await loadMatches(showMatchesHistory);
-    }
-}
-
-async function removeScorer(playerId) {
-    const team = await db.collection('teams').doc(currentUser.teamId).get();
-    const matches = team.data().matches || [];
-    const match = matches.find(m => m.id === currentLiveMatch.id);
-    const newScorers = (match.scorers || []).filter(s => s.playerId !== playerId);
-    const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, scorers: newScorers } : m);
-    await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
-    await openLiveMatch({ ...currentLiveMatch, scorers: newScorers });
-}
-
-async function removeAssist(playerId) {
-    const team = await db.collection('teams').doc(currentUser.teamId).get();
-    const matches = team.data().matches || [];
-    const match = matches.find(m => m.id === currentLiveMatch.id);
-    const newAssists = (match.assists || []).filter(a => a.playerId !== playerId);
-    const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, assists: newAssists } : m);
-    await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
-    await openLiveMatch({ ...currentLiveMatch, assists: newAssists });
-}
-
-async function removeCard(playerId) {
-    const team = await db.collection('teams').doc(currentUser.teamId).get();
-    const matches = team.data().matches || [];
-    const match = matches.find(m => m.id === currentLiveMatch.id);
-    const newCards = (match.cards || []).filter(c => c.playerId !== playerId);
-    const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, cards: newCards } : m);
-    await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
-    await openLiveMatch({ ...currentLiveMatch, cards: newCards });
-}
-
-async function removeSubstitution(minute) {
-    const team = await db.collection('teams').doc(currentUser.teamId).get();
-    const matches = team.data().matches || [];
-    const match = matches.find(m => m.id === currentLiveMatch.id);
-    const newSubs = (match.substitutions || []).filter(s => s.minute !== minute);
-    const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, substitutions: newSubs } : m);
-    await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
-    await openLiveMatch({ ...currentLiveMatch, substitutions: newSubs });
-}
-
 function getPlayerNameSync(playerId) {
-    return playerId ? playerId.substring(0, 8) : '?';
+    if (!playerId) return '?';
+    return playerId.substring(0, 8);
 }
 
 // ============ AUTHENTIFICATION ==========
@@ -1236,7 +766,7 @@ async function register() {
         const playerData = {
             uid: userCred.user.uid, name, birthDate, phone, email, role: 'player',
             teamCode, teamName: team.data().name, teamId: team.id, isMinor, pendingApproval: true,
-            stats: { present: 0, absent: 0, waiting: 0, injured: 0, convocations: 0, reminders: 0, statusChanges: 0, cards: { white: 0, yellow: 0, green: 0, red: 0 } }
+            stats: { present: 0, absent: 0, waiting: 0, injured: 0, convocations: 0, reminders: 0, statusChanges: 0, goals: 0, assists: 0, cards: { white: 0, yellow: 0, green: 0, red: 0 } }
         };
         if (isMinor) {
             playerData.parents = [
@@ -1380,6 +910,418 @@ async function approvePlayerAdmin(uid) {
     await loadAdminData();
 }
 
+// ============ GESTION LIEU MATCH ==========
+function toggleMatchLocation() {
+    const type = document.getElementById('matchLocationType').value;
+    const locationInput = document.getElementById('matchLocation');
+    if (type === 'home') {
+        locationInput.value = 'Stade de la Mer, sortie N°11, 66420 LE BARCARÈS';
+        locationInput.readOnly = true;
+    } else {
+        locationInput.value = '';
+        locationInput.readOnly = false;
+    }
+}
+
+// ============ GESTION MATCHS ==========
+function showMatchModalForAdmin(action) {
+    currentTeamSelectionCallback = action;
+    loadTeamSelectorForAction();
+    document.getElementById('selectTeamModal').classList.remove('hidden');
+}
+
+async function loadTeamSelectorForAction() {
+    const teams = await db.collection('teams').get();
+    const select = document.getElementById('teamSelectForAction');
+    select.innerHTML = teams.docs.map(d => `<option value="${d.id}">${escapeHtml(d.data().name)} (${d.data().code})</option>`).join('');
+}
+
+async function proceedWithTeamSelection() {
+    const teamId = document.getElementById('teamSelectForAction').value;
+    closeModal('selectTeamModal');
+    const team = await db.collection('teams').doc(teamId).get();
+    currentUser.teamId = teamId;
+    currentUser.teamName = team.data().name;
+    if (currentTeamSelectionCallback === 'match') showMatchModal();
+    else if (currentTeamSelectionCallback === 'event') showEventModal();
+}
+
+async function showMatchModal(match = null) {
+    editingMatchId = match?.id || null;
+    document.getElementById('matchModalTitle').innerText = match ? '✏️ Modifier le match' : '⚽ Nouveau match';
+    document.getElementById('matchSubmitBtn').innerText = match ? 'Modifier' : 'Créer';
+    document.getElementById('matchOpponent').value = match?.title || '';
+    document.getElementById('matchDateTime').value = match?.matchDateTime || '';
+    document.getElementById('matchCallTime').value = match?.callTime || '';
+    
+    const isHome = match?.isHome !== undefined ? match.isHome : true;
+    document.getElementById('matchLocationType').value = isHome ? 'home' : 'away';
+    toggleMatchLocation();
+    if (!isHome && match?.location) document.getElementById('matchLocation').value = match.location;
+    
+    document.getElementById('matchNotes').value = match?.notes || '';
+    document.getElementById('scoreSection').style.display = match ? 'block' : 'none';
+    document.getElementById('cancelReasonDiv').style.display = match?.cancelReason ? 'block' : 'none';
+    document.getElementById('cancelReason').value = match?.cancelReason || '';
+    
+    if (match && currentUser.teamId) {
+        document.getElementById('homeScore').value = match.score?.home || 0;
+        document.getElementById('awayScore').value = match.score?.away || 0;
+        
+        const team = await db.collection('teams').doc(currentUser.teamId).get();
+        const players = [];
+        for (let pid of (team.data().players || [])) {
+            const p = await db.collection('users').doc(pid).get();
+            if (p.exists && !p.data().pendingApproval) players.push({ id: pid, name: p.data().name });
+        }
+        
+        document.getElementById('scorersList').innerHTML = players.map(p => `
+            <div class="player-select"><span style="flex:1">${escapeHtml(p.name)}</span>
+            <input type="number" id="goals_${p.id}" placeholder="Buts" min="0" style="width:60px" value="${(match.scorers || []).find(s => s.playerId === p.id)?.goals || 0}">
+            <input type="number" id="assists_${p.id}" placeholder="Passes" min="0" style="width:60px" value="${(match.assists || []).find(a => a.playerId === p.id)?.assists || 0}"></div>
+        `).join('');
+    }
+    
+    document.getElementById('matchModal').classList.remove('hidden');
+}
+
+async function saveMatch() {
+    const locationType = document.getElementById('matchLocationType').value;
+    const isHome = locationType === 'home';
+    
+    const match = {
+        id: editingMatchId || Date.now().toString(),
+        title: document.getElementById('matchOpponent').value,
+        matchDateTime: document.getElementById('matchDateTime').value,
+        callTime: document.getElementById('matchCallTime').value,
+        location: document.getElementById('matchLocation').value,
+        isHome: isHome,
+        notes: document.getElementById('matchNotes').value,
+        lastModified: new Date().toISOString(),
+        history: []
+    };
+    
+    if (editingMatchId && currentUser.teamId) {
+        const team = await db.collection('teams').doc(currentUser.teamId).get();
+        const oldMatch = (team.data().matches || []).find(m => m.id === editingMatchId);
+        if (oldMatch) match.history = [...(oldMatch.history || []), { ...oldMatch, archivedAt: new Date().toISOString() }];
+    }
+    
+    const homeScore = document.getElementById('homeScore')?.value;
+    if (homeScore) {
+        match.score = { home: parseInt(homeScore) || 0, away: parseInt(document.getElementById('awayScore')?.value) || 0 };
+        const scorers = [], assists = [];
+        document.querySelectorAll('#scorersList .player-select').forEach(div => {
+            const inputs = div.querySelectorAll('input[type="number"]');
+            if (inputs[0] && parseInt(inputs[0].value) > 0) scorers.push({ playerId: inputs[0].id.replace('goals_', ''), goals: parseInt(inputs[0].value) });
+            if (inputs[1] && parseInt(inputs[1].value) > 0) assists.push({ playerId: inputs[1].id.replace('assists_', ''), assists: parseInt(inputs[1].value) });
+        });
+        if (scorers.length) match.scorers = scorers;
+        if (assists.length) match.assists = assists;
+    }
+    
+    const cancelReason = document.getElementById('cancelReason')?.value;
+    if (cancelReason) match.cancelReason = cancelReason;
+    
+    const team = await db.collection('teams').doc(currentUser.teamId).get();
+    let matches = team.data().matches || [];
+    if (editingMatchId) matches = matches.filter(m => m.id !== editingMatchId);
+    matches.push(match);
+    await db.collection('teams').doc(currentUser.teamId).update({ matches });
+    closeModal('matchModal');
+    showToast(editingMatchId ? 'Match modifié' : 'Match créé');
+    await loadMatches(showMatchesHistory);
+    await loadDashboard();
+}
+
+// ============ MATCH EN DIRECT ==========
+async function openLiveMatch(match) {
+    currentLiveMatch = match;
+    const team = await db.collection('teams').doc(currentUser.teamId).get();
+    const players = [];
+    for (let pid of (team.data().players || [])) {
+        const p = await db.collection('users').doc(pid).get();
+        if (p.exists && !p.data().pendingApproval) players.push({ id: pid, name: p.data().name });
+    }
+    
+    const matchDate = new Date(match.matchDateTime);
+    const halftimeTime = new Date(matchDate.getTime() + 45 * 60000);
+    const secondHalfTime = new Date(matchDate.getTime() + 60 * 60000);
+    const endTime = new Date(matchDate.getTime() + 105 * 60000);
+    
+    const goals = match.goals || [];
+    const cards = match.cards || [];
+    const substitutions = match.substitutions || [];
+    
+    const content = `
+        <div class="live-timer" id="liveTimer">00:00</div>
+        <div class="times-row">
+            <div class="time-card"><div class="time-label">⏰ Début</div><div class="time-value">${formatTime(matchDate)}</div></div>
+            <div class="time-card"><div class="time-label">⏸️ Mi-temps</div><div class="time-value">${formatTime(halftimeTime)}</div></div>
+            <div class="time-card"><div class="time-label">▶️ Reprise</div><div class="time-value">${formatTime(secondHalfTime)}</div></div>
+            <div class="time-card"><div class="time-label">🏁 Fin</div><div class="time-value">${formatTime(endTime)}</div></div>
+        </div>
+        <div class="times-row">
+            <div class="time-card"><div class="time-label">Phase actuelle</div><div class="time-value" id="matchPhase"></div></div>
+            <div class="time-card"><div class="time-label">Temps de jeu</div><div class="time-value" id="currentTime">0'</div></div>
+        </div>
+        
+        <div class="section-title">⚽ Score</div>
+        <div class="score-input">
+            <input type="number" id="liveHomeScore" value="${match.score?.home || 0}" min="0" style="width:70px; text-align:center">
+            <span style="font-size:20px">-</span>
+            <input type="number" id="liveAwayScore" value="${match.score?.away || 0}" min="0" style="width:70px; text-align:center">
+            <button onclick="updateLiveScore()" class="btn-small btn-approve">Mettre à jour</button>
+        </div>
+        
+        <div class="section-title">⚽ Buteurs <span style="font-size:11px; font-weight:normal">(avec timing)</span></div>
+        <div id="liveGoalsList" style="margin-bottom:16px; max-height:200px; overflow-y:auto">
+            ${goals.sort((a,b) => a.minute - b.minute).map(g => `<div class="player-select"><span>${g.minute}' - ${getPlayerNameSync(g.playerId)}</span><span style="margin-left:auto">${g.count || 1} but(s)</span><button onclick="removeGoal('${g.playerId}', ${g.minute})" class="btn-small btn-remove">❌</button></div>`).join('')}
+        </div>
+        <div class="player-select">
+            <select id="goalPlayerSelect" style="flex:1; padding:8px; border-radius:12px"><option value="">Sélectionner un joueur</option>${players.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')}</select>
+            <input type="number" id="goalMinute" placeholder="Minute" min="0" max="120" style="width:80px; padding:8px; border-radius:12px">
+            <button onclick="addGoal()" class="btn-small btn-approve">➕ Ajouter but</button>
+        </div>
+        
+        <div class="section-title">🎯 Passeurs décisifs</div>
+        <div id="liveAssistsList" style="margin-bottom:16px; max-height:150px; overflow-y:auto">
+            ${(match.assists || []).map(a => `<div class="player-select"><span>${getPlayerNameSync(a.playerId)} - ${a.assists} passe(s)</span><button onclick="removeAssist('${a.playerId}')" class="btn-small btn-remove">❌</button></div>`).join('')}
+        </div>
+        <div class="player-select">
+            <select id="assistPlayerSelect" style="flex:1; padding:8px; border-radius:12px"><option value="">Sélectionner un joueur</option>${players.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')}</select>
+            <button onclick="addAssist()" class="btn-small btn-approve">➕ Ajouter passe</button>
+        </div>
+        
+        <div class="section-title">🃏 Sanctions <span style="font-size:11px; font-weight:normal">(cartons avec timing)</span></div>
+        <div id="liveCardsList" style="margin-bottom:16px; max-height:150px; overflow-y:auto">
+            ${cards.sort((a,b) => a.minute - b.minute).map(c => `<div class="player-select"><span>${c.minute}' - ${getPlayerNameSync(c.playerId)} - ${c.card === 'white' ? '🟨 Blanc' : c.card === 'yellow' ? '🟨 Jaune' : c.card === 'green' ? '🟢 Vert' : '🟥 Rouge'}</span><button onclick="removeCard('${c.playerId}', ${c.minute})" class="btn-small btn-remove">❌</button></div>`).join('')}
+        </div>
+        <div class="player-select">
+            <select id="cardPlayerSelect" style="flex:1; padding:8px; border-radius:12px"><option value="">Sélectionner un joueur</option>${players.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')}</select>
+            <input type="number" id="cardMinute" placeholder="Minute" min="0" max="120" style="width:80px; padding:8px; border-radius:12px">
+            <select id="cardTypeSelect" style="width:100px; padding:8px; border-radius:12px"><option value="white">🟨 Blanc</option><option value="yellow">🟨 Jaune</option><option value="green">🟢 Vert</option><option value="red">🟥 Rouge</option></select>
+            <button onclick="addCardWithTime()" class="btn-small btn-approve">➕ Ajouter</button>
+        </div>
+        
+        <div class="section-title">🔄 Remplacements <span style="font-size:11px; font-weight:normal">(entrées/sorties avec timing)</span></div>
+        <div id="liveSubstitutionsList" style="margin-bottom:16px; max-height:150px; overflow-y:auto">
+            ${substitutions.sort((a,b) => a.minute - b.minute).map(s => `<div class="player-select"><span>${s.minute}' - Sortie: ${getPlayerNameSync(s.playerOut)} → Entrée: ${getPlayerNameSync(s.playerIn)}</span><button onclick="removeSubstitution('${s.minute}')" class="btn-small btn-remove">❌</button></div>`).join('')}
+        </div>
+        <div class="player-select">
+            <select id="subOutSelect" style="flex:1; padding:8px; border-radius:12px"><option value="">Joueur qui sort</option>${players.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')}</select>
+            <select id="subInSelect" style="flex:1; padding:8px; border-radius:12px"><option value="">Joueur qui entre</option>${players.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')}</select>
+            <input type="number" id="subMinute" placeholder="Minute" min="0" max="120" style="width:80px; padding:8px; border-radius:12px">
+            <button onclick="addSubstitutionWithTime()" class="btn-small btn-approve">➕</button>
+        </div>
+        
+        <div style="display:flex; gap:12px; margin-top:20px">
+            <button onclick="endLiveMatch()" class="btn-primary">🏁 Terminer le match</button>
+            <button onclick="closeModal('liveMatchModal')" class="btn-secondary">Fermer</button>
+        </div>
+    `;
+    
+    document.getElementById('liveMatchContent').innerHTML = content;
+    document.getElementById('liveMatchModal').classList.remove('hidden');
+    startLiveTimer(matchDate, halftimeTime, secondHalfTime, endTime);
+}
+
+function startLiveTimer(start, halftime, secondHalf, end) {
+    if (matchTimerInterval) clearInterval(matchTimerInterval);
+    
+    matchTimerInterval = setInterval(() => {
+        const now = new Date();
+        let displayTime = '00:00';
+        let phase = '';
+        let currentMinute = 0;
+        
+        if (now < start) { displayTime = '00:00'; phase = 'À venir'; currentMinute = 0; }
+        else if (now >= start && now < halftime) {
+            const diff = Math.floor((now - start) / 60000);
+            const secs = Math.floor((now - start) / 1000) % 60;
+            displayTime = `${diff}:${secs.toString().padStart(2, '0')}`;
+            phase = 'Première mi-temps';
+            currentMinute = diff;
+        }
+        else if (now >= halftime && now < secondHalf) { displayTime = '45:00'; phase = 'Mi-temps'; currentMinute = 45; }
+        else if (now >= secondHalf && now < end) {
+            const diff = Math.floor((now - secondHalf) / 60000);
+            const secs = Math.floor((now - secondHalf) / 1000) % 60;
+            displayTime = `${45 + diff}:${secs.toString().padStart(2, '0')}`;
+            phase = 'Seconde mi-temps';
+            currentMinute = 45 + diff;
+        }
+        else { displayTime = '90:00'; phase = 'Terminé'; currentMinute = 90; }
+        
+        const timerEl = document.getElementById('liveTimer');
+        if (timerEl) timerEl.innerText = displayTime;
+        const phaseEl = document.getElementById('matchPhase');
+        if (phaseEl) phaseEl.innerText = phase;
+        const currentTimeEl = document.getElementById('currentTime');
+        if (currentTimeEl) currentTimeEl.innerText = `${currentMinute}'`;
+    }, 1000);
+}
+
+async function updateLiveScore() {
+    const homeScore = parseInt(document.getElementById('liveHomeScore').value) || 0;
+    const awayScore = parseInt(document.getElementById('liveAwayScore').value) || 0;
+    
+    const team = await db.collection('teams').doc(currentUser.teamId).get();
+    const matches = team.data().matches || [];
+    const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, score: { home: homeScore, away: awayScore } } : m);
+    await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
+    currentLiveMatch.score = { home: homeScore, away: awayScore };
+    showToast('Score mis à jour');
+}
+
+async function addGoal() {
+    const playerId = document.getElementById('goalPlayerSelect').value;
+    const minute = document.getElementById('goalMinute').value;
+    if (!playerId || !minute) { showToast('Sélectionnez un joueur et une minute'); return; }
+    
+    const team = await db.collection('teams').doc(currentUser.teamId).get();
+    const matches = team.data().matches || [];
+    let match = matches.find(m => m.id === currentLiveMatch.id);
+    let goals = match.goals || [];
+    const existing = goals.find(g => g.playerId === playerId && g.minute === parseInt(minute));
+    if (existing) existing.count = (existing.count || 1) + 1;
+    else goals.push({ playerId, minute: parseInt(minute), count: 1 });
+    
+    const homeScore = (match.score?.home || 0) + 1;
+    const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, goals, score: { ...m.score, home: homeScore } } : m);
+    await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
+    
+    const playerDoc = await db.collection('users').doc(playerId).get();
+    const stats = playerDoc.data().stats || {};
+    stats.goals = (stats.goals || 0) + 1;
+    await db.collection('users').doc(playerId).update({ stats });
+    
+    showToast(`But ajouté à la ${minute}'`);
+    await openLiveMatch({ ...currentLiveMatch, goals, score: { ...currentLiveMatch.score, home: homeScore } });
+    document.getElementById('goalPlayerSelect').value = '';
+    document.getElementById('goalMinute').value = '';
+}
+
+async function removeGoal(playerId, minute) {
+    const team = await db.collection('teams').doc(currentUser.teamId).get();
+    const matches = team.data().matches || [];
+    let match = matches.find(m => m.id === currentLiveMatch.id);
+    let goals = (match.goals || []).filter(g => !(g.playerId === playerId && g.minute === minute));
+    const goalCount = goals.reduce((sum, g) => sum + (g.count || 1), 0);
+    const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, goals, score: { ...m.score, home: goalCount } } : m);
+    await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
+    showToast('But supprimé');
+    await openLiveMatch({ ...currentLiveMatch, goals });
+}
+
+async function addAssist() {
+    const playerId = document.getElementById('assistPlayerSelect').value;
+    if (!playerId) { showToast('Sélectionnez un joueur'); return; }
+    
+    const team = await db.collection('teams').doc(currentUser.teamId).get();
+    const matches = team.data().matches || [];
+    let match = matches.find(m => m.id === currentLiveMatch.id);
+    let assists = match.assists || [];
+    const existing = assists.find(a => a.playerId === playerId);
+    if (existing) existing.assists++;
+    else assists.push({ playerId, assists: 1 });
+    
+    const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, assists } : m);
+    await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
+    
+    const playerDoc = await db.collection('users').doc(playerId).get();
+    const stats = playerDoc.data().stats || {};
+    stats.assists = (stats.assists || 0) + 1;
+    await db.collection('users').doc(playerId).update({ stats });
+    
+    showToast('Passe décisive ajoutée');
+    await openLiveMatch({ ...currentLiveMatch, assists });
+    document.getElementById('assistPlayerSelect').value = '';
+}
+
+async function addCardWithTime() {
+    const playerId = document.getElementById('cardPlayerSelect').value;
+    const minute = document.getElementById('cardMinute').value;
+    const cardType = document.getElementById('cardTypeSelect').value;
+    if (!playerId || !minute) { showToast('Sélectionnez un joueur et une minute'); return; }
+    
+    const team = await db.collection('teams').doc(currentUser.teamId).get();
+    const matches = team.data().matches || [];
+    let match = matches.find(m => m.id === currentLiveMatch.id);
+    let cards = match.cards || [];
+    cards.push({ playerId, card: cardType, minute: parseInt(minute) });
+    
+    const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, cards } : m);
+    await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
+    
+    const playerDoc = await db.collection('users').doc(playerId).get();
+    const stats = playerDoc.data().stats || {};
+    if (!stats.cards) stats.cards = { white: 0, yellow: 0, green: 0, red: 0 };
+    stats.cards[cardType]++;
+    await db.collection('users').doc(playerId).update({ stats });
+    
+    showToast(`Carton ${cardType === 'white' ? 'blanc' : cardType === 'yellow' ? 'jaune' : cardType === 'green' ? 'vert' : 'rouge'} ajouté à la ${minute}'`);
+    await openLiveMatch({ ...currentLiveMatch, cards });
+    document.getElementById('cardPlayerSelect').value = '';
+    document.getElementById('cardMinute').value = '';
+}
+
+async function removeCard(playerId, minute) {
+    const team = await db.collection('teams').doc(currentUser.teamId).get();
+    const matches = team.data().matches || [];
+    let match = matches.find(m => m.id === currentLiveMatch.id);
+    let cards = (match.cards || []).filter(c => !(c.playerId === playerId && c.minute === minute));
+    const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, cards } : m);
+    await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
+    showToast('Carton supprimé');
+    await openLiveMatch({ ...currentLiveMatch, cards });
+}
+
+async function addSubstitutionWithTime() {
+    const playerOut = document.getElementById('subOutSelect').value;
+    const playerIn = document.getElementById('subInSelect').value;
+    const minute = document.getElementById('subMinute').value;
+    if (!playerOut || !playerIn || !minute) { showToast('Remplissez tous les champs'); return; }
+    
+    const team = await db.collection('teams').doc(currentUser.teamId).get();
+    const matches = team.data().matches || [];
+    let match = matches.find(m => m.id === currentLiveMatch.id);
+    let substitutions = match.substitutions || [];
+    substitutions.push({ playerOut, playerIn, minute: parseInt(minute), timestamp: new Date().toISOString() });
+    
+    const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, substitutions } : m);
+    await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
+    showToast(`Remplacement ajouté à la ${minute}'`);
+    await openLiveMatch({ ...currentLiveMatch, substitutions });
+    document.getElementById('subOutSelect').value = '';
+    document.getElementById('subInSelect').value = '';
+    document.getElementById('subMinute').value = '';
+}
+
+async function removeSubstitution(minute) {
+    const team = await db.collection('teams').doc(currentUser.teamId).get();
+    const matches = team.data().matches || [];
+    let match = matches.find(m => m.id === currentLiveMatch.id);
+    let substitutions = (match.substitutions || []).filter(s => s.minute !== minute);
+    const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, substitutions } : m);
+    await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
+    showToast('Remplacement supprimé');
+    await openLiveMatch({ ...currentLiveMatch, substitutions });
+}
+
+async function endLiveMatch() {
+    if (confirm('Terminer le match ?')) {
+        if (matchTimerInterval) clearInterval(matchTimerInterval);
+        const team = await db.collection('teams').doc(currentUser.teamId).get();
+        const matches = team.data().matches || [];
+        const updatedMatches = matches.map(m => m.id === currentLiveMatch.id ? { ...m, isLive: false, endedAt: new Date().toISOString() } : m);
+        await db.collection('teams').doc(currentUser.teamId).update({ matches: updatedMatches });
+        closeModal('liveMatchModal');
+        showToast('Match terminé');
+        await loadMatches(showMatchesHistory);
+    }
+}
+
 // ============ GESTION ÉVÉNEMENTS ==========
 function showEventModalForAdmin() {
     currentTeamSelectionCallback = 'event';
@@ -1454,7 +1396,7 @@ async function loadMatches(showPast = false) {
                 </div>
                 <div>📍 ${escapeHtml(m.location)} | ⏰ Convocation: ${formatDate(m.callTime)}</div>
                 ${m.notes ? `<div style="font-size:12px; margin-top:6px">📌 ${escapeHtml(m.notes)}</div>` : ''}
-                ${m.score ? `<div style="margin-top:8px; padding:8px; background:#f0f4f8; border-radius:12px"><strong>Score: ${m.score.home} - ${m.score.away}</strong>${m.scorers?.length ? `<br>⚽ Buteurs: ${m.scorers.map(s => `${getPlayerNameSync(s.playerId)} (${s.goals})`).join(', ')}</div>` : ''}</div>` : ''}
+                ${isCoachAdmin && m.score ? `<div style="margin-top:8px; padding:8px; background:#f0f4f8; border-radius:12px"><strong>Score: ${m.score.home} - ${m.score.away}</strong>${m.goals?.length ? `<br>⚽ Buteurs: ${m.goals.map(g => `${g.minute}' ${getPlayerNameSync(g.playerId)} (${g.count || 1})`).join(', ')}</div>` : ''}</div>` : ''}
                 ${m.cancelReason ? `<div style="margin-top:8px; padding:8px; background:#fee2e2; border-radius:12px; color:#dc2626">⚠️ Annulé: ${escapeHtml(m.cancelReason)}</div>` : ''}
                 ${isCoachAdmin ? `
                     <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
@@ -1491,6 +1433,85 @@ async function deleteMatch(matchId) {
     }
 }
 
+// ============ RELANCES ==========
+async function startAutoReminderCheck() {
+    if (autoReminderInterval) clearInterval(autoReminderInterval);
+    autoReminderInterval = setInterval(() => checkAndSendReminders(), 60 * 60 * 1000);
+}
+
+async function checkAndSendReminders() {
+    if (!currentUser || currentUser.role !== 'coach') return;
+    const team = await db.collection('teams').doc(currentUser.teamId).get();
+    const matches = team.data().matches || [];
+    const now = new Date();
+    
+    for (const match of matches) {
+        const matchDate = new Date(match.matchDateTime);
+        const daysDiff = Math.ceil((matchDate - now) / (1000 * 60 * 60 * 24));
+        if (daysDiff <= 5 && daysDiff > 0 && match.convokedPlayers) {
+            for (const playerId of match.convokedPlayers) {
+                const status = match.attendances?.[playerId];
+                if (!status || status === 'waiting') {
+                    await sendReminderMessage(playerId, match.title, matchDate);
+                    const playerDoc = await db.collection('users').doc(playerId).get();
+                    const stats = playerDoc.data().stats || {};
+                    stats.reminders = (stats.reminders || 0) + 1;
+                    await db.collection('users').doc(playerId).update({ stats });
+                }
+            }
+        }
+    }
+}
+
+async function sendReminderMessage(playerId, matchTitle, matchDate) {
+    const message = {
+        id: Date.now().toString(),
+        from: 'system',
+        to: playerId,
+        text: `🔔 RAPPEL: Veuillez répondre pour "${matchTitle}" du ${matchDate.toLocaleDateString()}`,
+        timestamp: new Date().toISOString(),
+        seen: false,
+        isReminder: true,
+        expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
+    };
+    await db.collection('messages').add(message);
+    updateChatAlertBadge();
+}
+
+async function manualReminder(matchId, eventTitle) {
+    const team = await db.collection('teams').doc(currentUser.teamId).get();
+    const matches = team.data().matches || [];
+    const match = matches.find(m => m.id === matchId);
+    if (!match) return;
+    let count = 0;
+    for (const playerId of (match.convokedPlayers || [])) {
+        const status = match.attendances?.[playerId];
+        if (!status || status === 'waiting') {
+            await sendReminderMessage(playerId, match.title, new Date(match.matchDateTime));
+            count++;
+        }
+    }
+    showToast(`Rappel envoyé à ${count} joueur(s)`);
+    await loadMatches(showMatchesHistory);
+}
+
+async function manualReminderEvent(eventId, eventTitle) {
+    const team = await db.collection('teams').doc(currentUser.teamId).get();
+    const events = team.data().events || [];
+    const event = events.find(e => e.id === eventId);
+    if (!event) return;
+    let count = 0;
+    for (const playerId of (event.convokedPlayers || [])) {
+        const status = event.attendances?.[playerId];
+        if (!status || status === 'waiting') {
+            await sendReminderMessage(playerId, event.title, new Date(event.dateTime));
+            count++;
+        }
+    }
+    showToast(`Rappel envoyé à ${count} joueur(s)`);
+    await loadEvents(showEventsHistory);
+}
+
 // ============ AFFICHAGE ÉVÉNEMENTS ==========
 async function loadEvents(showPast = false) {
     if (!currentUser.teamId) {
@@ -1521,7 +1542,7 @@ async function loadEvents(showPast = false) {
                         <button onclick='showEventModal(${JSON.stringify(e).replace(/'/g, "&#39;")})' class="btn-small btn-edit">✏️ Modifier</button>
                         <button onclick="deleteEvent('${e.id}')" class="btn-small btn-remove">🗑️ Supprimer</button>
                         <button onclick="showConvocationModal('${e.id}', '${escapeHtml(e.title)}', 'event')" class="btn-small btn-approve">👥 Convoquer</button>
-                        <button onclick="manualReminderEvent('${e.id}', '${escapeHtml(e.title)}')" class="btn-small btn-warning" style="background:#f59e0b; color:white">📢 Relancer</button>
+                        <button onclick="manualReminderEvent('${e.id}', '${escapeHtml(e.title)}')" class="btn-small btn-warning">📢 Relancer</button>
                     </div>
                 ` : ''}
                 ${currentUser.role === 'player' && (e.convokedPlayers || []).includes(currentUser.uid) ? `
@@ -1535,24 +1556,6 @@ async function loadEvents(showPast = false) {
             </div>
         `;
     }).join();
-}
-
-async function manualReminderEvent(eventId, eventTitle) {
-    const team = await db.collection('teams').doc(currentUser.teamId).get();
-    const events = team.data().events || [];
-    const event = events.find(e => e.id === eventId);
-    if (!event) return;
-    
-    let count = 0;
-    for (const playerId of (event.convokedPlayers || [])) {
-        const status = event.attendances?.[playerId];
-        if (!status || status === 'waiting') {
-            await sendReminderMessage(playerId, event.title, new Date(event.dateTime));
-            count++;
-        }
-    }
-    showToast(`Rappel envoyé à ${count} joueur(s)`);
-    await loadEvents(showEventsHistory);
 }
 
 async function deleteEvent(eventId) {
@@ -1578,9 +1581,7 @@ async function showConvocationModal(eventId, eventTitle, type) {
         const p = await db.collection('users').doc(pid).get();
         if (p.exists && !p.data().pendingApproval) {
             const playerStatus = event?.attendances?.[pid];
-            if (playerStatus === 'present') {
-                players.push({ id: pid, name: p.data().name });
-            }
+            if (playerStatus === 'present') players.push({ id: pid, name: p.data().name });
         }
     }
     
@@ -1739,7 +1740,7 @@ async function showPlayerDetail(uid) {
     const p = await db.collection('users').doc(uid).get();
     if (!p.exists) return;
     const player = p.data();
-    const stats = player.stats || { present: 0, absent: 0, waiting: 0, injured: 0, convocations: 0, reminders: 0, statusChanges: 0, cards: { white: 0, yellow: 0, green: 0, red: 0 } };
+    const stats = player.stats || { present: 0, absent: 0, waiting: 0, injured: 0, convocations: 0, reminders: 0, statusChanges: 0, goals: 0, assists: 0, cards: { white: 0, yellow: 0, green: 0, red: 0 } };
     const total = stats.present + stats.absent + stats.injured + stats.waiting;
     
     document.getElementById('playerDetailContent').innerHTML = `
@@ -1760,6 +1761,8 @@ async function showPlayerDetail(uid) {
             <div class="stats-grid" style="margin-bottom:0">
                 <div class="stat-card"><div class="stat-value">${stats.reminders || 0}</div><div class="stat-label">Relances reçues</div></div>
                 <div class="stat-card"><div class="stat-value">${stats.statusChanges || 0}</div><div class="stat-label">Changements statut</div></div>
+                <div class="stat-card"><div class="stat-value">${stats.goals || 0}</div><div class="stat-label">Buts</div></div>
+                <div class="stat-card"><div class="stat-value">${stats.assists || 0}</div><div class="stat-label">Passes</div></div>
             </div>
             <div class="stats-grid" style="margin-bottom:0">
                 <div class="stat-card"><div class="stat-value">${stats.cards?.white || 0}</div><div class="stat-label">🟨 Blancs</div></div>
@@ -1799,13 +1802,14 @@ async function loadStats() {
     const matches = team.data().matches || [];
     const events = team.data().events || [];
     
-    let totalPresent = 0, totalAbsent = 0, totalInjured = 0, totalCards = 0;
+    let totalPresent = 0, totalAbsent = 0, totalInjured = 0, totalGoals = 0, totalCards = 0;
     for (let m of matches) {
         if (m.attendances) {
             totalPresent += Object.values(m.attendances).filter(v => v === 'present').length;
             totalAbsent += Object.values(m.attendances).filter(v => v === 'absent').length;
             totalInjured += Object.values(m.attendances).filter(v => v === 'injured').length;
         }
+        if (m.goals) totalGoals += m.goals.reduce((s, g) => s + (g.count || 1), 0);
         if (m.cards) totalCards += m.cards.length;
     }
     
@@ -1816,6 +1820,7 @@ async function loadStats() {
             <p><strong>Total présences:</strong> ${totalPresent}</p>
             <p><strong>Total absences:</strong> ${totalAbsent}</p>
             <p><strong>Total blessures:</strong> ${totalInjured}</p>
+            <p><strong>Buts marqués:</strong> ${totalGoals}</p>
             <p><strong>Cartons distribués:</strong> ${totalCards}</p>
         </div>
     `;
@@ -1831,10 +1836,10 @@ async function exportStats() {
         if (p.exists) players.push(p.data());
     }
     
-    let csvRows = [['Joueur', 'Présents', 'Absents', 'Blessures', 'Convocations', 'Relances', 'Changements statut', 'Cartons Blancs', 'Cartons Jaunes', 'Cartons Verts', 'Cartons Rouges']];
+    let csvRows = [['Joueur', 'Présents', 'Absents', 'Blessures', 'Convocations', 'Relances', 'Changements statut', 'Buts', 'Passes', 'Cartons Blancs', 'Cartons Jaunes', 'Cartons Verts', 'Cartons Rouges']];
     for (let p of players) {
         const stats = p.stats || {};
-        csvRows.push([p.name, stats.present || 0, stats.absent || 0, stats.injured || 0, stats.convocations || 0, stats.reminders || 0, stats.statusChanges || 0, stats.cards?.white || 0, stats.cards?.yellow || 0, stats.cards?.green || 0, stats.cards?.red || 0]);
+        csvRows.push([p.name, stats.present || 0, stats.absent || 0, stats.injured || 0, stats.convocations || 0, stats.reminders || 0, stats.statusChanges || 0, stats.goals || 0, stats.assists || 0, stats.cards?.white || 0, stats.cards?.yellow || 0, stats.cards?.green || 0, stats.cards?.red || 0]);
     }
     
     const csvContent = csvRows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
@@ -2002,7 +2007,6 @@ async function showMainApp() {
     
     const isAdmin = currentUser.role === 'admin';
     const isCoach = currentUser.role === 'coach';
-    const isPlayer = currentUser.role === 'player';
     
     document.getElementById('adminNavBtn').style.display = isAdmin ? 'flex' : 'none';
     document.getElementById('globalFab').style.display = (isAdmin || isCoach) ? 'flex' : 'none';
@@ -2018,7 +2022,7 @@ async function showMainApp() {
         document.getElementById('userRoleLabel').innerText = 'Coach';
         document.getElementById('headerIcon').innerHTML = '👥';
         document.getElementById('welcomeMsg').innerHTML = `Bonjour Coach ${currentUser.name}`;
-    } else if (isPlayer) {
+    } else {
         document.getElementById('teamName').innerText = currentUser.teamName || currentUser.teamCode;
         document.getElementById('userRoleLabel').innerText = 'Joueur';
         document.getElementById('headerIcon').innerHTML = '⚽';
@@ -2033,10 +2037,8 @@ async function showMainApp() {
     await loadConversations();
     updateChatAlertBadge();
     
-    // Démarrer les rappels automatiques pour les coachs
     if (isCoach) startAutoReminderCheck();
     
-    // Navigation
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.onclick = async () => {
             const tab = btn.dataset.tab;
@@ -2070,7 +2072,6 @@ async function showMainApp() {
         }
     };
     
-    // Chat
     document.getElementById('sendMsgBtn')?.addEventListener('click', sendPrivateMessage);
     document.getElementById('messageInput')?.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendPrivateMessage(); }
@@ -2080,7 +2081,6 @@ async function showMainApp() {
 // ============ DÉMARRAGE ==========
 async function init() {
     await createDefaultAdmin();
-    
     const session = localStorage.getItem('teamfoot_session');
     if (session) {
         try {
