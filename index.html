@@ -64,7 +64,6 @@
         .team-input { width: 100%; padding: 14px 16px; border: 1px solid #e5e7eb; border-radius: 14px; font-size: 16px; margin-bottom: 16px; }
         .btn-primary { background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); color: white; border: none; padding: 14px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; }
         .btn-secondary { background: #f3f4f6; color: #1f2937; border: none; padding: 14px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 12px; }
-        .btn-danger { background: #ef4444; color: white; border: none; padding: 12px; border-radius: 40px; cursor: pointer; width: 100%; margin-top: 12px; }
         .form-hint { font-size: 12px; color: #9ca3af; text-align: center; margin-top: 16px; }
         .mode-toggle { display: flex; gap: 10px; margin-bottom: 20px; }
         .mode-btn { flex: 1; padding: 12px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; }
@@ -150,6 +149,8 @@
         .btn-small { padding: 6px 12px; border-radius: 20px; border: none; cursor: pointer; font-size: 12px; }
         .btn-approve { background: #10b981; color: white; }
         .btn-remove { background: #ef4444; color: white; }
+        
+        /* FAB flottant et déplaçable */
         .fab {
             position: fixed;
             bottom: 85px;
@@ -161,10 +162,18 @@
             border-radius: 50%;
             font-size: 28px;
             color: white;
-            cursor: pointer;
+            cursor: grab;
             box-shadow: 0 4px 12px rgba(0,85,164,0.4);
             z-index: 90;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: box-shadow 0.2s;
+            touch-action: none;
         }
+        .fab:active { cursor: grabbing; }
+        .fab.dragging { opacity: 0.8; cursor: grabbing; }
+        
         footer { text-align: center; padding: 12px; font-size: 10px; color: #9ca3af; background: white; margin-top: 20px; border-radius: 16px; }
         .loading-spinner { display: flex; justify-content: center; padding: 40px; }
         .spinner { width: 40px; height: 40px; border: 3px solid #e2e8f0; border-top-color: var(--club-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -192,6 +201,10 @@
         .chat-input-area textarea { flex: 1; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 24px; resize: none; font-size: 14px; font-family: inherit; }
         .send-msg-btn { background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 18px; color: white; }
         .unread-badge { position: absolute; top: -5px; right: 5px; background: #ef4444; color: white; font-size: 10px; padding: 2px 6px; border-radius: 20px; }
+        
+        .role-switch { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+        .role-switch-btn { background: rgba(255,255,255,0.2); border: none; padding: 6px 12px; border-radius: 20px; color: white; font-size: 12px; cursor: pointer; }
+        .role-switch-btn.active { background: var(--club-yellow); color: var(--club-blue); }
     </style>
 </head>
 <body>
@@ -283,9 +296,13 @@
             <div class="header-content">
                 <div class="team-badge">
                     <div class="badge-icon" id="headerIcon">⚽</div>
-                    <div><h2 id="headerTeamName">FC Barcarès Méditerranée</h2><span id="headerRole" style="font-size:12px">Joueur</span></div>
+                    <div>
+                        <h2 id="headerTeamName">FC Barcarès Méditerranée</h2>
+                        <span id="headerRole" style="font-size:12px">Joueur</span>
+                    </div>
                 </div>
                 <div class="header-actions">
+                    <button class="icon-btn" onclick="showRoleSwitchModal()">🔄</button>
                     <button class="icon-btn" onclick="showSettingsModal()">⚙️</button>
                     <button class="icon-btn" onclick="logout()">↗</button>
                 </div>
@@ -355,6 +372,7 @@
                     <button class="btn-primary" onclick="showMatchForm()" style="margin-bottom:10px">⚽ Ajouter un match</button>
                     <button class="btn-primary" onclick="showEventForm()" style="margin-bottom:10px">📅 Ajouter un événement</button>
                     <button class="btn-secondary" onclick="showTeamMessageForm()">📢 Message à une ou plusieurs équipes</button>
+                    <button class="btn-secondary" onclick="linkUserAccounts()" style="margin-top:10px">🔗 Associer un compte à mon profil</button>
                 </div>
                 <h4 style="margin:20px 0 10px; color:var(--club-blue)">Liste des équipes</h4>
                 <div id="allTeamsList"></div>
@@ -365,7 +383,7 @@
             </div>
         </div>
         
-        <button id="fabButton" class="fab" style="display:none" onclick="showMatchForm()">+</button>
+        <div id="fab" class="fab" style="display:none">+</div>
     </div>
 </div>
 
@@ -462,6 +480,19 @@
     </div>
 </div>
 
+<div id="roleSwitchModal" class="modal hidden">
+    <div class="modal-container">
+        <div class="modal-header"><h3>🔄 Changer de rôle</h3><button class="modal-close" onclick="closeModal('roleSwitchModal')">✕</button></div>
+        <div class="modal-body">
+            <p style="margin-bottom:16px">Sélectionnez le rôle que vous souhaitez utiliser :</p>
+            <div id="availableRolesList" style="display:flex; flex-direction:column; gap:12px"></div>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeModal('roleSwitchModal')" class="btn-secondary">Fermer</button>
+        </div>
+    </div>
+</div>
+
 <div id="settingsModal" class="modal hidden">
     <div class="modal-container">
         <div class="modal-header"><h3>⚙️ Paramètres</h3><button class="modal-close" onclick="closeModal('settingsModal')">✕</button></div>
@@ -479,6 +510,21 @@
                 <input type="email" id="editEmailInput" placeholder="Email" class="team-input">
                 <button class="btn-primary" onclick="updateUserProfile()">Mettre à jour</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<div id="linkAccountModal" class="modal hidden">
+    <div class="modal-container">
+        <div class="modal-header"><h3>🔗 Associer un compte</h3><button class="modal-close" onclick="closeModal('linkAccountModal')">✕</button></div>
+        <div class="modal-body">
+            <p>Entrez l'email du compte à associer (joueur ou coach) :</p>
+            <input type="email" id="linkEmail" placeholder="Email du compte" class="team-input">
+            <p class="form-hint">Une fois associé, vous pourrez basculer entre vos comptes facilement</p>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeModal('linkAccountModal')" class="btn-secondary">Annuler</button>
+            <button onclick="linkAccount()" class="btn-primary">Associer</button>
         </div>
     </div>
 </div>
@@ -508,6 +554,7 @@ const auth = firebase.auth();
 // ============ VARIABLES ==========
 let currentUser = null;
 let currentConversation = null;
+let userRoles = []; // Liste des rôles disponibles pour cet utilisateur
 
 // ============ FONCTIONS UTILITAIRES ==========
 function showToast(msg) {
@@ -540,19 +587,166 @@ function formatDate(dateStr) {
     return new Date(dateStr).toLocaleString('fr-FR');
 }
 
-// ============ AFFICHAGE FORMULAIRES ADMIN ==========
+// ============ FAB FLOTTANT DÉPLAÇABLE ==========
+function initDraggableFab() {
+    const fab = document.getElementById('fab');
+    if (!fab) return;
+    
+    let isDragging = false;
+    let startX, startY, initialLeft, initialBottom;
+    
+    const onTouchStart = (e) => {
+        e.preventDefault();
+        isDragging = true;
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        const rect = fab.getBoundingClientRect();
+        initialLeft = rect.left;
+        initialBottom = window.innerHeight - rect.bottom;
+        fab.classList.add('dragging');
+    };
+    
+    const onTouchMove = (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const deltaX = touch.clientX - startX;
+        const deltaY = touch.clientY - startY;
+        let newLeft = initialLeft + deltaX;
+        let newBottom = initialBottom - deltaY;
+        newLeft = Math.max(10, Math.min(window.innerWidth - 66, newLeft));
+        newBottom = Math.max(10, Math.min(window.innerHeight - 100, newBottom));
+        fab.style.left = newLeft + 'px';
+        fab.style.bottom = newBottom + 'px';
+        fab.style.right = 'auto';
+    };
+    
+    const onTouchEnd = (e) => {
+        isDragging = false;
+        fab.classList.remove('dragging');
+    };
+    
+    fab.addEventListener('touchstart', onTouchStart, { passive: false });
+    fab.addEventListener('touchmove', onTouchMove, { passive: false });
+    fab.addEventListener('touchend', onTouchEnd);
+    
+    // Clic normal (ajout)
+    fab.addEventListener('click', (e) => {
+        if (!isDragging) {
+            // Déterminer l'action selon l'onglet actif
+            const activeTab = document.querySelector('.nav-btn.active')?.dataset.tab;
+            if (activeTab === 'matches') showMatchForm();
+            else if (activeTab === 'events') showEventForm();
+            else showMatchForm();
+        }
+    });
+}
+
+// ============ AFFICHAGE FORMULAIRES ==========
 function showCreateTeamForm() { document.getElementById('createTeamModal').classList.remove('hidden'); }
 function showCreateCoachForm() { document.getElementById('createCoachModal').classList.remove('hidden'); loadTeamSelectors(); }
 function showMatchForm() { document.getElementById('matchModal').classList.remove('hidden'); loadTeamSelectors(); }
 function showEventForm() { document.getElementById('eventModal').classList.remove('hidden'); loadTeamSelectors(); }
-function showTeamMessageForm() { 
-    loadTeamCheckboxes();
-    document.getElementById('teamMessageModal').classList.remove('hidden'); 
-}
+function showTeamMessageForm() { loadTeamCheckboxes(); document.getElementById('teamMessageModal').classList.remove('hidden'); }
 function showSettingsModal() { 
     document.getElementById('editPhoneInput').value = currentUser?.phone || '';
     document.getElementById('editEmailInput').value = currentUser?.email || '';
     document.getElementById('settingsModal').classList.remove('hidden'); 
+}
+function showRoleSwitchModal() { 
+    loadAvailableRoles();
+    document.getElementById('roleSwitchModal').classList.remove('hidden'); 
+}
+
+// ============ GESTION DES COMPTES MULTIPLES ==========
+async function loadAvailableRoles() {
+    if (!currentUser || !currentUser.uid) return;
+    
+    const container = document.getElementById('availableRolesList');
+    const linkedAccounts = currentUser.linkedAccounts || [];
+    
+    let roles = [{ role: 'admin', name: 'Administrateur', active: currentUser.activeRole === 'admin' }];
+    
+    // Chercher les comptes coachs liés
+    for (const linkedId of linkedAccounts) {
+        const userDoc = await db.collection('users').doc(linkedId).get();
+        if (userDoc.exists) {
+            const data = userDoc.data();
+            roles.push({ 
+                role: data.role, 
+                name: `${data.role === 'coach' ? 'Coach' : 'Joueur'} - ${data.teamName || data.teamCode}`,
+                uid: linkedId,
+                active: currentUser.activeRoleUid === linkedId
+            });
+        }
+    }
+    
+    // Vérifier si l'utilisateur a aussi un compte joueur direct
+    const playerDoc = await db.collection('users').where('email', '==', currentUser.email).where('role', '==', 'player').get();
+    if (!playerDoc.empty && !linkedAccounts.includes(playerDoc.docs[0].id)) {
+        roles.push({
+            role: 'player',
+            name: `Joueur - ${playerDoc.docs[0].data().teamName}`,
+            uid: playerDoc.docs[0].id,
+            active: currentUser.activeRoleUid === playerDoc.docs[0].id
+        });
+    }
+    
+    container.innerHTML = roles.map(r => `
+        <button class="btn-primary" style="margin-bottom:8px" onclick="switchToRole('${r.uid || r.role}', '${r.role}')">
+            ${r.active ? '✅ ' : ''}${escapeHtml(r.name)}
+        </button>
+    `).join('');
+}
+
+async function switchToRole(uidOrRole, roleType) {
+    closeModal('roleSwitchModal');
+    
+    if (roleType === 'admin') {
+        currentUser.activeRole = 'admin';
+        currentUser.activeRoleUid = null;
+        localStorage.setItem('teamfoot_session', JSON.stringify(currentUser));
+        await showMainApp();
+        showToast('Mode Administrateur activé');
+        return;
+    }
+    
+    const userDoc = await db.collection('users').doc(uidOrRole).get();
+    if (userDoc.exists) {
+        currentUser = { ...currentUser, ...userDoc.data(), activeRole: userDoc.data().role, activeRoleUid: uidOrRole };
+        localStorage.setItem('teamfoot_session', JSON.stringify(currentUser));
+        await showMainApp();
+        showToast(`Mode ${userDoc.data().role === 'coach' ? 'Coach' : 'Joueur'} activé`);
+    }
+}
+
+async function linkUserAccounts() {
+    document.getElementById('linkAccountModal').classList.remove('hidden');
+}
+
+async function linkAccount() {
+    const email = document.getElementById('linkEmail').value.trim();
+    if (!email) { showToast('Entrez un email'); return; }
+    
+    const userQuery = await db.collection('users').where('email', '==', email).get();
+    if (userQuery.empty) { showToast('Aucun compte trouvé avec cet email'); return; }
+    
+    const linkedAccount = userQuery.docs[0];
+    const linkedData = linkedAccount.data();
+    
+    if (linkedData.uid === currentUser.uid) { showToast('Vous ne pouvez pas vous associer vous-même'); return; }
+    
+    const linkedAccounts = currentUser.linkedAccounts || [];
+    if (!linkedAccounts.includes(linkedAccount.id)) {
+        linkedAccounts.push(linkedAccount.id);
+        await db.collection('users').doc(currentUser.uid).update({ linkedAccounts: linkedAccounts });
+        currentUser.linkedAccounts = linkedAccounts;
+        showToast(`Compte ${linkedData.role} associé avec succès`);
+    }
+    
+    closeModal('linkAccountModal');
+    document.getElementById('linkEmail').value = '';
 }
 
 // ============ AUTHENTIFICATION ==========
@@ -586,7 +780,7 @@ function toggleParentFields(isMinor) {
 function loginAsAdmin() {
     const code = document.getElementById('adminCodeInput').value;
     if (code === 'admin123') {
-        currentUser = { role: 'admin', name: 'Administrateur' };
+        currentUser = { role: 'admin', name: 'Administrateur', activeRole: 'admin', uid: 'admin' };
         localStorage.setItem('teamfoot_session', JSON.stringify(currentUser));
         showMainApp();
         showToast('Bienvenue Administrateur');
@@ -606,7 +800,7 @@ async function loginAsCoach() {
             showToast('Compte coach non reconnu');
             return;
         }
-        currentUser = { uid: userCredential.user.uid, ...userDoc.data() };
+        currentUser = { uid: userCredential.user.uid, ...userDoc.data(), activeRole: 'coach', activeRoleUid: userCredential.user.uid };
         localStorage.setItem('teamfoot_session', JSON.stringify(currentUser));
         showMainApp();
         showToast(`Bienvenue Coach ${currentUser.name}`);
@@ -626,7 +820,7 @@ async function loginAsPlayer() {
             showToast('Compte non reconnu');
             return;
         }
-        currentUser = { uid: userCredential.user.uid, ...userDoc.data() };
+        currentUser = { uid: userCredential.user.uid, ...userDoc.data(), activeRole: 'player', activeRoleUid: userCredential.user.uid };
         localStorage.setItem('teamfoot_session', JSON.stringify(currentUser));
         showMainApp();
         showToast(`Bienvenue ${currentUser.name}`);
@@ -695,7 +889,7 @@ async function createTeam() {
     await db.collection('teams').add({ name: name, code: code, players: [], matches: [], otherEvents: [], createdAt: new Date().toISOString() });
     showToast(`Équipe ${name} créée !`);
     closeModal('createTeamModal');
-    loadAllTeams();
+    if (currentUser.activeRole === 'admin') loadAllTeams();
 }
 
 async function createCoachAccount() {
@@ -715,7 +909,7 @@ async function createCoachAccount() {
     });
     showToast(`Compte coach créé pour ${name}`);
     closeModal('createCoachModal');
-    loadCoachesList();
+    if (currentUser.activeRole === 'admin') loadCoachesList();
 }
 
 async function createMatch() {
@@ -764,9 +958,12 @@ async function createOtherEvent() {
 async function loadTeamSelectors() {
     const teamsSnap = await db.collection('teams').get();
     const options = teamsSnap.docs.map(doc => `<option value="${doc.id}">${escapeHtml(doc.data().name)} (${doc.data().code})</option>`).join('');
-    document.getElementById('coachTeamSelect').innerHTML = options;
-    document.getElementById('matchTeamSelect').innerHTML = options;
-    document.getElementById('eventTeamSelect').innerHTML = options;
+    const coachSelect = document.getElementById('coachTeamSelect');
+    const matchSelect = document.getElementById('matchTeamSelect');
+    const eventSelect = document.getElementById('eventTeamSelect');
+    if (coachSelect) coachSelect.innerHTML = options;
+    if (matchSelect) matchSelect.innerHTML = options;
+    if (eventSelect) eventSelect.innerHTML = options;
 }
 
 async function loadTeamCheckboxes() {
@@ -818,10 +1015,9 @@ async function changeUserPassword() {
 async function updateUserProfile() {
     const phone = document.getElementById('editPhoneInput').value;
     const email = document.getElementById('editEmailInput').value;
-    if (currentUser && currentUser.uid) {
-        await db.collection('users').doc(currentUser.uid).update({ phone: phone, email: email });
+    if (currentUser && currentUser.activeRoleUid && currentUser.activeRoleUid !== 'admin') {
+        await db.collection('users').doc(currentUser.activeRoleUid).update({ phone: phone, email: email });
         if (email && email !== currentUser.email && auth.currentUser) await auth.currentUser.updateEmail(email);
-        currentUser.phone = phone; currentUser.email = email;
         showToast('Informations mises à jour');
         closeModal('settingsModal');
     }
@@ -841,17 +1037,19 @@ async function showMainApp() {
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('mainApp').classList.remove('hidden');
     
-    const isAdmin = currentUser.role === 'admin';
-    const isCoach = currentUser.role === 'coach';
+    const isAdmin = currentUser.activeRole === 'admin';
+    const isCoach = currentUser.activeRole === 'coach';
+    const isPlayer = currentUser.activeRole === 'player';
     
     document.getElementById('adminNavBtn').style.display = isAdmin ? 'flex' : 'none';
-    document.getElementById('fabButton').style.display = (isAdmin || isCoach) ? 'flex' : 'none';
+    document.getElementById('fab').style.display = (isAdmin || isCoach) ? 'flex' : 'none';
+    initDraggableFab();
     
     if (isAdmin) {
         document.getElementById('headerTeamName').innerText = 'FC Barcarès Méditerranée';
         document.getElementById('headerRole').innerText = 'Super Admin';
         document.getElementById('headerIcon').innerHTML = '👑';
-        document.getElementById('welcomeText').innerHTML = 'Bonjour Administrateur 👋';
+        document.getElementById('welcomeText').innerHTML = `Bonjour Administrateur 👋`;
         await loadAllTeams();
         await loadCoachesList();
         await loadAdminPlayersList();
@@ -860,14 +1058,16 @@ async function showMainApp() {
         document.getElementById('headerRole').innerText = 'Coach';
         document.getElementById('headerIcon').innerHTML = '👥';
         document.getElementById('welcomeText').innerHTML = `Bonjour Coach ${currentUser.name} 👋`;
-        await loadTeamMembers();
-    } else {
+        await loadTeamMembersCoach();
+        await loadMatchesCoach();
+        await loadOtherEventsCoach();
+    } else if (isPlayer) {
         document.getElementById('headerTeamName').innerText = currentUser.teamName || currentUser.teamCode;
         document.getElementById('headerRole').innerText = currentUser.pendingApproval ? 'En attente' : 'Joueur';
         document.getElementById('headerIcon').innerHTML = '⚽';
         document.getElementById('welcomeText').innerHTML = `Bonjour ${currentUser.name} 👋`;
-        await loadMatches();
-        await loadOtherEvents();
+        await loadMatchesPlayer();
+        await loadOtherEventsPlayer();
     }
     
     // Navigation
@@ -878,104 +1078,15 @@ async function showMainApp() {
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById(`${tab}Tab`).classList.add('active');
-            if (tab === 'matches') await loadMatches();
-            if (tab === 'events') await loadOtherEvents();
-            if (tab === 'team') await loadTeamMembers();
+            if (tab === 'matches' && isCoach) await loadMatchesCoach();
+            if (tab === 'matches' && isPlayer) await loadMatchesPlayer();
+            if (tab === 'events' && isCoach) await loadOtherEventsCoach();
+            if (tab === 'events' && isPlayer) await loadOtherEventsPlayer();
+            if (tab === 'team' && isCoach) await loadTeamMembersCoach();
             if (tab === 'chat') await loadConversations();
             if (tab === 'admin' && isAdmin) { await loadAllTeams(); await loadCoachesList(); await loadAdminPlayersList(); }
         };
     });
-}
-
-async function loadMatches() {
-    const container = document.getElementById('matchesList');
-    let matches = [];
-    if (currentUser.role === 'admin') {
-        const teams = await db.collection('teams').get();
-        teams.forEach(team => matches.push(...(team.data().matches || []).map(m => ({ ...m, teamName: team.data().name }))));
-    } else {
-        const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
-        if (!team.empty) matches = team.docs[0].data().matches || [];
-    }
-    matches.sort((a,b) => new Date(a.matchDateTime) - new Date(b.matchDateTime));
-    if (matches.length === 0) { container.innerHTML = '<div class="empty-state">Aucun match programmé</div>'; return; }
-    container.innerHTML = matches.map(m => `
-        <div class="event-card">
-            <div class="event-header"><strong>${escapeHtml(m.title)}</strong><span class="event-badge">${m.type === 'match_amical' ? 'Amical' : m.type === 'coupe' ? 'Coupe' : 'Championnat'}</span></div>
-            ${m.teamName ? `<div style="font-size:11px; color:#0055a4">🏷️ ${escapeHtml(m.teamName)}</div>` : ''}
-            <div style="margin-top:8px; font-size:13px">📅 ${formatDate(m.matchDateTime)}<br>📍 ${escapeHtml(m.location)}<br>⏰ Convocation: ${formatDate(m.callTime)}</div>
-            ${m.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${escapeHtml(m.notes)}</div>` : ''}
-        </div>
-    `).join('');
-}
-
-async function loadOtherEvents() {
-    const container = document.getElementById('otherEventsList');
-    let events = [];
-    if (currentUser.role === 'admin') {
-        const teams = await db.collection('teams').get();
-        teams.forEach(team => events.push(...(team.data().otherEvents || []).map(e => ({ ...e, teamName: team.data().name }))));
-    } else {
-        const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
-        if (!team.empty) events = team.docs[0].data().otherEvents || [];
-    }
-    events.sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime));
-    if (events.length === 0) { container.innerHTML = '<div class="empty-state">Aucun événement</div>'; return; }
-    container.innerHTML = events.map(e => `
-        <div class="event-card">
-            <div class="event-header"><strong>${escapeHtml(e.title)}</strong><span class="event-badge">${e.type === 'entrainement' ? '🏋️ Entraînement' : e.type === 'soiree' ? '🎉 Soirée' : '📋 Réunion'}</span></div>
-            ${e.teamName ? `<div style="font-size:11px; color:#0055a4">🏷️ ${escapeHtml(e.teamName)}</div>` : ''}
-            <div style="margin-top:8px; font-size:13px">📅 ${formatDate(e.dateTime)}<br>📍 ${escapeHtml(e.location)}</div>
-            ${e.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${escapeHtml(e.notes)}</div>` : ''}
-        </div>
-    `).join('');
-}
-
-async function loadTeamMembers() {
-    const container = document.getElementById('teamMembersList');
-    const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
-    if (team.empty) return;
-    const players = [];
-    for (const pid of (team.docs[0].data().players || [])) {
-        const p = await db.collection('users').doc(pid).get();
-        if (p.exists) players.push(p.data());
-    }
-    container.innerHTML = players.filter(p => !p.pendingApproval).map(p => `
-        <div class="member-card">
-            <div class="member-info">
-                <div class="member-name">⚽ ${escapeHtml(p.name)}</div>
-                ${currentUser.role === 'coach' && p.phone ? `<div class="member-detail">📞 ${p.phone}</div>` : ''}
-                ${currentUser.role === 'coach' && p.email ? `<div class="member-detail">✉️ ${p.email}</div>` : ''}
-            </div>
-            ${currentUser.role === 'coach' ? `<button class="btn-small btn-remove" onclick="removePlayer('${p.uid}')">❌</button>` : ''}
-        </div>
-    `).join('');
-    
-    const pending = players.filter(p => p.pendingApproval);
-    const pendingCard = document.getElementById('pendingRequestsCard');
-    const pendingList = document.getElementById('pendingRequestsList');
-    if (currentUser.role === 'coach' && pending.length > 0) {
-        pendingCard.style.display = 'block';
-        pendingList.innerHTML = pending.map(p => `
-            <div class="member-card"><div>⏳ ${escapeHtml(p.name)}<br>✉️ ${p.email}</div><button class="btn-small btn-approve" onclick="approvePlayer('${p.uid}')">✅ Approuver</button></div>
-        `).join('');
-    } else pendingCard.style.display = 'none';
-}
-
-async function approvePlayer(uid) {
-    await db.collection('users').doc(uid).update({ pendingApproval: false });
-    showToast('Joueur approuvé');
-    await loadTeamMembers();
-}
-
-async function removePlayer(uid) {
-    if (confirm('Retirer ce joueur ?')) {
-        await db.collection('users').doc(uid).update({ teamCode: null, teamName: null });
-        const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
-        if (!team.empty) await team.docs[0].ref.update({ players: firebase.firestore.FieldValue.arrayRemove(uid) });
-        showToast('Joueur retiré');
-        await loadTeamMembers();
-    }
 }
 
 async function loadAllTeams() {
@@ -1048,16 +1159,169 @@ async function deletePlayer(playerId) {
     }
 }
 
+async function loadMatchesCoach() {
+    const container = document.getElementById('matchesList');
+    const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+    if (team.empty) return;
+    let matches = team.docs[0].data().matches || [];
+    matches.sort((a,b) => new Date(a.matchDateTime) - new Date(b.matchDateTime));
+    if (matches.length === 0) { container.innerHTML = '<div class="empty-state">Aucun match programmé</div>'; return; }
+    container.innerHTML = matches.map(m => `
+        <div class="event-card">
+            <div class="event-header"><strong>${escapeHtml(m.title)}</strong><span class="event-badge">${m.type === 'match_amical' ? 'Amical' : m.type === 'coupe' ? 'Coupe' : 'Championnat'}</span></div>
+            <div style="margin-top:8px; font-size:13px">📅 ${formatDate(m.matchDateTime)}<br>📍 ${escapeHtml(m.location)}<br>⏰ Convocation: ${formatDate(m.callTime)}</div>
+            ${m.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${escapeHtml(m.notes)}</div>` : ''}
+        </div>
+    `).join('');
+}
+
+async function loadMatchesPlayer() {
+    const container = document.getElementById('matchesList');
+    const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+    if (team.empty) return;
+    let matches = team.docs[0].data().matches || [];
+    matches.sort((a,b) => new Date(a.matchDateTime) - new Date(b.matchDateTime));
+    if (matches.length === 0) { container.innerHTML = '<div class="empty-state">Aucun match programmé</div>'; return; }
+    container.innerHTML = matches.map(m => `
+        <div class="event-card">
+            <div class="event-header"><strong>${escapeHtml(m.title)}</strong><span class="event-badge">${m.type === 'match_amical' ? 'Amical' : m.type === 'coupe' ? 'Coupe' : 'Championnat'}</span></div>
+            <div style="margin-top:8px; font-size:13px">📅 ${formatDate(m.matchDateTime)}<br>📍 ${escapeHtml(m.location)}<br>⏰ Convocation: ${formatDate(m.callTime)}</div>
+            ${m.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${escapeHtml(m.notes)}</div>` : ''}
+            <div class="status-buttons" style="display:flex; gap:10px; margin-top:12px">
+                <button onclick="setAttendance('${m.id}', 'present')" class="btn-small" style="background:#10b981; color:white">✅ Présent</button>
+                <button onclick="setAttendance('${m.id}', 'absent')" class="btn-small" style="background:#ef4444; color:white">❌ Absent</button>
+                <button onclick="setAttendance('${m.id}', 'waiting')" class="btn-small" style="background:#f59e0b; color:white">⏳ En attente</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function loadOtherEventsCoach() {
+    const container = document.getElementById('otherEventsList');
+    const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+    if (team.empty) return;
+    let events = team.docs[0].data().otherEvents || [];
+    events.sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime));
+    if (events.length === 0) { container.innerHTML = '<div class="empty-state">Aucun événement</div>'; return; }
+    container.innerHTML = events.map(e => `
+        <div class="event-card">
+            <div class="event-header"><strong>${escapeHtml(e.title)}</strong><span class="event-badge">${e.type === 'entrainement' ? '🏋️ Entraînement' : e.type === 'soiree' ? '🎉 Soirée' : '📋 Réunion'}</span></div>
+            <div style="margin-top:8px; font-size:13px">📅 ${formatDate(e.dateTime)}<br>📍 ${escapeHtml(e.location)}</div>
+            ${e.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${escapeHtml(e.notes)}</div>` : ''}
+        </div>
+    `).join('');
+}
+
+async function loadOtherEventsPlayer() {
+    const container = document.getElementById('otherEventsList');
+    const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+    if (team.empty) return;
+    let events = team.docs[0].data().otherEvents || [];
+    events.sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime));
+    if (events.length === 0) { container.innerHTML = '<div class="empty-state">Aucun événement</div>'; return; }
+    container.innerHTML = events.map(e => `
+        <div class="event-card">
+            <div class="event-header"><strong>${escapeHtml(e.title)}</strong><span class="event-badge">${e.type === 'entrainement' ? '🏋️ Entraînement' : e.type === 'soiree' ? '🎉 Soirée' : '📋 Réunion'}</span></div>
+            <div style="margin-top:8px; font-size:13px">📅 ${formatDate(e.dateTime)}<br>📍 ${escapeHtml(e.location)}</div>
+            ${e.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${escapeHtml(e.notes)}</div>` : ''}
+            <div class="status-buttons" style="display:flex; gap:10px; margin-top:12px">
+                <button onclick="setEventAttendance('${e.id}', 'present')" class="btn-small" style="background:#10b981; color:white">✅ Présent</button>
+                <button onclick="setEventAttendance('${e.id}', 'absent')" class="btn-small" style="background:#ef4444; color:white">❌ Absent</button>
+                <button onclick="setEventAttendance('${e.id}', 'waiting')" class="btn-small" style="background:#f59e0b; color:white">⏳ En attente</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function loadTeamMembersCoach() {
+    const container = document.getElementById('teamMembersList');
+    const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+    if (team.empty) return;
+    const players = [];
+    for (const pid of (team.docs[0].data().players || [])) {
+        const p = await db.collection('users').doc(pid).get();
+        if (p.exists) players.push(p.data());
+    }
+    container.innerHTML = players.filter(p => !p.pendingApproval).map(p => `
+        <div class="member-card">
+            <div class="member-info">
+                <div class="member-name">⚽ ${escapeHtml(p.name)}</div>
+                <div class="member-detail">📞 ${p.phone || '-'} | ✉️ ${p.email || '-'}</div>
+                ${p.isMinor && p.parents ? `<div class="member-detail">👨‍👩‍👧 Parents: ${p.parents.map(pr => pr.name).join(' & ')}</div>` : ''}
+            </div>
+            <button class="btn-small btn-remove" onclick="removePlayer('${p.uid}')">❌</button>
+        </div>
+    `).join('');
+    
+    const pending = players.filter(p => p.pendingApproval);
+    const pendingCard = document.getElementById('pendingRequestsCard');
+    const pendingList = document.getElementById('pendingRequestsList');
+    if (pending.length > 0) {
+        pendingCard.style.display = 'block';
+        pendingList.innerHTML = pending.map(p => `
+            <div class="member-card"><div>⏳ ${escapeHtml(p.name)}<br>✉️ ${p.email}</div><button class="btn-small btn-approve" onclick="approvePlayer('${p.uid}')">✅ Approuver</button></div>
+        `).join('');
+    } else pendingCard.style.display = 'none';
+}
+
+async function approvePlayer(uid) {
+    await db.collection('users').doc(uid).update({ pendingApproval: false });
+    showToast('Joueur approuvé');
+    await loadTeamMembersCoach();
+}
+
+async function removePlayer(uid) {
+    if (confirm('Retirer ce joueur ?')) {
+        await db.collection('users').doc(uid).update({ teamCode: null, teamName: null });
+        const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+        if (!team.empty) await team.docs[0].ref.update({ players: firebase.firestore.FieldValue.arrayRemove(uid) });
+        showToast('Joueur retiré');
+        await loadTeamMembersCoach();
+    }
+}
+
+async function setAttendance(matchId, status) {
+    const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+    if (team.empty) return;
+    const matches = team.docs[0].data().matches || [];
+    const updatedMatches = matches.map(m => {
+        if (m.id === matchId) {
+            if (!m.attendances) m.attendances = {};
+            m.attendances[currentUser.uid] = status;
+        }
+        return m;
+    });
+    await team.docs[0].ref.update({ matches: updatedMatches });
+    showToast(`Réponse enregistrée: ${status === 'present' ? 'Présent' : status === 'absent' ? 'Absent' : 'En attente'}`);
+    await loadMatchesPlayer();
+}
+
+async function setEventAttendance(eventId, status) {
+    const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+    if (team.empty) return;
+    const events = team.docs[0].data().otherEvents || [];
+    const updatedEvents = events.map(e => {
+        if (e.id === eventId) {
+            if (!e.attendances) e.attendances = {};
+            e.attendances[currentUser.uid] = status;
+        }
+        return e;
+    });
+    await team.docs[0].ref.update({ otherEvents: updatedEvents });
+    showToast(`Réponse enregistrée`);
+    await loadOtherEventsPlayer();
+}
+
 // Chat
 async function loadConversations() {
     const container = document.getElementById('conversationsList');
     let conversations = [];
-    if (currentUser.role === 'admin') {
+    if (currentUser.activeRole === 'admin') {
         const coaches = await db.collection('users').where('role', '==', 'coach').get();
         coaches.forEach(c => conversations.push({ id: c.id, name: `${c.data().name} (${c.data().teamName})` }));
         const players = await db.collection('users').where('role', '==', 'player').where('pendingApproval', '==', false).get();
         players.forEach(p => conversations.push({ id: p.id, name: `${p.data().name} (${p.data().teamName})` }));
-    } else if (currentUser.role === 'coach') {
+    } else if (currentUser.activeRole === 'coach') {
         conversations.push({ id: 'admin', name: 'Administrateur' });
         const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
         if (!team.empty) {
@@ -1101,6 +1365,10 @@ async function openConversation(otherId, otherName) {
         if ((m.from === currentUser.uid && m.to === otherId) || (m.from === otherId && m.to === currentUser.uid)) chatMessages.push(m);
     });
     const container = document.getElementById('chatMessages');
+    if (chatMessages.length === 0) {
+        container.innerHTML = '<div class="empty-state">Aucun message</div>';
+        return;
+    }
     container.innerHTML = chatMessages.map(m => `
         <div class="chat-message ${m.from === currentUser.uid ? 'sent' : 'received'}">
             <div>${escapeHtml(m.text)}</div>
@@ -1127,13 +1395,13 @@ async function init() {
     const session = localStorage.getItem('teamfoot_session');
     if (session) {
         const user = JSON.parse(session);
-        if (user.role === 'admin') {
+        if (user.activeRole === 'admin') {
             currentUser = user;
             showMainApp();
         } else if (user.uid) {
             const doc = await db.collection('users').doc(user.uid).get();
             if (doc.exists) {
-                currentUser = { uid: user.uid, ...doc.data() };
+                currentUser = { uid: user.uid, ...doc.data(), activeRole: user.activeRole || doc.data().role, activeRoleUid: user.uid };
                 showMainApp();
             } else document.getElementById('loginScreen').classList.remove('hidden');
         } else document.getElementById('loginScreen').classList.remove('hidden');
