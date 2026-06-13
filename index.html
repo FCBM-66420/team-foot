@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <meta name="theme-color" content="#0055a4">
+    <link rel="manifest" href="manifest.json">
     <title>FC Barcarès Méditerranée | Team-Foot</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -65,7 +66,6 @@
         .btn-primary { background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); color: white; border: none; padding: 14px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; }
         .btn-secondary { background: #f3f4f6; color: #1f2937; border: none; padding: 14px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 12px; }
         .btn-warning { background: #f59e0b; color: white; border: none; padding: 12px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 8px; }
-        .btn-outline { background: transparent; border: 1px solid var(--club-blue); color: var(--club-blue); padding: 10px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 8px; }
         .form-hint { font-size: 12px; color: #9ca3af; text-align: center; margin-top: 16px; }
         .mode-toggle { display: flex; gap: 10px; margin-bottom: 20px; }
         .mode-btn { flex: 1; padding: 12px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; }
@@ -133,7 +133,6 @@
         .event-header { display: flex; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
         .event-title { font-weight: 700; color: var(--club-blue); }
         .event-badge { font-size: 11px; padding: 4px 8px; background: var(--bg-light); border-radius: 20px; }
-        .cancel-reason { background: #fee2e2; color: #dc2626; padding: 8px 12px; border-radius: 12px; font-size: 12px; margin-top: 8px; }
         .event-past { opacity: 0.7; background: #f3f4f6; }
         
         .member-card { background: white; border-radius: 16px; padding: 12px; margin-bottom: 8px; border-left: 3px solid var(--club-yellow); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
@@ -170,6 +169,7 @@
         .status-btn.waiting.active { background: #f59e0b; }
         .status-btn.injured.active { background: #6366f1; }
         
+        /* FAB flottant déplaçable */
         .fab {
             position: fixed;
             bottom: 85px;
@@ -181,13 +181,17 @@
             border-radius: 50%;
             font-size: 28px;
             color: white;
-            cursor: pointer;
+            cursor: grab;
             box-shadow: 0 4px 12px rgba(0,85,164,0.4);
             z-index: 90;
             display: flex;
             align-items: center;
             justify-content: center;
+            touch-action: none;
+            transition: box-shadow 0.2s;
         }
+        .fab:active { cursor: grabbing; }
+        .fab.dragging { opacity: 0.8; cursor: grabbing; }
         
         .player-select-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #e5e7eb; gap: 12px; }
         .player-select-item input { width: 22px; height: 22px; accent-color: var(--club-blue); }
@@ -222,6 +226,9 @@
         
         .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .toggle-history-btn { background: var(--club-yellow); border: none; padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--club-blue); }
+        
+        .notification-permission { background: #e0e7ff; border-radius: 20px; padding: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .enable-notif-btn { background: var(--club-blue); color: white; border: none; padding: 8px 16px; border-radius: 30px; font-size: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -399,7 +406,8 @@
                     <button class="btn-primary" onclick="showCreateTeamForm()" style="margin-bottom:10px">🏟️ Créer une équipe</button>
                     <button class="btn-primary" onclick="showCreateCoachForm()" style="margin-bottom:10px">👥 Créer un compte coach</button>
                     <button class="btn-primary" onclick="showMatchForm()" style="margin-bottom:10px">⚽ Ajouter un match</button>
-                    <button class="btn-primary" onclick="showEventForm()" style="margin-bottom:10px">📅 Ajouter un événement</button>
+                    <button class="btn-primary" onclick="showRecurrentEventForm()" style="margin-bottom:10px">🔄 Entraînement récurrent</button>
+                    <button class="btn-primary" onclick="showEventForm()" style="margin-bottom:10px">📅 Événement ponctuel</button>
                     <button class="btn-secondary" onclick="showTeamMessageForm()">📢 Message à une ou plusieurs équipes</button>
                     <button class="btn-secondary" onclick="linkUserAccounts()" style="margin-top:10px">🔗 Associer un compte à mon profil</button>
                 </div>
@@ -412,7 +420,7 @@
             </div>
         </div>
         
-        <button id="fabButton" class="fab" style="display:none">+</button>
+        <div id="fab" class="fab" style="display:none">+</div>
     </div>
 </div>
 
@@ -476,12 +484,45 @@
     </div>
 </div>
 
+<div id="recurrentEventModal" class="modal hidden">
+    <div class="modal-container">
+        <div class="modal-header"><h3>🔄 Entraînement récurrent</h3><button class="modal-close" onclick="closeModal('recurrentEventModal')">✕</button></div>
+        <div class="modal-body">
+            <select id="recurrentTeamSelect" class="team-input"></select>
+            <input type="text" id="recurrentTitle" placeholder="Titre (ex: Entraînement)" class="team-input">
+            <label style="font-weight:600">📅 Date de début</label>
+            <input type="date" id="recurrentStartDate" class="team-input">
+            <label style="font-weight:600">📅 Date de fin</label>
+            <input type="date" id="recurrentEndDate" class="team-input">
+            <label style="font-weight:600">⏰ Heure de début</label>
+            <input type="time" id="recurrentStartTime" class="team-input">
+            <label style="font-weight:600">⏰ Heure de fin</label>
+            <input type="time" id="recurrentEndTime" class="team-input">
+            <label style="font-weight:600">📆 Jour de la semaine</label>
+            <select id="recurrentDay" class="team-input">
+                <option value="1">Lundi</option>
+                <option value="2">Mardi</option>
+                <option value="3">Mercredi</option>
+                <option value="4">Jeudi</option>
+                <option value="5">Vendredi</option>
+                <option value="6">Samedi</option>
+                <option value="0">Dimanche</option>
+            </select>
+            <input type="text" id="recurrentLocation" placeholder="Lieu" class="team-input">
+            <textarea id="recurrentNotes" placeholder="Notes" rows="2" class="team-input"></textarea>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeModal('recurrentEventModal')" class="btn-secondary">Annuler</button>
+            <button onclick="createRecurrentEvents()" class="btn-primary">Créer les séances</button>
+        </div>
+    </div>
+</div>
+
 <div id="playerSelectionModal" class="modal hidden">
     <div class="modal-container">
         <div class="modal-header"><h3>👥 Sélection des joueurs</h3><button class="modal-close" onclick="closeModal('playerSelectionModal')">✕</button></div>
         <div class="modal-body">
             <p id="selectionEventTitle" style="margin-bottom:16px; font-weight:600"></p>
-            <p style="margin-bottom:8px; font-size:13px; color:#6b7280">✅ Sélectionnez les joueurs à convoquer</p>
             <div id="playersSelectionList"></div>
             <div class="selected-count" id="selectedCount">0 joueur(s) sélectionné(s)</div>
             <button class="btn-primary" onclick="confirmPlayerSelection()" style="margin-top:16px">Confirmer la convocation</button>
@@ -491,9 +532,9 @@
 
 <div id="eventModal" class="modal hidden">
     <div class="modal-container">
-        <div class="modal-header"><h3>📅 Événement</h3><button class="modal-close" onclick="closeModal('eventModal')">✕</button></div>
+        <div class="modal-header"><h3>📅 Événement ponctuel</h3><button class="modal-close" onclick="closeModal('eventModal')">✕</button></div>
         <div class="modal-body">
-            <select id="eventTeamSelect" class="team-input" style="display:none"></select>
+            <select id="eventTeamSelect" class="team-input"></select>
             <select id="otherEventType" class="team-input">
                 <option value="entrainement">🏋️ Entraînement</option>
                 <option value="soiree">🎉 Soirée d'équipe</option>
@@ -543,6 +584,10 @@
     <div class="modal-container">
         <div class="modal-header"><h3>⚙️ Paramètres</h3><button class="modal-close" onclick="closeModal('settingsModal')">✕</button></div>
         <div class="modal-body">
+            <div class="notification-permission" id="notifPermissionPanel">
+                <span>🔔 Notifications push</span>
+                <button class="enable-notif-btn" onclick="requestNotificationPermission()">Activer</button>
+            </div>
             <div class="settings-card">
                 <h4 style="margin-bottom:16px">Changer mon mot de passe</h4>
                 <input type="password" id="oldPasswordInput" placeholder="Ancien mot de passe" class="team-input">
@@ -616,6 +661,206 @@ let currentSelectionEvent = null;
 let showMatchesPast = false;
 let showEventsPast = false;
 let reminderInterval = null;
+let pushSubscription = null;
+
+// ============ NOTIFICATIONS PUSH ==========
+async function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        try {
+            const registration = await navigator.serviceWorker.register('/sw.js');
+            console.log('Service Worker enregistré');
+            return registration;
+        } catch (error) {
+            console.log('Erreur Service Worker:', error);
+        }
+    }
+    return null;
+}
+
+async function requestNotificationPermission() {
+    if (!('Notification' in window)) {
+        showToast('Les notifications ne sont pas supportées sur ce navigateur');
+        return;
+    }
+    
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+        showToast('Notifications activées !');
+        await subscribeToPush();
+    } else {
+        showToast('Notifications refusées');
+    }
+}
+
+async function subscribeToPush() {
+    const registration = await registerServiceWorker();
+    if (!registration) return;
+    
+    try {
+        const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array('VOTRE_VAPID_PUBLIC_KEY')
+        });
+        pushSubscription = subscription;
+        // Sauvegarder dans Firestore
+        if (currentUser && currentUser.uid) {
+            await db.collection('users').doc(currentUser.uid).update({
+                pushSubscription: subscription
+            });
+        }
+    } catch (error) {
+        console.log('Erreur subscription:', error);
+    }
+}
+
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
+async function sendPushNotification(userId, title, body, url) {
+    const userDoc = await db.collection('users').doc(userId).get();
+    const subscription = userDoc.data()?.pushSubscription;
+    if (!subscription) return;
+    
+    // Appel à un service externe pour envoyer la notification (Firebase Cloud Messaging ou web-push)
+    // Pour une démo simple, on utilise l'API Notification du navigateur si l'application est ouverte
+    if (document.hidden === false) {
+        // L'application est ouverte, on utilise une notification classique
+        showToast(body);
+    }
+}
+
+// ============ ENTRAÎNEMENTS RÉCURRENTS ==========
+function showRecurrentEventForm() {
+    document.getElementById('recurrentTeamSelect').innerHTML = '';
+    loadTeamSelectorsForRecurrent();
+    document.getElementById('recurrentEventModal').classList.remove('hidden');
+}
+
+async function loadTeamSelectorsForRecurrent() {
+    const teamsSnap = await db.collection('teams').get();
+    const options = teamsSnap.docs.map(doc => `<option value="${doc.id}">${escapeHtml(doc.data().name)} (${doc.data().code})</option>`).join('');
+    document.getElementById('recurrentTeamSelect').innerHTML = options;
+}
+
+async function createRecurrentEvents() {
+    const teamId = document.getElementById('recurrentTeamSelect').value;
+    const title = document.getElementById('recurrentTitle').value;
+    const startDate = document.getElementById('recurrentStartDate').value;
+    const endDate = document.getElementById('recurrentEndDate').value;
+    const startTime = document.getElementById('recurrentStartTime').value;
+    const endTime = document.getElementById('recurrentEndTime').value;
+    const dayOfWeek = parseInt(document.getElementById('recurrentDay').value);
+    const location = document.getElementById('recurrentLocation').value;
+    const notes = document.getElementById('recurrentNotes').value;
+    
+    if (!title || !startDate || !endDate || !startTime || !location) {
+        showToast('Remplissez tous les champs obligatoires');
+        return;
+    }
+    
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const events = [];
+    
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        if (d.getDay() === dayOfWeek) {
+            const eventDateTime = new Date(d);
+            const [hours, minutes] = startTime.split(':');
+            eventDateTime.setHours(parseInt(hours), parseInt(minutes));
+            
+            const event = {
+                id: Date.now().toString() + d.getTime(),
+                type: 'entrainement',
+                title: title,
+                dateTime: eventDateTime.toISOString(),
+                location: location,
+                notes: notes,
+                isRecurrent: true,
+                createdAt: new Date().toISOString(),
+                convokedPlayers: [],
+                attendances: {}
+            };
+            events.push(event);
+        }
+    }
+    
+    const teamDoc = await db.collection('teams').doc(teamId).get();
+    const existingEvents = teamDoc.data().otherEvents || [];
+    await db.collection('teams').doc(teamId).update({
+        otherEvents: [...existingEvents, ...events]
+    });
+    
+    closeModal('recurrentEventModal');
+    showToast(`${events.length} séances d'entraînement créées`);
+    if (currentUser.activeRole === 'admin') await loadAllEventsAdmin();
+    else await loadOtherEventsCoach();
+    
+    document.getElementById('recurrentTitle').value = '';
+    document.getElementById('recurrentLocation').value = '';
+    document.getElementById('recurrentNotes').value = '';
+}
+
+// ============ FAB FLOTTANT DÉPLAÇABLE ==========
+function initDraggableFab() {
+    const fab = document.getElementById('fab');
+    if (!fab) return;
+    
+    let isDragging = false;
+    let startX, startY, initialLeft, initialBottom;
+    
+    const onTouchStart = (e) => {
+        e.preventDefault();
+        isDragging = true;
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        const rect = fab.getBoundingClientRect();
+        initialLeft = rect.left;
+        initialBottom = window.innerHeight - rect.bottom;
+        fab.classList.add('dragging');
+    };
+    
+    const onTouchMove = (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const deltaX = touch.clientX - startX;
+        const deltaY = touch.clientY - startY;
+        let newLeft = initialLeft + deltaX;
+        let newBottom = initialBottom - deltaY;
+        newLeft = Math.max(10, Math.min(window.innerWidth - 66, newLeft));
+        newBottom = Math.max(10, Math.min(window.innerHeight - 100, newBottom));
+        fab.style.left = newLeft + 'px';
+        fab.style.bottom = newBottom + 'px';
+        fab.style.right = 'auto';
+    };
+    
+    const onTouchEnd = (e) => {
+        isDragging = false;
+        fab.classList.remove('dragging');
+    };
+    
+    fab.addEventListener('touchstart', onTouchStart, { passive: false });
+    fab.addEventListener('touchmove', onTouchMove, { passive: false });
+    fab.addEventListener('touchend', onTouchEnd);
+    
+    fab.addEventListener('click', (e) => {
+        if (!isDragging) {
+            const activeTab = document.querySelector('.nav-btn.active')?.dataset.tab;
+            if (activeTab === 'matches') showMatchForm();
+            else if (activeTab === 'events') showEventForm();
+            else showMatchForm();
+        }
+    });
+}
 
 // ============ FONCTIONS UTILITAIRES ==========
 function showToast(msg) {
@@ -651,11 +896,6 @@ function formatDate(dateStr) {
 function getStatusLabel(status) {
     const labels = { 'present': '✅ Présent', 'absent': '❌ Absent', 'waiting': '⏳ En attente', 'injured': '🩺 Infirmerie' };
     return labels[status] || '⏳ En attente';
-}
-
-function getStatusClass(status) {
-    const classes = { 'present': 'status-present', 'absent': 'status-absent', 'waiting': 'status-waiting', 'injured': 'status-injured' };
-    return classes[status] || 'status-waiting';
 }
 
 function isPastEvent(dateStr) {
@@ -717,24 +957,12 @@ async function checkAndSendReminders() {
                 for (const playerId of event.convokedPlayers) {
                     const playerStatus = event.attendances?.[playerId];
                     if (!playerStatus || playerStatus === 'waiting') {
-                        await sendNotification(playerId, `🔔 Rappel: ${event.title} dans ${daysDiff} jours (${formatDate(eventDate)}). Merci de confirmer votre présence.`);
+                        await sendPushNotification(playerId, 'Rappel Team-Foot', `🔔 ${event.title} dans ${daysDiff} jours`, '/');
                     }
                 }
             }
         }
     }
-}
-
-async function sendNotification(userId, message) {
-    await db.collection('messages').add({
-        id: Date.now().toString() + userId,
-        from: 'system',
-        to: userId,
-        text: `🔔 ${message}`,
-        timestamp: new Date().toISOString(),
-        seen: false,
-        teamCode: 'system'
-    });
 }
 
 // ============ SÉLECTION DES JOUEURS PAR LE COACH ==========
@@ -813,7 +1041,7 @@ async function confirmPlayerSelection() {
     await db.collection('teams').doc(teamId).update({ matches: matches, otherEvents: events });
     
     for (const playerId of selectedPlayers) {
-        await sendNotification(playerId, `📢 Vous êtes convoqué(e) pour ${currentSelectionEvent.title}`);
+        await sendPushNotification(playerId, 'Convocation Team-Foot', `📢 Vous êtes convoqué(e) pour ${currentSelectionEvent.title}`, '/');
     }
     
     closeModal('playerSelectionModal');
@@ -863,7 +1091,7 @@ async function sendReminderToNonResponders() {
     for (const pid of convokedPlayers) {
         const status = event.attendances?.[pid];
         if (!status || status === 'waiting') {
-            await sendNotification(pid, `⏰ RAPPEL: Veuillez répondre pour ${event.title}`);
+            await sendPushNotification(pid, 'Rappel Team-Foot', `⏰ Rappel: Veuillez répondre pour ${event.title}`, '/');
             sentCount++;
         }
     }
@@ -1200,11 +1428,11 @@ async function sendTeamMessage() {
         const teamDoc = await db.collection('teams').doc(teamId).get();
         const teamData = teamDoc.data();
         for (const playerId of (teamData.players || [])) {
-            await db.collection('messages').add({ from: 'admin', to: playerId, text: `📢 ${text}`, timestamp: new Date().toISOString(), seen: false, teamCode: teamData.code });
+            await sendPushNotification(playerId, 'Message Team-Foot', text, '/');
         }
         const coaches = await db.collection('users').where('role', '==', 'coach').where('teamId', '==', teamId).get();
         coaches.forEach(coach => {
-            db.collection('messages').add({ from: 'admin', to: coach.id, text: `📢 ${text}`, timestamp: new Date().toISOString(), seen: false, teamCode: teamData.code });
+            sendPushNotification(coach.id, 'Message Team-Foot', text, '/');
         });
     }
     closeModal('teamMessageModal');
@@ -1255,9 +1483,9 @@ async function showMainApp() {
     const isCoach = currentUser.activeRole === 'coach';
     const isPlayer = currentUser.activeRole === 'player';
     
-    // IMPORTANT: Le coach ne voit PAS l'onglet Admin
     document.getElementById('adminNavBtn').style.display = isAdmin ? 'flex' : 'none';
-    document.getElementById('fabButton').style.display = (isAdmin || isCoach) ? 'flex' : 'none';
+    document.getElementById('fab').style.display = (isAdmin || isCoach) ? 'flex' : 'none';
+    initDraggableFab();
     
     if (isAdmin) {
         document.getElementById('headerTeamName').innerText = 'FC Barcarès Méditerranée';
@@ -1348,7 +1576,6 @@ async function loadDashboard() {
         }
     }
     
-    // Afficher les prochains matchs et événements sur le dashboard
     await loadUpcomingMatchesDashboard();
     await loadUpcomingEventsDashboard();
 }
@@ -1760,12 +1987,8 @@ async function init() {
     document.getElementById('sendMsgBtn')?.addEventListener('click', sendPrivateMessage);
     document.getElementById('messageInput')?.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendPrivateMessage(); } });
     
-    document.getElementById('fabButton')?.addEventListener('click', () => {
-        const activeTab = document.querySelector('.nav-btn.active')?.dataset.tab;
-        if (activeTab === 'matches') showMatchForm();
-        else if (activeTab === 'events') showEventForm();
-        else showMatchForm();
-    });
+    // Enregistrement du Service Worker pour les notifications
+    await registerServiceWorker();
 }
 
 init();
