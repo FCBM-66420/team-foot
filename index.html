@@ -64,6 +64,7 @@
         .team-input { width: 100%; padding: 14px 16px; border: 1px solid #e5e7eb; border-radius: 14px; font-size: 16px; margin-bottom: 16px; }
         .btn-primary { background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); color: white; border: none; padding: 14px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; }
         .btn-secondary { background: #f3f4f6; color: #1f2937; border: none; padding: 14px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 12px; }
+        .btn-warning { background: #f59e0b; color: white; border: none; padding: 12px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 8px; }
         .form-hint { font-size: 12px; color: #9ca3af; text-align: center; margin-top: 16px; }
         .mode-toggle { display: flex; gap: 10px; margin-bottom: 20px; }
         .mode-btn { flex: 1; padding: 12px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; }
@@ -152,7 +153,12 @@
         .btn-remove { background: #ef4444; color: white; }
         .btn-edit { background: var(--club-yellow); color: var(--club-blue); margin-right: 8px; }
         
-        /* FAB flottant */
+        .status-badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .status-present { background: #d1fae5; color: #065f46; }
+        .status-absent { background: #fee2e2; color: #991b1b; }
+        .status-waiting { background: #fed7aa; color: #9a3412; }
+        .status-injured { background: #e0e7ff; color: #3730a3; }
+        
         .fab {
             position: fixed;
             bottom: 85px;
@@ -164,17 +170,18 @@
             border-radius: 50%;
             font-size: 28px;
             color: white;
-            cursor: grab;
+            cursor: pointer;
             box-shadow: 0 4px 12px rgba(0,85,164,0.4);
             z-index: 90;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: box-shadow 0.2s;
-            touch-action: none;
+            transition: transform 0.2s;
         }
-        .fab:active { cursor: grabbing; }
-        .fab.dragging { opacity: 0.8; cursor: grabbing; }
+        .fab:active { transform: scale(0.95); }
+        
+        .player-select-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #e5e7eb; gap: 12px; }
+        .player-select-item input { width: 22px; height: 22px; accent-color: var(--club-blue); }
         
         footer { text-align: center; padding: 12px; font-size: 10px; color: #9ca3af; background: white; margin-top: 20px; border-radius: 16px; }
         .loading-spinner { display: flex; justify-content: center; padding: 40px; }
@@ -182,17 +189,13 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         
         .team-selector { background: white; border-radius: 20px; padding: 16px; margin-bottom: 16px; }
-        .team-checkbox-item { margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
         
-        /* Messages chat */
         .messages-layout { display: flex; flex-direction: column; height: calc(100vh - 250px); background: white; border-radius: 20px; overflow: hidden; }
         .conversations-list { border-bottom: 1px solid #e5e7eb; max-height: 200px; overflow-y: auto; }
         .conversation-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #f3f4f6; }
-        .conversation-item.active { background: #f3f4f6; }
         .conversation-avatar { width: 44px; height: 44px; background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
         .conversation-info { flex: 1; }
         .conversation-name { font-weight: 600; font-size: 14px; }
-        .conversation-last { font-size: 11px; color: #9ca3af; margin-top: 2px; }
         .chat-area { flex: 1; display: flex; flex-direction: column; }
         .chat-header { padding: 12px 16px; border-bottom: 1px solid #e5e7eb; font-weight: 600; background: #f9fafb; }
         .chat-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
@@ -200,18 +203,15 @@
         .chat-message.sent { align-self: flex-end; background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); color: white; border-bottom-right-radius: 4px; }
         .chat-message.received { align-self: flex-start; background: #f3f4f6; color: #1f2937; border-bottom-left-radius: 4px; }
         .message-author-name { font-size: 10px; font-weight: 600; margin-bottom: 4px; display: block; }
-        .chat-message.sent .message-author-name { text-align: right; color: rgba(255,255,255,0.8); }
-        .chat-message.received .message-author-name { color: var(--club-blue); }
         .message-meta { display: flex; gap: 8px; align-items: center; margin-top: 4px; font-size: 9px; opacity: 0.7; }
         .chat-input-area { display: flex; gap: 10px; padding: 12px; border-top: 1px solid #e5e7eb; background: white; }
-        .chat-input-area.hidden { display: none; }
         .chat-input-area textarea { flex: 1; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 24px; resize: none; font-size: 14px; font-family: inherit; }
         .send-msg-btn { background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 18px; color: white; }
-        .unread-badge { position: absolute; top: -5px; right: 5px; background: #ef4444; color: white; font-size: 10px; padding: 2px 6px; border-radius: 20px; }
         
-        .role-switch { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+        .unread-badge { position: absolute; top: -5px; right: 5px; background: #ef4444; color: white; font-size: 10px; padding: 2px 6px; border-radius: 20px; }
         .role-switch-btn { background: rgba(255,255,255,0.2); border: none; padding: 6px 12px; border-radius: 20px; color: white; font-size: 12px; cursor: pointer; }
-        .role-switch-btn.active { background: var(--club-yellow); color: var(--club-blue); }
+        
+        .selected-count { background: var(--club-yellow); color: var(--club-blue); padding: 8px 12px; border-radius: 20px; font-size: 13px; margin-top: 12px; text-align: center; }
     </style>
 </head>
 <body>
@@ -390,7 +390,7 @@
             </div>
         </div>
         
-        <div id="fab" class="fab" style="display:none">+</div>
+        <button id="fabButton" class="fab" style="display:none">+</button>
     </div>
 </div>
 
@@ -450,6 +450,19 @@
         <div class="modal-footer">
             <button onclick="closeModal('matchModal')" class="btn-secondary">Annuler</button>
             <button id="matchSubmitBtn" onclick="createOrUpdateMatch()" class="btn-primary">Créer</button>
+        </div>
+    </div>
+</div>
+
+<div id="playerSelectionModal" class="modal hidden">
+    <div class="modal-container">
+        <div class="modal-header"><h3>👥 Sélection des joueurs</h3><button class="modal-close" onclick="closeModal('playerSelectionModal')">✕</button></div>
+        <div class="modal-body">
+            <p id="selectionEventTitle" style="margin-bottom:16px; font-weight:600"></p>
+            <p style="margin-bottom:8px; font-size:13px; color:#6b7280">✅ Sélectionnez les joueurs disponibles (seuls les joueurs non absents/non blessés peuvent être convoqués)</p>
+            <div id="playersSelectionList"></div>
+            <div class="selected-count" id="selectedCount">0 joueur(s) sélectionné(s)</div>
+            <button class="btn-primary" onclick="confirmPlayerSelection()" style="margin-top:16px">Confirmer la convocation</button>
         </div>
     </div>
 </div>
@@ -540,6 +553,17 @@
     </div>
 </div>
 
+<div id="notifyNonRespondersModal" class="modal hidden">
+    <div class="modal-container">
+        <div class="modal-header"><h3>📢 Relancer les non-répondants</h3><button class="modal-close" onclick="closeModal('notifyNonRespondersModal')">✕</button></div>
+        <div class="modal-body">
+            <p style="margin-bottom:16px">Les joueurs suivants n'ont pas encore répondu :</p>
+            <div id="nonRespondersList"></div>
+            <button class="btn-warning" onclick="sendReminderToNonResponders()" style="margin-top:16px">📢 Envoyer un rappel à tous</button>
+        </div>
+    </div>
+</div>
+
 <div id="toast" class="toast hidden"></div>
 
 <!-- Firebase SDK -->
@@ -566,6 +590,8 @@ const auth = firebase.auth();
 let currentUser = null;
 let currentConversation = null;
 let editingMatchId = null;
+let currentSelectionEvent = null;
+let reminderInterval = null;
 
 // ============ FONCTIONS UTILITAIRES ==========
 function showToast(msg) {
@@ -598,58 +624,176 @@ function formatDate(dateStr) {
     return new Date(dateStr).toLocaleString('fr-FR');
 }
 
-// ============ FAB FLOTTANT DÉPLAÇABLE ==========
-function initDraggableFab() {
-    const fab = document.getElementById('fab');
-    if (!fab) return;
+function getStatusLabel(status) {
+    const labels = { 'present': '✅ Présent', 'absent': '❌ Absent', 'waiting': '⏳ En attente', 'injured': '🩺 Infirmerie' };
+    return labels[status] || '⏳ En attente';
+}
+
+function getStatusClass(status) {
+    const classes = { 'present': 'status-present', 'absent': 'status-absent', 'waiting': 'status-waiting', 'injured': 'status-injured' };
+    return classes[status] || 'status-waiting';
+}
+
+// ============ RAPPELS AUTOMATIQUES ==========
+function startReminderChecker() {
+    if (reminderInterval) clearInterval(reminderInterval);
+    reminderInterval = setInterval(checkAndSendReminders, 12 * 60 * 60 * 1000); // Toutes les 12h
+    checkAndSendReminders(); // Vérifier immédiatement
+}
+
+async function checkAndSendReminders() {
+    const now = new Date();
+    const teams = await db.collection('teams').get();
     
-    let isDragging = false;
-    let startX, startY, initialLeft, initialBottom;
-    
-    const onTouchStart = (e) => {
-        e.preventDefault();
-        isDragging = true;
-        const touch = e.touches[0];
-        startX = touch.clientX;
-        startY = touch.clientY;
-        const rect = fab.getBoundingClientRect();
-        initialLeft = rect.left;
-        initialBottom = window.innerHeight - rect.bottom;
-        fab.classList.add('dragging');
-    };
-    
-    const onTouchMove = (e) => {
-        if (!isDragging) return;
-        e.preventDefault();
-        const touch = e.touches[0];
-        const deltaX = touch.clientX - startX;
-        const deltaY = touch.clientY - startY;
-        let newLeft = initialLeft + deltaX;
-        let newBottom = initialBottom - deltaY;
-        newLeft = Math.max(10, Math.min(window.innerWidth - 66, newLeft));
-        newBottom = Math.max(10, Math.min(window.innerHeight - 100, newBottom));
-        fab.style.left = newLeft + 'px';
-        fab.style.bottom = newBottom + 'px';
-        fab.style.right = 'auto';
-    };
-    
-    const onTouchEnd = (e) => {
-        isDragging = false;
-        fab.classList.remove('dragging');
-    };
-    
-    fab.addEventListener('touchstart', onTouchStart, { passive: false });
-    fab.addEventListener('touchmove', onTouchMove, { passive: false });
-    fab.addEventListener('touchend', onTouchEnd);
-    
-    fab.addEventListener('click', (e) => {
-        if (!isDragging) {
-            const activeTab = document.querySelector('.nav-btn.active')?.dataset.tab;
-            if (activeTab === 'matches') showMatchForm();
-            else if (activeTab === 'events') showEventForm();
-            else showMatchForm();
+    for (const teamDoc of teams.docs) {
+        const team = teamDoc.data();
+        const matches = team.matches || [];
+        const events = team.otherEvents || [];
+        const allEvents = [...matches, ...events];
+        
+        for (const event of allEvents) {
+            const eventDate = new Date(event.matchDateTime || event.dateTime);
+            const daysDiff = Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24));
+            
+            // Envoyer des rappels tous les 12h à partir de 5 jours avant
+            if (daysDiff <= 5 && daysDiff > 0 && event.convokedPlayers) {
+                for (const playerId of event.convokedPlayers) {
+                    const playerStatus = event.attendances?.[playerId];
+                    // Ne pas relancer ceux qui ont répondu présent, absent ou blessé
+                    if (!playerStatus || playerStatus === 'waiting') {
+                        const lastReminder = event.lastReminder?.[playerId];
+                        const hoursSinceLastReminder = lastReminder ? (now - new Date(lastReminder)) / (1000 * 60 * 60) : 12;
+                        
+                        if (!lastReminder || hoursSinceLastReminder >= 12) {
+                            await sendNotification(playerId, `🔔 Rappel: ${event.title} dans ${daysDiff} jours (${formatDate(eventDate)}). Merci de confirmer votre présence.`);
+                            if (!event.lastReminder) event.lastReminder = {};
+                            event.lastReminder[playerId] = now.toISOString();
+                            await updateEventReminders(teamDoc.id, event.id, event.lastReminder);
+                        }
+                    }
+                }
+            }
         }
+    }
+}
+
+async function updateEventReminders(teamId, eventId, lastReminder) {
+    const teamDoc = await db.collection('teams').doc(teamId).get();
+    const team = teamDoc.data();
+    let matches = team.matches || [];
+    let events = team.otherEvents || [];
+    
+    let updated = false;
+    matches = matches.map(m => { if (m.id === eventId) { m.lastReminder = lastReminder; updated = true; } return m; });
+    if (!updated) {
+        events = events.map(e => { if (e.id === eventId) { e.lastReminder = lastReminder; updated = true; } return e; });
+    }
+    
+    await db.collection('teams').doc(teamId).update({ matches: matches, otherEvents: events });
+}
+
+async function sendNotification(userId, message) {
+    await db.collection('messages').add({
+        id: Date.now().toString() + userId,
+        from: 'system',
+        to: userId,
+        text: `🔔 ${message}`,
+        timestamp: new Date().toISOString(),
+        seen: false,
+        teamCode: 'system'
     });
+}
+
+// ============ SÉLECTION DES JOUEURS PAR LE COACH ==========
+async function openPlayerSelection(eventId, eventTitle, eventType) {
+    currentSelectionEvent = { id: eventId, title: eventTitle, type: eventType };
+    
+    const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+    if (team.empty) return;
+    const teamData = team.docs[0].data();
+    const event = [...(teamData.matches || []), ...(teamData.otherEvents || [])].find(e => e.id === eventId);
+    const alreadyConvoked = event?.convokedPlayers || [];
+    
+    const players = [];
+    for (const pid of (teamData.players || [])) {
+        const p = await db.collection('users').doc(pid).get();
+        if (p.exists && !p.data().pendingApproval) {
+            const playerStatus = event?.attendances?.[pid];
+            // Un joueur absent ou blessé ne peut pas être convoqué
+            const canBeConvoked = playerStatus !== 'absent' && playerStatus !== 'injured';
+            players.push({ id: pid, name: p.data().name, status: playerStatus || 'waiting', canBeConvoked });
+        }
+    }
+    
+    document.getElementById('selectionEventTitle').innerText = eventTitle;
+    const container = document.getElementById('playersSelectionList');
+    container.innerHTML = players.map(p => `
+        <div class="player-select-item">
+            <input type="checkbox" id="player_${p.id}" ${alreadyConvoked.includes(p.id) && p.canBeConvoked ? 'checked' : ''} ${!p.canBeConvoked ? 'disabled' : ''}>
+            <label for="player_${p.id}" class="player-name">${escapeHtml(p.name)}</label>
+            <span class="status-badge ${getStatusClass(p.status)}">${getStatusLabel(p.status)}</span>
+            ${!p.canBeConvoked ? '<span style="font-size:11px; color:#ef4444;">(non disponible)</span>' : ''}
+        </div>
+    `).join('');
+    
+    document.getElementById('playerSelectionModal').classList.remove('hidden');
+    updateSelectedCount();
+    
+    document.querySelectorAll('#playersSelectionList input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', () => updateSelectedCount());
+    });
+}
+
+function updateSelectedCount() {
+    const count = document.querySelectorAll('#playersSelectionList input[type="checkbox"]:checked:not([disabled])').length;
+    document.getElementById('selectedCount').innerText = `${count} joueur(s) sélectionné(s)`;
+}
+
+async function confirmPlayerSelection() {
+    const selectedPlayers = [];
+    document.querySelectorAll('#playersSelectionList input[type="checkbox"]:checked').forEach(cb => {
+        selectedPlayers.push(cb.id.replace('player_', ''));
+    });
+    
+    const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+    if (team.empty) return;
+    const teamId = team.docs[0].id;
+    const teamData = team.docs[0].data();
+    
+    let matches = teamData.matches || [];
+    let events = teamData.otherEvents || [];
+    let updated = false;
+    
+    matches = matches.map(m => {
+        if (m.id === currentSelectionEvent.id) {
+            m.convokedPlayers = selectedPlayers;
+            updated = true;
+        }
+        return m;
+    });
+    
+    if (!updated) {
+        events = events.map(e => {
+            if (e.id === currentSelectionEvent.id) {
+                e.convokedPlayers = selectedPlayers;
+                updated = true;
+            }
+            return e;
+        });
+    }
+    
+    await db.collection('teams').doc(teamId).update({ matches: matches, otherEvents: events });
+    
+    // Envoyer des notifications aux joueurs convoqués
+    for (const playerId of selectedPlayers) {
+        await sendNotification(playerId, `📢 Vous êtes convoqué(e) pour ${currentSelectionEvent.title} le ${formatDate(currentSelectionEvent.date)}`);
+    }
+    
+    closeModal('playerSelectionModal');
+    showToast(`${selectedPlayers.length} joueur(s) convoqué(s) et notifié(s)`);
+    
+    if (currentSelectionEvent.type === 'match') await loadMatchesCoach();
+    else await loadOtherEventsCoach();
 }
 
 // ============ AFFICHAGE FORMULAIRES ==========
@@ -670,9 +814,55 @@ function showSettingsModal() {
     document.getElementById('editEmailInput').value = currentUser?.email || '';
     document.getElementById('settingsModal').classList.remove('hidden'); 
 }
-function showRoleSwitchModal() { 
-    loadAvailableRoles();
-    document.getElementById('roleSwitchModal').classList.remove('hidden'); 
+function showRoleSwitchModal() { loadAvailableRoles(); document.getElementById('roleSwitchModal').classList.remove('hidden'); }
+
+async function showNonRespondersModal(eventId, eventTitle) {
+    const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+    if (team.empty) return;
+    const event = [...(team.docs[0].data().matches || []), ...(team.docs[0].data().otherEvents || [])].find(e => e.id === eventId);
+    if (!event) return;
+    
+    const convokedPlayers = event.convokedPlayers || [];
+    const nonResponders = [];
+    for (const pid of convokedPlayers) {
+        const status = event.attendances?.[pid];
+        if (!status || status === 'waiting') {
+            const p = await db.collection('users').doc(pid).get();
+            if (p.exists) nonResponders.push({ id: pid, name: p.data().name });
+        }
+    }
+    
+    const container = document.getElementById('nonRespondersList');
+    if (nonResponders.length === 0) {
+        container.innerHTML = '<div class="empty-state">Tout le monde a répondu !</div>';
+    } else {
+        container.innerHTML = nonResponders.map(p => `<div class="player-select-item"><span>${escapeHtml(p.name)}</span></div>`).join('');
+    }
+    
+    window.currentReminderEvent = { id: eventId, title: eventTitle };
+    document.getElementById('notifyNonRespondersModal').classList.remove('hidden');
+}
+
+async function sendReminderToNonResponders() {
+    if (!window.currentReminderEvent) return;
+    
+    const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+    if (team.empty) return;
+    const event = [...(team.docs[0].data().matches || []), ...(team.docs[0].data().otherEvents || [])].find(e => e.id === window.currentReminderEvent.id);
+    if (!event) return;
+    
+    const convokedPlayers = event.convokedPlayers || [];
+    let sentCount = 0;
+    for (const pid of convokedPlayers) {
+        const status = event.attendances?.[pid];
+        if (!status || status === 'waiting') {
+            await sendNotification(pid, `⏰ RAPPEL: Veuillez répondre pour ${event.title} (${formatDate(event.matchDateTime || event.dateTime)})`);
+            sentCount++;
+        }
+    }
+    
+    closeModal('notifyNonRespondersModal');
+    showToast(`Rappel envoyé à ${sentCount} joueur(s)`);
 }
 
 // ============ GESTION DES COMPTES MULTIPLES ==========
@@ -877,6 +1067,27 @@ function editMatch(matchId, title, type, matchDateTime, callTime, location, note
     document.getElementById('matchModal').classList.remove('hidden');
 }
 
+async function cancelMatch(matchId) {
+    const reason = prompt('Motivation de l\'annulation (quelques mots) :');
+    if (!reason) return;
+    
+    let teamId;
+    if (currentUser.activeRole === 'admin') teamId = document.getElementById('matchTeamSelect')?.value;
+    else {
+        const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+        if (team.empty) return;
+        teamId = team.docs[0].id;
+    }
+    
+    const teamDoc = await db.collection('teams').doc(teamId).get();
+    const matches = teamDoc.data().matches || [];
+    const updatedMatches = matches.map(m => m.id === matchId ? { ...m, cancelReason: reason } : m);
+    await db.collection('teams').doc(teamId).update({ matches: updatedMatches });
+    showToast('Match annulé');
+    if (currentUser.activeRole === 'admin') await loadAllMatchesAdmin();
+    else await loadMatchesCoach();
+}
+
 async function createOrUpdateMatch() {
     const match = {
         id: editingMatchId || Date.now().toString(),
@@ -886,7 +1097,9 @@ async function createOrUpdateMatch() {
         callTime: document.getElementById('matchCallTime').value,
         location: document.getElementById('matchLocation').value,
         notes: document.getElementById('matchNotes').value,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        convokedPlayers: [],
+        attendances: {}
     };
     if (!match.title || !match.matchDateTime || !match.location) { showToast('Remplissez tous les champs'); return; }
     
@@ -910,27 +1123,6 @@ async function createOrUpdateMatch() {
     else await loadMatchesCoach();
 }
 
-async function cancelMatch(matchId) {
-    const reason = prompt('Motivation de l\'annulation (quelques mots) :');
-    if (!reason) return;
-    
-    let teamId;
-    if (currentUser.activeRole === 'admin') teamId = document.getElementById('matchTeamSelect')?.value;
-    else {
-        const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
-        if (team.empty) return;
-        teamId = team.docs[0].id;
-    }
-    
-    const teamDoc = await db.collection('teams').doc(teamId).get();
-    const matches = teamDoc.data().matches || [];
-    const updatedMatches = matches.map(m => m.id === matchId ? { ...m, cancelReason: reason } : m);
-    await db.collection('teams').doc(teamId).update({ matches: updatedMatches });
-    showToast('Match annulé');
-    if (currentUser.activeRole === 'admin') await loadAllMatchesAdmin();
-    else await loadMatchesCoach();
-}
-
 async function createOtherEvent() {
     const teamId = document.getElementById('eventTeamSelect').value;
     const event = {
@@ -940,7 +1132,9 @@ async function createOtherEvent() {
         dateTime: document.getElementById('otherEventDate').value,
         location: document.getElementById('otherEventLocation').value,
         notes: document.getElementById('otherEventNotes').value,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        convokedPlayers: [],
+        attendances: {}
     };
     if (!event.title || !event.dateTime || !event.location) { showToast('Remplissez tous les champs'); return; }
     const teamDoc = await db.collection('teams').doc(teamId).get();
@@ -1035,8 +1229,7 @@ async function showMainApp() {
     const isPlayer = currentUser.activeRole === 'player';
     
     document.getElementById('adminNavBtn').style.display = isAdmin ? 'flex' : 'none';
-    document.getElementById('fab').style.display = (isAdmin || isCoach) ? 'flex' : 'none';
-    initDraggableFab();
+    document.getElementById('fabButton').style.display = (isAdmin || isCoach) ? 'flex' : 'none';
     
     if (isAdmin) {
         document.getElementById('headerTeamName').innerText = 'FC Barcarès Méditerranée';
@@ -1064,6 +1257,8 @@ async function showMainApp() {
         await loadMatchesPlayer();
         await loadOtherEventsPlayer();
     }
+    
+    startReminderChecker();
     
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.onclick = async () => {
@@ -1141,7 +1336,10 @@ async function loadAllMatchesAdmin() {
             <div style="margin-top:8px; font-size:13px">📅 ${formatDate(m.matchDateTime)}<br>📍 ${escapeHtml(m.location)}<br>⏰ Convocation: ${formatDate(m.callTime)}</div>
             ${m.cancelReason ? `<div class="cancel-reason">⚠️ Annulé: ${escapeHtml(m.cancelReason)}</div>` : ''}
             ${m.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${escapeHtml(m.notes)}</div>` : ''}
-            <div style="margin-top:12px"><button onclick="editMatch('${m.id}', '${escapeHtml(m.title)}', '${m.type}', '${m.matchDateTime}', '${m.callTime}', '${escapeHtml(m.location)}', '${escapeHtml(m.notes)}')" class="btn-small btn-edit">✏️ Modifier</button><button onclick="cancelMatch('${m.id}')" class="btn-small btn-remove">❌ Annuler</button></div>
+            <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
+                <button onclick="editMatch('${m.id}', '${escapeHtml(m.title)}', '${m.type}', '${m.matchDateTime}', '${m.callTime}', '${escapeHtml(m.location)}', '${escapeHtml(m.notes)}')" class="btn-small btn-edit">✏️ Modifier</button>
+                <button onclick="cancelMatch('${m.id}')" class="btn-small btn-remove">❌ Annuler</button>
+            </div>
         </div>
     `).join('');
 }
@@ -1177,7 +1375,15 @@ async function loadMatchesCoach() {
             <div style="margin-top:8px; font-size:13px">📅 ${formatDate(m.matchDateTime)}<br>📍 ${escapeHtml(m.location)}<br>⏰ Convocation: ${formatDate(m.callTime)}</div>
             ${m.cancelReason ? `<div class="cancel-reason">⚠️ Annulé: ${escapeHtml(m.cancelReason)}</div>` : ''}
             ${m.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${escapeHtml(m.notes)}</div>` : ''}
-            <div style="margin-top:12px"><button onclick="editMatch('${m.id}', '${escapeHtml(m.title)}', '${m.type}', '${m.matchDateTime}', '${m.callTime}', '${escapeHtml(m.location)}', '${escapeHtml(m.notes)}')" class="btn-small btn-edit">✏️ Modifier</button><button onclick="cancelMatch('${m.id}')" class="btn-small btn-remove">❌ Annuler</button></div>
+            <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
+                <button onclick="editMatch('${m.id}', '${escapeHtml(m.title)}', '${m.type}', '${m.matchDateTime}', '${m.callTime}', '${escapeHtml(m.location)}', '${escapeHtml(m.notes)}')" class="btn-small btn-edit">✏️ Modifier</button>
+                <button onclick="cancelMatch('${m.id}')" class="btn-small btn-remove">❌ Annuler</button>
+                <button onclick="openPlayerSelection('${m.id}', '${escapeHtml(m.title)}', 'match')" class="btn-small btn-approve">👥 Convoquer</button>
+                <button onclick="showNonRespondersModal('${m.id}', '${escapeHtml(m.title)}')" class="btn-small btn-warning">📢 Relancer</button>
+            </div>
+            <div style="margin-top:12px; font-size:12px; background:#f8fafc; padding:8px; border-radius:12px">
+                <strong>✅ Joueurs convoqués:</strong> ${(m.convokedPlayers || []).length} joueur(s)
+            </div>
         </div>
     `).join('');
 }
@@ -1194,6 +1400,13 @@ async function loadOtherEventsCoach() {
             <div class="event-header"><strong>${escapeHtml(e.title)}</strong><span class="event-badge">${e.type === 'entrainement' ? '🏋️ Entraînement' : e.type === 'soiree' ? '🎉 Soirée' : '📋 Réunion'}</span></div>
             <div style="margin-top:8px; font-size:13px">📅 ${formatDate(e.dateTime)}<br>📍 ${escapeHtml(e.location)}</div>
             ${e.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${escapeHtml(e.notes)}</div>` : ''}
+            <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
+                <button onclick="openPlayerSelection('${e.id}', '${escapeHtml(e.title)}', 'event')" class="btn-small btn-approve">👥 Convoquer</button>
+                <button onclick="showNonRespondersModal('${e.id}', '${escapeHtml(e.title)}')" class="btn-small btn-warning">📢 Relancer</button>
+            </div>
+            <div style="margin-top:12px; font-size:12px; background:#f8fafc; padding:8px; border-radius:12px">
+                <strong>✅ Joueurs convoqués:</strong> ${(e.convokedPlayers || []).length} joueur(s)
+            </div>
         </div>
     `).join('');
 }
@@ -1214,7 +1427,7 @@ async function loadTeamMembersCoach() {
                 <div class="member-detail">📞 ${p.phone || '-'} | ✉️ ${p.email || '-'}</div>
                 ${p.isMinor && p.parents ? `<div class="member-detail">👨‍👩‍👧 Parents: ${p.parents.map(pr => pr.name).join(' & ')}</div>` : ''}
             </div>
-            <button class="btn-small btn-remove" onclick="removePlayer('${p.uid}')">❌</button>
+            <div><button class="btn-small btn-remove" onclick="removePlayer('${p.uid}')">❌ Retirer</button></div>
         </div>
     `).join('');
     
@@ -1238,19 +1451,26 @@ async function loadMatchesPlayer() {
     let matches = team.docs[0].data().matches || [];
     matches.sort((a,b) => new Date(a.matchDateTime) - new Date(b.matchDateTime));
     if (matches.length === 0) { container.innerHTML = '<div class="empty-state">Aucun match programmé</div>'; return; }
-    container.innerHTML = matches.map(m => `
-        <div class="event-card">
-            <div class="event-header"><strong>${escapeHtml(m.title)}</strong><span class="event-badge">${m.type === 'match_amical' ? 'Amical' : m.type === 'coupe' ? 'Coupe' : 'Championnat'}</span></div>
-            <div style="margin-top:8px; font-size:13px">📅 ${formatDate(m.matchDateTime)}<br>📍 ${escapeHtml(m.location)}<br>⏰ Convocation: ${formatDate(m.callTime)}</div>
-            ${m.cancelReason ? `<div class="cancel-reason">⚠️ Annulé: ${escapeHtml(m.cancelReason)}</div>` : ''}
-            ${m.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${escapeHtml(m.notes)}</div>` : ''}
-            <div class="status-buttons" style="display:flex; gap:10px; margin-top:12px">
-                <button onclick="setAttendance('${m.id}', 'present')" class="btn-small" style="background:#10b981; color:white">✅ Présent</button>
-                <button onclick="setAttendance('${m.id}', 'absent')" class="btn-small" style="background:#ef4444; color:white">❌ Absent</button>
-                <button onclick="setAttendance('${m.id}', 'waiting')" class="btn-small" style="background:#f59e0b; color:white">⏳ En attente</button>
+    container.innerHTML = matches.map(m => {
+        const isConvoked = (m.convokedPlayers || []).includes(currentUser.uid);
+        const currentStatus = m.attendances?.[currentUser.uid] || 'waiting';
+        return `
+            <div class="event-card">
+                <div class="event-header"><strong>${escapeHtml(m.title)}</strong><span class="event-badge">${m.type === 'match_amical' ? 'Amical' : m.type === 'coupe' ? 'Coupe' : 'Championnat'}</span></div>
+                <div style="margin-top:8px; font-size:13px">📅 ${formatDate(m.matchDateTime)}<br>📍 ${escapeHtml(m.location)}<br>⏰ Convocation: ${formatDate(m.callTime)}</div>
+                ${m.cancelReason ? `<div class="cancel-reason">⚠️ Annulé: ${escapeHtml(m.cancelReason)}</div>` : ''}
+                ${m.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${escapeHtml(m.notes)}</div>` : ''}
+                ${isConvoked ? `
+                    <div class="status-buttons" style="display:flex; gap:10px; margin-top:12px">
+                        <button onclick="setAttendance('${m.id}', 'present')" class="btn-small ${currentStatus === 'present' ? 'btn-approve' : ''}" style="background:${currentStatus === 'present' ? '#10b981' : '#f3f4f6'}; color:${currentStatus === 'present' ? 'white' : '#1f2937'}">✅ Présent</button>
+                        <button onclick="setAttendance('${m.id}', 'absent')" class="btn-small ${currentStatus === 'absent' ? 'btn-remove' : ''}" style="background:${currentStatus === 'absent' ? '#ef4444' : '#f3f4f6'}; color:${currentStatus === 'absent' ? 'white' : '#1f2937'}">❌ Absent</button>
+                        <button onclick="setAttendance('${m.id}', 'waiting')" class="btn-small ${currentStatus === 'waiting' ? 'btn-warning' : ''}" style="background:${currentStatus === 'waiting' ? '#f59e0b' : '#f3f4f6'}; color:${currentStatus === 'waiting' ? 'white' : '#1f2937'}">⏳ En attente</button>
+                        <button onclick="setAttendance('${m.id}', 'injured')" class="btn-small ${currentStatus === 'injured' ? '' : ''}" style="background:${currentStatus === 'injured' ? '#6366f1' : '#f3f4f6'}; color:${currentStatus === 'injured' ? 'white' : '#1f2937'}">🩺 Infirmerie</button>
+                    </div>
+                ` : '<div style="margin-top:12px; padding:8px; background:#fef3c7; border-radius:12px; font-size:12px">⏳ En attente de convocation</div>'}
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 async function loadOtherEventsPlayer() {
@@ -1260,18 +1480,25 @@ async function loadOtherEventsPlayer() {
     let events = team.docs[0].data().otherEvents || [];
     events.sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime));
     if (events.length === 0) { container.innerHTML = '<div class="empty-state">Aucun événement</div>'; return; }
-    container.innerHTML = events.map(e => `
-        <div class="event-card">
-            <div class="event-header"><strong>${escapeHtml(e.title)}</strong><span class="event-badge">${e.type === 'entrainement' ? '🏋️ Entraînement' : e.type === 'soiree' ? '🎉 Soirée' : '📋 Réunion'}</span></div>
-            <div style="margin-top:8px; font-size:13px">📅 ${formatDate(e.dateTime)}<br>📍 ${escapeHtml(e.location)}</div>
-            ${e.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${escapeHtml(e.notes)}</div>` : ''}
-            <div class="status-buttons" style="display:flex; gap:10px; margin-top:12px">
-                <button onclick="setEventAttendance('${e.id}', 'present')" class="btn-small" style="background:#10b981; color:white">✅ Présent</button>
-                <button onclick="setEventAttendance('${e.id}', 'absent')" class="btn-small" style="background:#ef4444; color:white">❌ Absent</button>
-                <button onclick="setEventAttendance('${e.id}', 'waiting')" class="btn-small" style="background:#f59e0b; color:white">⏳ En attente</button>
+    container.innerHTML = events.map(e => {
+        const isConvoked = (e.convokedPlayers || []).includes(currentUser.uid);
+        const currentStatus = e.attendances?.[currentUser.uid] || 'waiting';
+        return `
+            <div class="event-card">
+                <div class="event-header"><strong>${escapeHtml(e.title)}</strong><span class="event-badge">${e.type === 'entrainement' ? '🏋️ Entraînement' : e.type === 'soiree' ? '🎉 Soirée' : '📋 Réunion'}</span></div>
+                <div style="margin-top:8px; font-size:13px">📅 ${formatDate(e.dateTime)}<br>📍 ${escapeHtml(e.location)}</div>
+                ${e.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${escapeHtml(e.notes)}</div>` : ''}
+                ${isConvoked ? `
+                    <div class="status-buttons" style="display:flex; gap:10px; margin-top:12px">
+                        <button onclick="setEventAttendance('${e.id}', 'present')" class="btn-small">✅ Présent</button>
+                        <button onclick="setEventAttendance('${e.id}', 'absent')" class="btn-small">❌ Absent</button>
+                        <button onclick="setEventAttendance('${e.id}', 'waiting')" class="btn-small">⏳ En attente</button>
+                        <button onclick="setEventAttendance('${e.id}', 'injured')" class="btn-small">🩺 Infirmerie</button>
+                    </div>
+                ` : '<div style="margin-top:12px; padding:8px; background:#fef3c7; border-radius:12px; font-size:12px">⏳ En attente de convocation</div>'}
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join();
 }
 
 async function setAttendance(matchId, status) {
@@ -1280,8 +1507,9 @@ async function setAttendance(matchId, status) {
     const matches = team.docs[0].data().matches || [];
     const updatedMatches = matches.map(m => { if (m.id === matchId) { if (!m.attendances) m.attendances = {}; m.attendances[currentUser.uid] = status; } return m; });
     await team.docs[0].ref.update({ matches: updatedMatches });
-    showToast(`Réponse enregistrée: ${status === 'present' ? 'Présent' : status === 'absent' ? 'Absent' : 'En attente'}`);
+    showToast(`Statut mis à jour: ${status === 'present' ? 'Présent' : status === 'absent' ? 'Absent' : status === 'injured' ? 'Infirmerie' : 'En attente'}`);
     await loadMatchesPlayer();
+    await sendNotification(currentUser.uid, `Votre réponse pour le match a été mise à jour: ${getStatusLabel(status)}`);
 }
 
 async function setEventAttendance(eventId, status) {
@@ -1290,7 +1518,7 @@ async function setEventAttendance(eventId, status) {
     const events = team.docs[0].data().otherEvents || [];
     const updatedEvents = events.map(e => { if (e.id === eventId) { if (!e.attendances) e.attendances = {}; e.attendances[currentUser.uid] = status; } return e; });
     await team.docs[0].ref.update({ otherEvents: updatedEvents });
-    showToast(`Réponse enregistrée`);
+    showToast(`Statut mis à jour`);
     await loadOtherEventsPlayer();
 }
 
@@ -1345,7 +1573,8 @@ async function openConversation(otherId, otherName) {
         if (isSent) authorName = 'Moi';
         else if (m.from === 'admin') authorName = 'Administrateur';
         else if (m.from === 'coach') authorName = 'Coach';
-        else authorName = m.from === otherId ? otherName : 'Joueur';
+        else if (m.from === 'system') authorName = 'Système';
+        else authorName = otherName;
         return `<div class="chat-message ${isSent ? 'sent' : 'received'}"><span class="message-author-name">${escapeHtml(authorName)}</span><div>${escapeHtml(m.text)}</div><div class="message-meta">${new Date(m.timestamp).toLocaleTimeString()}</div></div>`;
     }).join('');
     container.scrollTop = container.scrollHeight;
@@ -1369,8 +1598,17 @@ async function init() {
         else if (user.uid) { const doc = await db.collection('users').doc(user.uid).get(); if (doc.exists) { currentUser = { uid: user.uid, ...doc.data(), activeRole: user.activeRole || doc.data().role, activeRoleUid: user.uid }; showMainApp(); } else document.getElementById('loginScreen').classList.remove('hidden'); }
         else document.getElementById('loginScreen').classList.remove('hidden');
     } else document.getElementById('loginScreen').classList.remove('hidden');
+    
     document.getElementById('sendMsgBtn')?.addEventListener('click', sendPrivateMessage);
     document.getElementById('messageInput')?.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendPrivateMessage(); } });
+    
+    // Bouton + fonctionnel
+    document.getElementById('fabButton')?.addEventListener('click', () => {
+        const activeTab = document.querySelector('.nav-btn.active')?.dataset.tab;
+        if (activeTab === 'matches') showMatchForm();
+        else if (activeTab === 'events') showEventForm();
+        else showMatchForm();
+    });
 }
 
 init();
