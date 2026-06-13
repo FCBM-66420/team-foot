@@ -65,6 +65,7 @@
         .btn-primary { background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); color: white; border: none; padding: 14px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; }
         .btn-secondary { background: #f3f4f6; color: #1f2937; border: none; padding: 14px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 12px; }
         .btn-warning { background: #f59e0b; color: white; border: none; padding: 12px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 8px; }
+        .btn-outline { background: transparent; border: 1px solid var(--club-blue); color: var(--club-blue); padding: 10px; border-radius: 40px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 8px; }
         .form-hint { font-size: 12px; color: #9ca3af; text-align: center; margin-top: 16px; }
         .mode-toggle { display: flex; gap: 10px; margin-bottom: 20px; }
         .mode-btn { flex: 1; padding: 12px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; }
@@ -121,7 +122,8 @@
         .stat-value { font-size: 28px; font-weight: 700; color: var(--club-blue); }
         .stat-label { font-size: 11px; color: #6b7280; margin-top: 4px; }
         .dashboard-card { background: white; border-radius: 20px; padding: 16px; margin-bottom: 16px; }
-        .dashboard-card h3 { font-size: 16px; margin-bottom: 12px; color: var(--club-blue); border-left: 4px solid var(--club-yellow); padding-left: 10px; }
+        .dashboard-card h3 { font-size: 16px; margin-bottom: 12px; color: var(--club-blue); border-left: 4px solid var(--club-yellow); padding-left: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .show-history-btn { background: none; border: none; color: var(--club-blue); font-size: 12px; cursor: pointer; }
         
         .empty-state { text-align: center; padding: 40px; color: #9ca3af; }
         .toast { position: fixed; bottom: 80px; left: 20px; right: 20px; background: var(--club-blue); color: white; padding: 12px; border-radius: 60px; text-align: center; z-index: 400; }
@@ -132,6 +134,7 @@
         .event-title { font-weight: 700; color: var(--club-blue); }
         .event-badge { font-size: 11px; padding: 4px 8px; background: var(--bg-light); border-radius: 20px; }
         .cancel-reason { background: #fee2e2; color: #dc2626; padding: 8px 12px; border-radius: 12px; font-size: 12px; margin-top: 8px; }
+        .event-past { opacity: 0.7; background: #f3f4f6; }
         
         .member-card { background: white; border-radius: 16px; padding: 12px; margin-bottom: 8px; border-left: 3px solid var(--club-yellow); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .member-info { flex: 1; }
@@ -159,6 +162,14 @@
         .status-waiting { background: #fed7aa; color: #9a3412; }
         .status-injured { background: #e0e7ff; color: #3730a3; }
         
+        .status-buttons { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+        .status-btn { flex: 1; padding: 8px; border: none; border-radius: 40px; font-weight: 600; font-size: 12px; cursor: pointer; background: #f3f4f6; color: #1f2937; transition: 0.1s; }
+        .status-btn.active { color: white; }
+        .status-btn.present.active { background: #10b981; }
+        .status-btn.absent.active { background: #ef4444; }
+        .status-btn.waiting.active { background: #f59e0b; }
+        .status-btn.injured.active { background: #6366f1; }
+        
         .fab {
             position: fixed;
             bottom: 85px;
@@ -176,9 +187,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.2s;
         }
-        .fab:active { transform: scale(0.95); }
         
         .player-select-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #e5e7eb; gap: 12px; }
         .player-select-item input { width: 22px; height: 22px; accent-color: var(--club-blue); }
@@ -209,9 +218,10 @@
         .send-msg-btn { background: linear-gradient(135deg, var(--club-blue), var(--club-blue-clair)); border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 18px; color: white; }
         
         .unread-badge { position: absolute; top: -5px; right: 5px; background: #ef4444; color: white; font-size: 10px; padding: 2px 6px; border-radius: 20px; }
-        .role-switch-btn { background: rgba(255,255,255,0.2); border: none; padding: 6px 12px; border-radius: 20px; color: white; font-size: 12px; cursor: pointer; }
-        
         .selected-count { background: var(--club-yellow); color: var(--club-blue); padding: 8px 12px; border-radius: 20px; font-size: 13px; margin-top: 12px; text-align: center; }
+        
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .toggle-history-btn { background: var(--club-yellow); border: none; padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--club-blue); }
     </style>
 </head>
 <body>
@@ -330,21 +340,33 @@
             <div id="dashboardTab" class="tab-pane active">
                 <div class="stats-grid">
                     <div class="stat-card"><div class="stat-value" id="statPlayers">0</div><div class="stat-label">Joueurs</div></div>
-                    <div class="stat-card"><div class="stat-value" id="statMatches">0</div><div class="stat-label">Matchs</div></div>
-                    <div class="stat-card"><div class="stat-value" id="statEvents">0</div><div class="stat-label">Événements</div></div>
+                    <div class="stat-card"><div class="stat-value" id="statMatchesRemaining">0</div><div class="stat-label">Matchs restants</div></div>
+                    <div class="stat-card"><div class="stat-value" id="statEventsRemaining">0</div><div class="stat-label">Événements restants</div></div>
                 </div>
-                <div class="dashboard-card"><h3>📅 Prochains matchs</h3><div id="upcomingMatches"></div></div>
-                <div class="dashboard-card"><h3>🎉 Prochains événements</h3><div id="upcomingEvents"></div></div>
+                <div class="dashboard-card">
+                    <h3>📅 Prochains matchs <button class="show-history-btn" onclick="toggleHistoryMatches()" id="toggleMatchesHistoryBtn">📜 Voir historique</button></h3>
+                    <div id="upcomingMatches"></div>
+                </div>
+                <div class="dashboard-card">
+                    <h3>🎉 Prochains événements <button class="show-history-btn" onclick="toggleHistoryEvents()" id="toggleEventsHistoryBtn">📜 Voir historique</button></h3>
+                    <div id="upcomingEvents"></div>
+                </div>
                 <footer>FC Barcarès Méditerranée ⚽</footer>
             </div>
 
             <div id="matchesTab" class="tab-pane hidden">
-                <h3 style="color:var(--club-blue); margin-bottom:16px">🏆 Matchs</h3>
+                <div class="history-header">
+                    <h3 style="color:var(--club-blue)">🏆 Matchs</h3>
+                    <button id="toggleMatchesPastBtn" class="toggle-history-btn" onclick="toggleMatchesPast()">📜 Afficher passés</button>
+                </div>
                 <div id="matchesList"><div class="loading-spinner"><div class="spinner"></div></div></div>
             </div>
 
             <div id="eventsTab" class="tab-pane hidden">
-                <h3 style="color:var(--club-blue); margin-bottom:16px">📅 Événements</h3>
+                <div class="history-header">
+                    <h3 style="color:var(--club-blue)">📅 Événements</h3>
+                    <button id="toggleEventsPastBtn" class="toggle-history-btn" onclick="toggleEventsPast()">📜 Afficher passés</button>
+                </div>
                 <div id="otherEventsList"><div class="loading-spinner"><div class="spinner"></div></div></div>
             </div>
 
@@ -459,7 +481,7 @@
         <div class="modal-header"><h3>👥 Sélection des joueurs</h3><button class="modal-close" onclick="closeModal('playerSelectionModal')">✕</button></div>
         <div class="modal-body">
             <p id="selectionEventTitle" style="margin-bottom:16px; font-weight:600"></p>
-            <p style="margin-bottom:8px; font-size:13px; color:#6b7280">✅ Sélectionnez les joueurs disponibles (seuls les joueurs non absents/non blessés peuvent être convoqués)</p>
+            <p style="margin-bottom:8px; font-size:13px; color:#6b7280">✅ Sélectionnez les joueurs à convoquer</p>
             <div id="playersSelectionList"></div>
             <div class="selected-count" id="selectedCount">0 joueur(s) sélectionné(s)</div>
             <button class="btn-primary" onclick="confirmPlayerSelection()" style="margin-top:16px">Confirmer la convocation</button>
@@ -591,6 +613,8 @@ let currentUser = null;
 let currentConversation = null;
 let editingMatchId = null;
 let currentSelectionEvent = null;
+let showMatchesPast = false;
+let showEventsPast = false;
 let reminderInterval = null;
 
 // ============ FONCTIONS UTILITAIRES ==========
@@ -634,11 +658,45 @@ function getStatusClass(status) {
     return classes[status] || 'status-waiting';
 }
 
+function isPastEvent(dateStr) {
+    return new Date(dateStr) < new Date();
+}
+
+function toggleMatchesPast() {
+    showMatchesPast = !showMatchesPast;
+    const btn = document.getElementById('toggleMatchesPastBtn');
+    btn.innerText = showMatchesPast ? '📅 Masquer passés' : '📜 Afficher passés';
+    if (currentUser.activeRole === 'coach') loadMatchesCoach();
+    else loadAllMatchesAdmin();
+}
+
+function toggleEventsPast() {
+    showEventsPast = !showEventsPast;
+    const btn = document.getElementById('toggleEventsPastBtn');
+    btn.innerText = showEventsPast ? '📅 Masquer passés' : '📜 Afficher passés';
+    if (currentUser.activeRole === 'coach') loadOtherEventsCoach();
+    else loadAllEventsAdmin();
+}
+
+function toggleHistoryMatches() {
+    showMatchesPast = !showMatchesPast;
+    const btn = document.getElementById('toggleMatchesHistoryBtn');
+    btn.innerText = showMatchesPast ? '📅 Masquer historique' : '📜 Voir historique';
+    loadDashboard();
+}
+
+function toggleHistoryEvents() {
+    showEventsPast = !showEventsPast;
+    const btn = document.getElementById('toggleEventsHistoryBtn');
+    btn.innerText = showEventsPast ? '📅 Masquer historique' : '📜 Voir historique';
+    loadDashboard();
+}
+
 // ============ RAPPELS AUTOMATIQUES ==========
 function startReminderChecker() {
     if (reminderInterval) clearInterval(reminderInterval);
-    reminderInterval = setInterval(checkAndSendReminders, 12 * 60 * 60 * 1000); // Toutes les 12h
-    checkAndSendReminders(); // Vérifier immédiatement
+    reminderInterval = setInterval(checkAndSendReminders, 12 * 60 * 60 * 1000);
+    checkAndSendReminders();
 }
 
 async function checkAndSendReminders() {
@@ -655,41 +713,16 @@ async function checkAndSendReminders() {
             const eventDate = new Date(event.matchDateTime || event.dateTime);
             const daysDiff = Math.ceil((eventDate - now) / (1000 * 60 * 60 * 24));
             
-            // Envoyer des rappels tous les 12h à partir de 5 jours avant
             if (daysDiff <= 5 && daysDiff > 0 && event.convokedPlayers) {
                 for (const playerId of event.convokedPlayers) {
                     const playerStatus = event.attendances?.[playerId];
-                    // Ne pas relancer ceux qui ont répondu présent, absent ou blessé
                     if (!playerStatus || playerStatus === 'waiting') {
-                        const lastReminder = event.lastReminder?.[playerId];
-                        const hoursSinceLastReminder = lastReminder ? (now - new Date(lastReminder)) / (1000 * 60 * 60) : 12;
-                        
-                        if (!lastReminder || hoursSinceLastReminder >= 12) {
-                            await sendNotification(playerId, `🔔 Rappel: ${event.title} dans ${daysDiff} jours (${formatDate(eventDate)}). Merci de confirmer votre présence.`);
-                            if (!event.lastReminder) event.lastReminder = {};
-                            event.lastReminder[playerId] = now.toISOString();
-                            await updateEventReminders(teamDoc.id, event.id, event.lastReminder);
-                        }
+                        await sendNotification(playerId, `🔔 Rappel: ${event.title} dans ${daysDiff} jours (${formatDate(eventDate)}). Merci de confirmer votre présence.`);
                     }
                 }
             }
         }
     }
-}
-
-async function updateEventReminders(teamId, eventId, lastReminder) {
-    const teamDoc = await db.collection('teams').doc(teamId).get();
-    const team = teamDoc.data();
-    let matches = team.matches || [];
-    let events = team.otherEvents || [];
-    
-    let updated = false;
-    matches = matches.map(m => { if (m.id === eventId) { m.lastReminder = lastReminder; updated = true; } return m; });
-    if (!updated) {
-        events = events.map(e => { if (e.id === eventId) { e.lastReminder = lastReminder; updated = true; } return e; });
-    }
-    
-    await db.collection('teams').doc(teamId).update({ matches: matches, otherEvents: events });
 }
 
 async function sendNotification(userId, message) {
@@ -718,10 +751,7 @@ async function openPlayerSelection(eventId, eventTitle, eventType) {
     for (const pid of (teamData.players || [])) {
         const p = await db.collection('users').doc(pid).get();
         if (p.exists && !p.data().pendingApproval) {
-            const playerStatus = event?.attendances?.[pid];
-            // Un joueur absent ou blessé ne peut pas être convoqué
-            const canBeConvoked = playerStatus !== 'absent' && playerStatus !== 'injured';
-            players.push({ id: pid, name: p.data().name, status: playerStatus || 'waiting', canBeConvoked });
+            players.push({ id: pid, name: p.data().name });
         }
     }
     
@@ -729,10 +759,8 @@ async function openPlayerSelection(eventId, eventTitle, eventType) {
     const container = document.getElementById('playersSelectionList');
     container.innerHTML = players.map(p => `
         <div class="player-select-item">
-            <input type="checkbox" id="player_${p.id}" ${alreadyConvoked.includes(p.id) && p.canBeConvoked ? 'checked' : ''} ${!p.canBeConvoked ? 'disabled' : ''}>
+            <input type="checkbox" id="player_${p.id}" ${alreadyConvoked.includes(p.id) ? 'checked' : ''}>
             <label for="player_${p.id}" class="player-name">${escapeHtml(p.name)}</label>
-            <span class="status-badge ${getStatusClass(p.status)}">${getStatusLabel(p.status)}</span>
-            ${!p.canBeConvoked ? '<span style="font-size:11px; color:#ef4444;">(non disponible)</span>' : ''}
         </div>
     `).join('');
     
@@ -745,7 +773,7 @@ async function openPlayerSelection(eventId, eventTitle, eventType) {
 }
 
 function updateSelectedCount() {
-    const count = document.querySelectorAll('#playersSelectionList input[type="checkbox"]:checked:not([disabled])').length;
+    const count = document.querySelectorAll('#playersSelectionList input[type="checkbox"]:checked').length;
     document.getElementById('selectedCount').innerText = `${count} joueur(s) sélectionné(s)`;
 }
 
@@ -784,9 +812,8 @@ async function confirmPlayerSelection() {
     
     await db.collection('teams').doc(teamId).update({ matches: matches, otherEvents: events });
     
-    // Envoyer des notifications aux joueurs convoqués
     for (const playerId of selectedPlayers) {
-        await sendNotification(playerId, `📢 Vous êtes convoqué(e) pour ${currentSelectionEvent.title} le ${formatDate(currentSelectionEvent.date)}`);
+        await sendNotification(playerId, `📢 Vous êtes convoqué(e) pour ${currentSelectionEvent.title}`);
     }
     
     closeModal('playerSelectionModal');
@@ -795,26 +822,6 @@ async function confirmPlayerSelection() {
     if (currentSelectionEvent.type === 'match') await loadMatchesCoach();
     else await loadOtherEventsCoach();
 }
-
-// ============ AFFICHAGE FORMULAIRES ==========
-function showCreateTeamForm() { document.getElementById('createTeamModal').classList.remove('hidden'); }
-function showCreateCoachForm() { document.getElementById('createCoachModal').classList.remove('hidden'); loadTeamSelectors(); }
-function showMatchForm() { 
-    editingMatchId = null;
-    document.getElementById('matchModalTitle').innerText = '⚽ Nouveau match';
-    document.getElementById('matchSubmitBtn').innerText = 'Créer';
-    document.getElementById('cancelReasonDiv').style.display = 'none';
-    document.getElementById('matchModal').classList.remove('hidden'); 
-    loadTeamSelectors(); 
-}
-function showEventForm() { document.getElementById('eventModal').classList.remove('hidden'); loadTeamSelectors(); }
-function showTeamMessageForm() { loadTeamCheckboxes(); document.getElementById('teamMessageModal').classList.remove('hidden'); }
-function showSettingsModal() { 
-    document.getElementById('editPhoneInput').value = currentUser?.phone || '';
-    document.getElementById('editEmailInput').value = currentUser?.email || '';
-    document.getElementById('settingsModal').classList.remove('hidden'); 
-}
-function showRoleSwitchModal() { loadAvailableRoles(); document.getElementById('roleSwitchModal').classList.remove('hidden'); }
 
 async function showNonRespondersModal(eventId, eventTitle) {
     const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
@@ -856,7 +863,7 @@ async function sendReminderToNonResponders() {
     for (const pid of convokedPlayers) {
         const status = event.attendances?.[pid];
         if (!status || status === 'waiting') {
-            await sendNotification(pid, `⏰ RAPPEL: Veuillez répondre pour ${event.title} (${formatDate(event.matchDateTime || event.dateTime)})`);
+            await sendNotification(pid, `⏰ RAPPEL: Veuillez répondre pour ${event.title}`);
             sentCount++;
         }
     }
@@ -864,6 +871,26 @@ async function sendReminderToNonResponders() {
     closeModal('notifyNonRespondersModal');
     showToast(`Rappel envoyé à ${sentCount} joueur(s)`);
 }
+
+// ============ AFFICHAGE FORMULAIRES ==========
+function showCreateTeamForm() { document.getElementById('createTeamModal').classList.remove('hidden'); }
+function showCreateCoachForm() { document.getElementById('createCoachModal').classList.remove('hidden'); loadTeamSelectors(); }
+function showMatchForm() { 
+    editingMatchId = null;
+    document.getElementById('matchModalTitle').innerText = '⚽ Nouveau match';
+    document.getElementById('matchSubmitBtn').innerText = 'Créer';
+    document.getElementById('cancelReasonDiv').style.display = 'none';
+    document.getElementById('matchModal').classList.remove('hidden'); 
+    loadTeamSelectors(); 
+}
+function showEventForm() { document.getElementById('eventModal').classList.remove('hidden'); loadTeamSelectors(); }
+function showTeamMessageForm() { loadTeamCheckboxes(); document.getElementById('teamMessageModal').classList.remove('hidden'); }
+function showSettingsModal() { 
+    document.getElementById('editPhoneInput').value = currentUser?.phone || '';
+    document.getElementById('editEmailInput').value = currentUser?.email || '';
+    document.getElementById('settingsModal').classList.remove('hidden'); 
+}
+function showRoleSwitchModal() { loadAvailableRoles(); document.getElementById('roleSwitchModal').classList.remove('hidden'); }
 
 // ============ GESTION DES COMPTES MULTIPLES ==========
 async function loadAvailableRoles() {
@@ -1119,8 +1146,8 @@ async function createOrUpdateMatch() {
     closeModal('matchModal');
     editingMatchId = null;
     showToast(editingMatchId ? 'Match modifié !' : 'Match créé !');
-    if (currentUser.activeRole === 'admin') await loadAllMatchesAdmin();
-    else await loadMatchesCoach();
+    if (currentUser.activeRole === 'admin') { await loadAllMatchesAdmin(); await loadDashboard(); }
+    else { await loadMatchesCoach(); await loadDashboard(); }
 }
 
 async function createOtherEvent() {
@@ -1143,8 +1170,8 @@ async function createOtherEvent() {
     await db.collection('teams').doc(teamId).update({ otherEvents: events });
     closeModal('eventModal');
     showToast('Événement créé');
-    if (currentUser.activeRole === 'admin') await loadAllEventsAdmin();
-    else await loadOtherEventsCoach();
+    if (currentUser.activeRole === 'admin') { await loadAllEventsAdmin(); await loadDashboard(); }
+    else { await loadOtherEventsCoach(); await loadDashboard(); }
 }
 
 async function loadTeamSelectors() {
@@ -1228,6 +1255,7 @@ async function showMainApp() {
     const isCoach = currentUser.activeRole === 'coach';
     const isPlayer = currentUser.activeRole === 'player';
     
+    // IMPORTANT: Le coach ne voit PAS l'onglet Admin
     document.getElementById('adminNavBtn').style.display = isAdmin ? 'flex' : 'none';
     document.getElementById('fabButton').style.display = (isAdmin || isCoach) ? 'flex' : 'none';
     
@@ -1258,6 +1286,7 @@ async function showMainApp() {
         await loadOtherEventsPlayer();
     }
     
+    await loadDashboard();
     startReminderChecker();
     
     document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -1278,6 +1307,114 @@ async function showMainApp() {
             if (tab === 'admin' && isAdmin) { await loadAllTeams(); await loadCoachesList(); await loadAdminPlayersList(); }
         };
     });
+}
+
+async function loadDashboard() {
+    const isAdmin = currentUser.activeRole === 'admin';
+    const isCoach = currentUser.activeRole === 'coach';
+    
+    if (isAdmin) {
+        const teams = await db.collection('teams').get();
+        let totalPlayers = 0, totalMatchesRemaining = 0, totalEventsRemaining = 0;
+        teams.forEach(team => {
+            totalPlayers += (team.data().players || []).length;
+            const matches = team.data().matches || [];
+            const events = team.data().otherEvents || [];
+            totalMatchesRemaining += matches.filter(m => !isPastEvent(m.matchDateTime)).length;
+            totalEventsRemaining += events.filter(e => !isPastEvent(e.dateTime)).length;
+        });
+        document.getElementById('statPlayers').innerText = totalPlayers;
+        document.getElementById('statMatchesRemaining').innerText = totalMatchesRemaining;
+        document.getElementById('statEventsRemaining').innerText = totalEventsRemaining;
+    } else if (isCoach) {
+        const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+        if (!team.empty) {
+            const teamData = team.docs[0].data();
+            const players = teamData.players || [];
+            const matches = teamData.matches || [];
+            const events = teamData.otherEvents || [];
+            document.getElementById('statPlayers').innerText = players.length;
+            document.getElementById('statMatchesRemaining').innerText = matches.filter(m => !isPastEvent(m.matchDateTime)).length;
+            document.getElementById('statEventsRemaining').innerText = events.filter(e => !isPastEvent(e.dateTime)).length;
+        }
+    } else {
+        const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+        if (!team.empty) {
+            const teamData = team.docs[0].data();
+            const matches = teamData.matches || [];
+            const events = teamData.otherEvents || [];
+            document.getElementById('statMatchesRemaining').innerText = matches.filter(m => !isPastEvent(m.matchDateTime)).length;
+            document.getElementById('statEventsRemaining').innerText = events.filter(e => !isPastEvent(e.dateTime)).length;
+        }
+    }
+    
+    // Afficher les prochains matchs et événements sur le dashboard
+    await loadUpcomingMatchesDashboard();
+    await loadUpcomingEventsDashboard();
+}
+
+async function loadUpcomingMatchesDashboard() {
+    const container = document.getElementById('upcomingMatches');
+    const isAdmin = currentUser.activeRole === 'admin';
+    let matches = [];
+    
+    if (isAdmin) {
+        const teams = await db.collection('teams').get();
+        teams.forEach(team => {
+            matches.push(...(team.data().matches || []).map(m => ({ ...m, teamName: team.data().name })));
+        });
+    } else {
+        const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+        if (!team.empty) matches = team.docs[0].data().matches || [];
+    }
+    
+    const upcoming = matches.filter(m => !isPastEvent(m.matchDateTime))
+        .sort((a,b) => new Date(a.matchDateTime) - new Date(b.matchDateTime))
+        .slice(0, 5);
+    
+    if (upcoming.length === 0) {
+        container.innerHTML = '<div class="empty-state">Aucun match à venir</div>';
+        return;
+    }
+    
+    container.innerHTML = upcoming.map(m => `
+        <div style="padding:8px 0; border-bottom:1px solid #f3f4f6">
+            <strong>${escapeHtml(m.title)}</strong>
+            <div style="font-size:12px; color:#6b7280">📅 ${new Date(m.matchDateTime).toLocaleDateString()}</div>
+        </div>
+    `).join('');
+}
+
+async function loadUpcomingEventsDashboard() {
+    const container = document.getElementById('upcomingEvents');
+    const isAdmin = currentUser.activeRole === 'admin';
+    let events = [];
+    
+    if (isAdmin) {
+        const teams = await db.collection('teams').get();
+        teams.forEach(team => {
+            events.push(...(team.data().otherEvents || []).map(e => ({ ...e, teamName: team.data().name })));
+        });
+    } else {
+        const team = await db.collection('teams').where('code', '==', currentUser.teamCode).get();
+        if (!team.empty) events = team.docs[0].data().otherEvents || [];
+    }
+    
+    const upcoming = events.filter(e => !isPastEvent(e.dateTime))
+        .sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime))
+        .slice(0, 5);
+    
+    if (upcoming.length === 0) {
+        container.innerHTML = '<div class="empty-state">Aucun événement à venir</div>';
+        return;
+    }
+    
+    container.innerHTML = upcoming.map(e => `
+        <div style="padding:8px 0; border-bottom:1px solid #f3f4f6">
+            <strong>${escapeHtml(e.title)}</strong>
+            <div style="font-size:12px; color:#6b7280">📅 ${new Date(e.dateTime).toLocaleDateString()}</div>
+        </div>
+    `).join('');
 }
 
 // ============ ADMIN - AFFICHAGE ==========
@@ -1328,18 +1465,23 @@ async function loadAllMatchesAdmin() {
     let allMatches = [];
     teams.forEach(team => { allMatches.push(...(team.data().matches || []).map(m => ({ ...m, teamName: team.data().name, teamCode: team.data().code }))); });
     allMatches.sort((a,b) => new Date(a.matchDateTime) - new Date(b.matchDateTime));
-    if (allMatches.length === 0) { container.innerHTML = '<div class="empty-state">Aucun match</div>'; return; }
-    container.innerHTML = allMatches.map(m => `
-        <div class="event-card">
+    
+    let filtered = showMatchesPast ? allMatches : allMatches.filter(m => !isPastEvent(m.matchDateTime));
+    
+    if (filtered.length === 0) { container.innerHTML = '<div class="empty-state">Aucun match</div>'; return; }
+    container.innerHTML = filtered.map(m => `
+        <div class="event-card ${isPastEvent(m.matchDateTime) ? 'event-past' : ''}">
             <div class="event-header"><strong>${escapeHtml(m.title)}</strong><span class="event-badge">${m.type === 'match_amical' ? 'Amical' : m.type === 'coupe' ? 'Coupe' : 'Championnat'}</span></div>
             <div style="font-size:11px; color:#0055a4">🏷️ ${escapeHtml(m.teamName)}</div>
             <div style="margin-top:8px; font-size:13px">📅 ${formatDate(m.matchDateTime)}<br>📍 ${escapeHtml(m.location)}<br>⏰ Convocation: ${formatDate(m.callTime)}</div>
             ${m.cancelReason ? `<div class="cancel-reason">⚠️ Annulé: ${escapeHtml(m.cancelReason)}</div>` : ''}
             ${m.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${escapeHtml(m.notes)}</div>` : ''}
-            <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
-                <button onclick="editMatch('${m.id}', '${escapeHtml(m.title)}', '${m.type}', '${m.matchDateTime}', '${m.callTime}', '${escapeHtml(m.location)}', '${escapeHtml(m.notes)}')" class="btn-small btn-edit">✏️ Modifier</button>
-                <button onclick="cancelMatch('${m.id}')" class="btn-small btn-remove">❌ Annuler</button>
-            </div>
+            ${!isPastEvent(m.matchDateTime) ? `
+                <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
+                    <button onclick="editMatch('${m.id}', '${escapeHtml(m.title)}', '${m.type}', '${m.matchDateTime}', '${m.callTime}', '${escapeHtml(m.location)}', '${escapeHtml(m.notes)}')" class="btn-small btn-edit">✏️ Modifier</button>
+                    <button onclick="cancelMatch('${m.id}')" class="btn-small btn-remove">❌ Annuler</button>
+                </div>
+            ` : ''}
         </div>
     `).join('');
 }
@@ -1350,9 +1492,12 @@ async function loadAllEventsAdmin() {
     let allEvents = [];
     teams.forEach(team => { allEvents.push(...(team.data().otherEvents || []).map(e => ({ ...e, teamName: team.data().name }))); });
     allEvents.sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime));
-    if (allEvents.length === 0) { container.innerHTML = '<div class="empty-state">Aucun événement</div>'; return; }
-    container.innerHTML = allEvents.map(e => `
-        <div class="event-card">
+    
+    let filtered = showEventsPast ? allEvents : allEvents.filter(e => !isPastEvent(e.dateTime));
+    
+    if (filtered.length === 0) { container.innerHTML = '<div class="empty-state">Aucun événement</div>'; return; }
+    container.innerHTML = filtered.map(e => `
+        <div class="event-card ${isPastEvent(e.dateTime) ? 'event-past' : ''}">
             <div class="event-header"><strong>${escapeHtml(e.title)}</strong><span class="event-badge">${e.type === 'entrainement' ? '🏋️ Entraînement' : e.type === 'soiree' ? '🎉 Soirée' : '📋 Réunion'}</span></div>
             <div style="font-size:11px; color:#0055a4">🏷️ ${escapeHtml(e.teamName)}</div>
             <div style="margin-top:8px; font-size:13px">📅 ${formatDate(e.dateTime)}<br>📍 ${escapeHtml(e.location)}</div>
@@ -1368,22 +1513,27 @@ async function loadMatchesCoach() {
     if (team.empty) return;
     let matches = team.docs[0].data().matches || [];
     matches.sort((a,b) => new Date(a.matchDateTime) - new Date(b.matchDateTime));
-    if (matches.length === 0) { container.innerHTML = '<div class="empty-state">Aucun match programmé</div>'; return; }
-    container.innerHTML = matches.map(m => `
-        <div class="event-card">
+    
+    let filtered = showMatchesPast ? matches : matches.filter(m => !isPastEvent(m.matchDateTime));
+    
+    if (filtered.length === 0) { container.innerHTML = '<div class="empty-state">Aucun match programmé</div>'; return; }
+    container.innerHTML = filtered.map(m => `
+        <div class="event-card ${isPastEvent(m.matchDateTime) ? 'event-past' : ''}">
             <div class="event-header"><strong>${escapeHtml(m.title)}</strong><span class="event-badge">${m.type === 'match_amical' ? 'Amical' : m.type === 'coupe' ? 'Coupe' : 'Championnat'}</span></div>
             <div style="margin-top:8px; font-size:13px">📅 ${formatDate(m.matchDateTime)}<br>📍 ${escapeHtml(m.location)}<br>⏰ Convocation: ${formatDate(m.callTime)}</div>
             ${m.cancelReason ? `<div class="cancel-reason">⚠️ Annulé: ${escapeHtml(m.cancelReason)}</div>` : ''}
             ${m.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${escapeHtml(m.notes)}</div>` : ''}
-            <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
-                <button onclick="editMatch('${m.id}', '${escapeHtml(m.title)}', '${m.type}', '${m.matchDateTime}', '${m.callTime}', '${escapeHtml(m.location)}', '${escapeHtml(m.notes)}')" class="btn-small btn-edit">✏️ Modifier</button>
-                <button onclick="cancelMatch('${m.id}')" class="btn-small btn-remove">❌ Annuler</button>
-                <button onclick="openPlayerSelection('${m.id}', '${escapeHtml(m.title)}', 'match')" class="btn-small btn-approve">👥 Convoquer</button>
-                <button onclick="showNonRespondersModal('${m.id}', '${escapeHtml(m.title)}')" class="btn-small btn-warning">📢 Relancer</button>
-            </div>
-            <div style="margin-top:12px; font-size:12px; background:#f8fafc; padding:8px; border-radius:12px">
-                <strong>✅ Joueurs convoqués:</strong> ${(m.convokedPlayers || []).length} joueur(s)
-            </div>
+            ${!isPastEvent(m.matchDateTime) ? `
+                <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
+                    <button onclick="editMatch('${m.id}', '${escapeHtml(m.title)}', '${m.type}', '${m.matchDateTime}', '${m.callTime}', '${escapeHtml(m.location)}', '${escapeHtml(m.notes)}')" class="btn-small btn-edit">✏️ Modifier</button>
+                    <button onclick="cancelMatch('${m.id}')" class="btn-small btn-remove">❌ Annuler</button>
+                    <button onclick="openPlayerSelection('${m.id}', '${escapeHtml(m.title)}', 'match')" class="btn-small btn-approve">👥 Convoquer</button>
+                    <button onclick="showNonRespondersModal('${m.id}', '${escapeHtml(m.title)}')" class="btn-small btn-warning">📢 Relancer</button>
+                </div>
+                <div style="margin-top:12px; font-size:12px; background:#f8fafc; padding:8px; border-radius:12px">
+                    <strong>✅ Joueurs convoqués:</strong> ${(m.convokedPlayers || []).length} joueur(s)
+                </div>
+            ` : ''}
         </div>
     `).join('');
 }
@@ -1394,19 +1544,24 @@ async function loadOtherEventsCoach() {
     if (team.empty) return;
     let events = team.docs[0].data().otherEvents || [];
     events.sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime));
-    if (events.length === 0) { container.innerHTML = '<div class="empty-state">Aucun événement</div>'; return; }
-    container.innerHTML = events.map(e => `
-        <div class="event-card">
+    
+    let filtered = showEventsPast ? events : events.filter(e => !isPastEvent(e.dateTime));
+    
+    if (filtered.length === 0) { container.innerHTML = '<div class="empty-state">Aucun événement</div>'; return; }
+    container.innerHTML = filtered.map(e => `
+        <div class="event-card ${isPastEvent(e.dateTime) ? 'event-past' : ''}">
             <div class="event-header"><strong>${escapeHtml(e.title)}</strong><span class="event-badge">${e.type === 'entrainement' ? '🏋️ Entraînement' : e.type === 'soiree' ? '🎉 Soirée' : '📋 Réunion'}</span></div>
             <div style="margin-top:8px; font-size:13px">📅 ${formatDate(e.dateTime)}<br>📍 ${escapeHtml(e.location)}</div>
             ${e.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${escapeHtml(e.notes)}</div>` : ''}
-            <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
-                <button onclick="openPlayerSelection('${e.id}', '${escapeHtml(e.title)}', 'event')" class="btn-small btn-approve">👥 Convoquer</button>
-                <button onclick="showNonRespondersModal('${e.id}', '${escapeHtml(e.title)}')" class="btn-small btn-warning">📢 Relancer</button>
-            </div>
-            <div style="margin-top:12px; font-size:12px; background:#f8fafc; padding:8px; border-radius:12px">
-                <strong>✅ Joueurs convoqués:</strong> ${(e.convokedPlayers || []).length} joueur(s)
-            </div>
+            ${!isPastEvent(e.dateTime) ? `
+                <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
+                    <button onclick="openPlayerSelection('${e.id}', '${escapeHtml(e.title)}', 'event')" class="btn-small btn-approve">👥 Convoquer</button>
+                    <button onclick="showNonRespondersModal('${e.id}', '${escapeHtml(e.title)}')" class="btn-small btn-warning">📢 Relancer</button>
+                </div>
+                <div style="margin-top:12px; font-size:12px; background:#f8fafc; padding:8px; border-radius:12px">
+                    <strong>✅ Joueurs convoqués:</strong> ${(e.convokedPlayers || []).length} joueur(s)
+                </div>
+            ` : ''}
         </div>
     `).join('');
 }
@@ -1450,24 +1605,26 @@ async function loadMatchesPlayer() {
     if (team.empty) return;
     let matches = team.docs[0].data().matches || [];
     matches.sort((a,b) => new Date(a.matchDateTime) - new Date(b.matchDateTime));
-    if (matches.length === 0) { container.innerHTML = '<div class="empty-state">Aucun match programmé</div>'; return; }
-    container.innerHTML = matches.map(m => {
-        const isConvoked = (m.convokedPlayers || []).includes(currentUser.uid);
+    
+    let filtered = showMatchesPast ? matches : matches.filter(m => !isPastEvent(m.matchDateTime));
+    
+    if (filtered.length === 0) { container.innerHTML = '<div class="empty-state">Aucun match programmé</div>'; return; }
+    container.innerHTML = filtered.map(m => {
         const currentStatus = m.attendances?.[currentUser.uid] || 'waiting';
         return `
-            <div class="event-card">
+            <div class="event-card ${isPastEvent(m.matchDateTime) ? 'event-past' : ''}">
                 <div class="event-header"><strong>${escapeHtml(m.title)}</strong><span class="event-badge">${m.type === 'match_amical' ? 'Amical' : m.type === 'coupe' ? 'Coupe' : 'Championnat'}</span></div>
                 <div style="margin-top:8px; font-size:13px">📅 ${formatDate(m.matchDateTime)}<br>📍 ${escapeHtml(m.location)}<br>⏰ Convocation: ${formatDate(m.callTime)}</div>
                 ${m.cancelReason ? `<div class="cancel-reason">⚠️ Annulé: ${escapeHtml(m.cancelReason)}</div>` : ''}
                 ${m.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${escapeHtml(m.notes)}</div>` : ''}
-                ${isConvoked ? `
-                    <div class="status-buttons" style="display:flex; gap:10px; margin-top:12px">
-                        <button onclick="setAttendance('${m.id}', 'present')" class="btn-small ${currentStatus === 'present' ? 'btn-approve' : ''}" style="background:${currentStatus === 'present' ? '#10b981' : '#f3f4f6'}; color:${currentStatus === 'present' ? 'white' : '#1f2937'}">✅ Présent</button>
-                        <button onclick="setAttendance('${m.id}', 'absent')" class="btn-small ${currentStatus === 'absent' ? 'btn-remove' : ''}" style="background:${currentStatus === 'absent' ? '#ef4444' : '#f3f4f6'}; color:${currentStatus === 'absent' ? 'white' : '#1f2937'}">❌ Absent</button>
-                        <button onclick="setAttendance('${m.id}', 'waiting')" class="btn-small ${currentStatus === 'waiting' ? 'btn-warning' : ''}" style="background:${currentStatus === 'waiting' ? '#f59e0b' : '#f3f4f6'}; color:${currentStatus === 'waiting' ? 'white' : '#1f2937'}">⏳ En attente</button>
-                        <button onclick="setAttendance('${m.id}', 'injured')" class="btn-small ${currentStatus === 'injured' ? '' : ''}" style="background:${currentStatus === 'injured' ? '#6366f1' : '#f3f4f6'}; color:${currentStatus === 'injured' ? 'white' : '#1f2937'}">🩺 Infirmerie</button>
+                ${!isPastEvent(m.matchDateTime) ? `
+                    <div class="status-buttons">
+                        <button onclick="setAttendance('${m.id}', 'present')" class="status-btn present ${currentStatus === 'present' ? 'active' : ''}">✅ Présent</button>
+                        <button onclick="setAttendance('${m.id}', 'absent')" class="status-btn absent ${currentStatus === 'absent' ? 'active' : ''}">❌ Absent</button>
+                        <button onclick="setAttendance('${m.id}', 'waiting')" class="status-btn waiting ${currentStatus === 'waiting' ? 'active' : ''}">⏳ En attente</button>
+                        <button onclick="setAttendance('${m.id}', 'injured')" class="status-btn injured ${currentStatus === 'injured' ? 'active' : ''}">🩺 Infirmerie</button>
                     </div>
-                ` : '<div style="margin-top:12px; padding:8px; background:#fef3c7; border-radius:12px; font-size:12px">⏳ En attente de convocation</div>'}
+                ` : ''}
             </div>
         `;
     }).join('');
@@ -1479,23 +1636,25 @@ async function loadOtherEventsPlayer() {
     if (team.empty) return;
     let events = team.docs[0].data().otherEvents || [];
     events.sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime));
-    if (events.length === 0) { container.innerHTML = '<div class="empty-state">Aucun événement</div>'; return; }
-    container.innerHTML = events.map(e => {
-        const isConvoked = (e.convokedPlayers || []).includes(currentUser.uid);
+    
+    let filtered = showEventsPast ? events : events.filter(e => !isPastEvent(e.dateTime));
+    
+    if (filtered.length === 0) { container.innerHTML = '<div class="empty-state">Aucun événement</div>'; return; }
+    container.innerHTML = filtered.map(e => {
         const currentStatus = e.attendances?.[currentUser.uid] || 'waiting';
         return `
-            <div class="event-card">
+            <div class="event-card ${isPastEvent(e.dateTime) ? 'event-past' : ''}">
                 <div class="event-header"><strong>${escapeHtml(e.title)}</strong><span class="event-badge">${e.type === 'entrainement' ? '🏋️ Entraînement' : e.type === 'soiree' ? '🎉 Soirée' : '📋 Réunion'}</span></div>
                 <div style="margin-top:8px; font-size:13px">📅 ${formatDate(e.dateTime)}<br>📍 ${escapeHtml(e.location)}</div>
                 ${e.notes ? `<div style="margin-top:8px; font-size:12px">📌 ${escapeHtml(e.notes)}</div>` : ''}
-                ${isConvoked ? `
-                    <div class="status-buttons" style="display:flex; gap:10px; margin-top:12px">
-                        <button onclick="setEventAttendance('${e.id}', 'present')" class="btn-small">✅ Présent</button>
-                        <button onclick="setEventAttendance('${e.id}', 'absent')" class="btn-small">❌ Absent</button>
-                        <button onclick="setEventAttendance('${e.id}', 'waiting')" class="btn-small">⏳ En attente</button>
-                        <button onclick="setEventAttendance('${e.id}', 'injured')" class="btn-small">🩺 Infirmerie</button>
+                ${!isPastEvent(e.dateTime) ? `
+                    <div class="status-buttons">
+                        <button onclick="setEventAttendance('${e.id}', 'present')" class="status-btn present ${currentStatus === 'present' ? 'active' : ''}">✅ Présent</button>
+                        <button onclick="setEventAttendance('${e.id}', 'absent')" class="status-btn absent ${currentStatus === 'absent' ? 'active' : ''}">❌ Absent</button>
+                        <button onclick="setEventAttendance('${e.id}', 'waiting')" class="status-btn waiting ${currentStatus === 'waiting' ? 'active' : ''}">⏳ En attente</button>
+                        <button onclick="setEventAttendance('${e.id}', 'injured')" class="status-btn injured ${currentStatus === 'injured' ? 'active' : ''}">🩺 Infirmerie</button>
                     </div>
-                ` : '<div style="margin-top:12px; padding:8px; background:#fef3c7; border-radius:12px; font-size:12px">⏳ En attente de convocation</div>'}
+                ` : ''}
             </div>
         `;
     }).join();
@@ -1509,7 +1668,6 @@ async function setAttendance(matchId, status) {
     await team.docs[0].ref.update({ matches: updatedMatches });
     showToast(`Statut mis à jour: ${status === 'present' ? 'Présent' : status === 'absent' ? 'Absent' : status === 'injured' ? 'Infirmerie' : 'En attente'}`);
     await loadMatchesPlayer();
-    await sendNotification(currentUser.uid, `Votre réponse pour le match a été mise à jour: ${getStatusLabel(status)}`);
 }
 
 async function setEventAttendance(eventId, status) {
@@ -1602,7 +1760,6 @@ async function init() {
     document.getElementById('sendMsgBtn')?.addEventListener('click', sendPrivateMessage);
     document.getElementById('messageInput')?.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendPrivateMessage(); } });
     
-    // Bouton + fonctionnel
     document.getElementById('fabButton')?.addEventListener('click', () => {
         const activeTab = document.querySelector('.nav-btn.active')?.dataset.tab;
         if (activeTab === 'matches') showMatchForm();
